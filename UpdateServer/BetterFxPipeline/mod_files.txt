@@ -1,0 +1,3 @@
+add BetterFxPipeline.dll
+add BetterFxPipeline.ini
+add mod.ini
