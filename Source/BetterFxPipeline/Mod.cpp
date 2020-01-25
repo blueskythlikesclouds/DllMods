@@ -189,16 +189,19 @@ HOOK(uint32_t, __fastcall, ExecuteAlternativeDepthOfField, 0x1228960, uint32_t T
     return result;
 }
 
-enum LambertMode: uint32_t
+enum LambertShadow: uint32_t
 {
     ENABLE = 0,
     FORCE_DISABLE = 1,
     FORCE_ENABLE = 2
 };
-LambertMode lambertModeObject;
-LambertMode lambertModeTerrain;
+LambertShadow lambertShadowObject;
+LambertShadow lambertShadowTerrain;
 
-double wan = 1.0f;
+float ambientShadowBiasObject = -1;
+float ambientShadowBiasTerrain = -1;
+
+double one = 1.0;
 
 uint32_t renderGameSceneMidAsmHookDisableLambertReturnAddress = 0x10C7E3A;
 uint32_t renderGameSceneMidAsmHookEnableLambertReturnAddress = 0x10C8049;
@@ -232,20 +235,29 @@ void __declspec(naked) renderGameSceneMidAsmHook()
         mov edx, 0x1A579A0
         movaps xmm0, [edx]
         movaps[esp + 0x20], xmm0
+        xorps xmm1, xmm1
         
         call renderGameSceneIsTerrain
         jz loadTerrainBias
+
+        movss xmm0, ambientShadowBiasObject
+        comiss xmm1, xmm0
+        jbe main
         
         mov edx, 0x1E5E32C // Ambient_Bias_Shadow_Object
         movss xmm0, [edx]
         jmp main
-        
+
     loadTerrainBias:
+        movss xmm0, ambientShadowBiasTerrain
+        comiss xmm1, xmm0
+        jbe main
+
         mov edx, 0x1E5E328 // Ambient_Shadow_Bias_Terrain
         movss xmm0, [edx]
-        
+
     main:
-        movsd xmm1, wan
+        movsd xmm1, one
         cvtps2pd xmm0, xmm0
         subsd xmm1, xmm0
         cvtpd2ps xmm0, xmm1
@@ -267,15 +279,15 @@ void __declspec(naked) renderGameSceneMidAsmHook()
         
     return:
         call renderGameSceneIsTerrain
-        jz moveLambertModeTerrain
+        jz moveLambertShadowTerrain
         
-        mov edx, lambertModeObject
-        jmp compareLambertMode
+        mov edx, lambertShadowObject
+        jmp compareLambertShadow
         
-    moveLambertModeTerrain:
-        mov edx, lambertModeTerrain
+    moveLambertShadowTerrain:
+        mov edx, lambertShadowTerrain
         
-    compareLambertMode:
+    compareLambertShadow:
         cmp edx, FORCE_DISABLE
         jz disableLambert
         
@@ -384,8 +396,8 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo * info)
         WRITE_JUMP(0x78A420, executeRenderJobsMidAsmHook);
     }
 
-    lambertModeObject = (LambertMode)reader.GetInteger("Shadows", "DirectionalShadowLambertObject", ENABLE);
-    lambertModeTerrain = (LambertMode)reader.GetInteger("Shadows", "DirectionalShadowLambertTerrain", ENABLE);
+    ambientShadowBiasObject = reader.GetFloat("Shadows", "AmbientShadowBiasObject", -1);
+    ambientShadowBiasTerrain = reader.GetFloat("Shadows", "AmbientShadowBiasTerrain", -1);
 
     if (reader.GetBoolean("Shadows", "ForceCastShadow", false))
     {
@@ -394,6 +406,9 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo * info)
     }
 
     forceDirectionalShadows = reader.GetBoolean("Shadows", "ForceDirectionalShadow", true);
+
+    lambertShadowObject = (LambertShadow)reader.GetInteger("Shadows", "LambertShadowObject", ENABLE);
+    lambertShadowTerrain = (LambertShadow)reader.GetInteger("Shadows", "LambertShadowTerrain", ENABLE);
 
     const bool enableScale = reader.GetBoolean("InternalResolution", "Scale", false);
     if (enableScale)
