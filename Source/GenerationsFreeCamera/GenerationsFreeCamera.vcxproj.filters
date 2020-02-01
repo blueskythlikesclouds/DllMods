@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Pch.cpp" />
+    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="InputState.cpp" />
+    <ClCompile Include="CriticalSection.cpp" />
+    <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="FreeCamera.cpp" />
+    <ClCompile Include="KeyBinding.cpp" />
+    <ClCompile Include="String.cpp" />
+    <ClCompile Include="UpdateDirector.cpp" />
+    <ClCompile Include="Configuration.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Pch.h" />
+    <ClInclude Include="InputState.h" />
+    <ClInclude Include="CriticalSection.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Math.h" />
+    <ClInclude Include="FreeCamera.h" />
+    <ClInclude Include="KeyBinding.h" />
+    <ClInclude Include="String.h" />
+    <ClInclude Include="UpdateDirector.h" />
+    <ClInclude Include="Configuration.h" />
+  </ItemGroup>
+</Project>
