@@ -2,8 +2,7 @@
 
 struct String
 {
-    char* value;
-    uint32_t length;
+    void* value;
 
     void clear();
 
