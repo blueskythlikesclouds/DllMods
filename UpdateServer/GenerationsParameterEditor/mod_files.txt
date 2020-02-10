@@ -1,0 +1,3 @@
+add GenerationsParameterEditor.dll
+add GenerationsParameterEditor.ini
+add mod.ini

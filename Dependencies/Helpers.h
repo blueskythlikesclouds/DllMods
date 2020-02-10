@@ -27,19 +27,19 @@ const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
     }
 
 #define VTABLE_HOOK(returnType, callingConvention, className, functionName, ...) \
-    typedef returnType callingConvention functionName(className* This, __VA_ARGS__); \
-    functionName* original##functionName; \
-    returnType callingConvention implOf##functionName(className* This, __VA_ARGS__)
+    typedef returnType callingConvention className##functionName(className* This, __VA_ARGS__); \
+    className##functionName* original##className##functionName; \
+    returnType callingConvention implOf##className##functionName(className* This, __VA_ARGS__)
 
-#define INSTALL_VTABLE_HOOK(object, functionName, functionIndex) \
+#define INSTALL_VTABLE_HOOK(className, object, functionName, functionIndex) \
     { \
         void** addr = &(*(void***)object)[functionIndex]; \
-        if (*addr != implOf##functionName) \
+        if (*addr != implOf##className##functionName) \
         { \
-            original##functionName = (functionName*)*addr; \
+            original##className##functionName = (className##functionName*)*addr; \
             DWORD oldProtect; \
             VirtualProtect(addr, sizeof(void*), PAGE_EXECUTE_READWRITE, &oldProtect); \
-            *addr = implOf##functionName; \
+            *addr = implOf##className##functionName; \
             VirtualProtect(addr, sizeof(void*), oldProtect, NULL); \
         } \
     }

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenerationsParameterEditor", "GenerationsParameterEditor.vcxproj", "{B1C25B06-B635-4D27-9CBE-592EAC55C7AA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1C25B06-B635-4D27-9CBE-592EAC55C7AA}.Debug|x86.ActiveCfg = Debug|Win32
+		{B1C25B06-B635-4D27-9CBE-592EAC55C7AA}.Debug|x86.Build.0 = Debug|Win32
+		{B1C25B06-B635-4D27-9CBE-592EAC55C7AA}.Release|x86.ActiveCfg = Release|Win32
+		{B1C25B06-B635-4D27-9CBE-592EAC55C7AA}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E346718E-811D-41E0-B215-FA79A61238A6}
+	EndGlobalSection
+EndGlobal
