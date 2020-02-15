@@ -66,7 +66,7 @@ void FreeCamera::update(const float elapsedTime)
         fieldOfView = fmodf(resetFieldOfView ? config->defaultFieldOfView : fieldOfView + (increaseFieldOfView ? config->fieldOfViewIncreaseRatio : config->fieldOfViewDecreaseRatio), 180.0f);
 
     camera->viewMatrix = (Eigen::Translation3f(position) * rotation).inverse().matrix();
-    camera->fieldOfView = DEGREES_TO_RADIANS(fieldOfView * (16.0f / 9.0f / aspectRatio));
+    camera->fieldOfView = 2.0f * atan(tan(DEGREES_TO_RADIANS(fieldOfView / 2.0f) * (16.0f / 9.0f / max(aspectRatio, 16.0f / 9.0f))));
     camera->projectionMatrix = Eigen::CreatePerspectiveMatrix(camera->fieldOfView, aspectRatio, camera->zNear, camera->zFar);
     camera->position = position;
     camera->direction = frontDirection;
