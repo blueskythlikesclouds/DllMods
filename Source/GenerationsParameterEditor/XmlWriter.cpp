@@ -23,7 +23,7 @@ XmlWriter::XmlWriter(const std::string& filePath) : stream(filePath, std::ofstre
 
 void XmlWriter::writeBeginDocument()
 {
-    stream << "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" << std::endl;
+    stream << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << std::endl;
 }
 
 void XmlWriter::writeBeginElement(const std::string& name)
