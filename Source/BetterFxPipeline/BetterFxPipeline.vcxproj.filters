@@ -7,5 +7,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="Crc32.h" />
   </ItemGroup>
 </Project>

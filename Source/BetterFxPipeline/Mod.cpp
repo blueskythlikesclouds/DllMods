@@ -1,3 +1,4 @@
+#include "Crc32.h"
 #include "LostCodeLoader.h"
 
 int32_t internalWidth = -1;
@@ -172,7 +173,7 @@ HOOK(uint32_t, __fastcall, ExecuteAlternativeDepthOfField, 0x1228960, uint32_t T
     constexpr size_t valueCount = _countof(valueAddresses);
 
     const uint32_t obj = fun7846D0(This);
-    const uint32_t height = internalHeight > 0 ? internalHeight: *(uint32_t*)(obj + 204);
+    const uint32_t height = internalHeight > 0 ? internalHeight : *(uint32_t*)(obj + 204);
 
     uint32_t values[valueCount];
     for (size_t i = 0; i < valueCount; i++)
@@ -189,7 +190,7 @@ HOOK(uint32_t, __fastcall, ExecuteAlternativeDepthOfField, 0x1228960, uint32_t T
     return result;
 }
 
-enum LambertShadow: uint32_t
+enum LambertShadow : uint32_t
 {
     ENABLE = 0,
     FORCE_DISABLE = 1,
@@ -321,12 +322,36 @@ void __declspec(naked) renderGameSceneMidAsmHook()
     }
 }
 
-FUNCTION_PTR(uint32_t, __thiscall, clearAlpha, 0x10D4EB0, void* This);
-
-HOOK(uint32_t, __fastcall, RenderParticles, 0x789890, void* This, void* Edx, uint32_t a2, uint32_t a3)
+HOOK(uint32_t, __fastcall, SetShader, 0x415EE0, void* This, void* Edx, void* vertexShader, void* pixelShader)
 {
-    clearAlpha(This);
-    return originalRenderParticles(This, Edx, a2, a3);
+    const uint32_t field60 = *(uint32_t*)This + 0x60;
+    const uint32_t device = *(uint32_t*)(field60 + 4);
+    const uint32_t vtable = *(uint32_t*)device;
+    const uint32_t parameters = *(uint32_t*)(field60 + 8);
+
+    // g_ForceAlphaColor
+    const float forceAlphaColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    const uint8_t forceAlphaColorRegister = *(uint8_t*)(parameters + *(uint32_t*)(field60 + 16) * 2 + 544);
+    if (forceAlphaColorRegister != 255)
+        (*(HRESULT(__thiscall**)(uint32_t, UINT, const float*, UINT))(vtable + 440))(device, forceAlphaColorRegister, forceAlphaColor, 1); // SetPixelShaderConstantF
+
+    return originalSetShader(This, Edx, vertexShader, pixelShader);
+}
+
+HOOK(void, __cdecl, LoadVertexShaderCode, 0x734110, uint32_t a1, uint8_t* data, size_t length, void* a4, void* a5, void* a6)
+{
+    // MakeShadowMapTransparent.wvu
+    // Size: 1172 B, CRC32 Hash: 7F8FB70A
+    if (length == 1172 && generateCrc32Hash(0, data, length) == 0x7F8FB70A)
+    {
+        // add o1.xy, c191, v1 -> mov o1.xy, v1
+        const uint8_t patch[] =
+            { 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x03, 0xE0, 0x01, 0x00, 0xE4, 0x90, 0x00, 0x00, 0x00, 0x00 };
+
+        memcpy(data + 0x474, patch, sizeof(patch));
+    }
+
+    return originalLoadVertexShaderCode(a1, data, length, a4, a5, a6);
 }
 
 bool forceIgnoreFinalLightColorAdjustment;
@@ -341,7 +366,7 @@ extern "C" __declspec(dllexport) void __cdecl OnFrame()
         *(bool*)0x1A43588 = false;
 }
 
-extern "C" __declspec(dllexport) void __cdecl Init(ModInfo * info)
+extern "C" __declspec(dllexport) void __cdecl Init(ModInfo* info)
 {
     std::string dir = info->CurrentMod->Path;
 
@@ -374,11 +399,16 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo * info)
     // Fix mrgPlayableParam
     WRITE_MEMORY(0x15CA070, uint8_t, 0x00);
 
-    // Fix g_ForceAlphaColor
+    // Set g_ForceAlphaColor to white instead of transparent red
     WRITE_MEMORY(0x10D4F62, uint8_t, 0x4C);
     WRITE_MEMORY(0x10D4F68, uint8_t, 0x4C);
     WRITE_MEMORY(0x10D4F6E, uint8_t, 0x4C);
-    INSTALL_HOOK(RenderParticles);
+
+    // Initialize g_ForceAlphaColor for every object
+    INSTALL_HOOK(SetShader);
+
+    // Patch the transparent shadow shader to ignore mrgTexcoordOffset
+    INSTALL_HOOK(LoadVertexShaderCode);
 
     const bool fixBloomScale = reader.GetBoolean("Renderer", "FixBloomScale", true);
     if (fixBloomScale)
@@ -398,6 +428,14 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo * info)
 
     ambientShadowBiasObject = reader.GetFloat("Shadows", "AmbientShadowBiasObject", -1);
     ambientShadowBiasTerrain = reader.GetFloat("Shadows", "AmbientShadowBiasTerrain", -1);
+
+    if (reader.GetBoolean("Shadows", "EnableTerrainShadowCast", false))
+    {
+        WRITE_MEMORY(0x10C63F3, uint8_t, 0xC0); 
+        WRITE_MEMORY(0x10C641D, uint8_t, 0xC0); 
+        WRITE_MEMORY(0x10C65CC, uint8_t, 0xC0); 
+        WRITE_MEMORY(0x10C65F6, uint8_t, 0xC0); 
+    }
 
     if (reader.GetBoolean("Shadows", "ForceCastShadow", false))
     {
