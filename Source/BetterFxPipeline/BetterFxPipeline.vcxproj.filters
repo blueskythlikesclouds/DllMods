@@ -3,10 +3,83 @@
   <ItemGroup>
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="ResolutionScaler.cpp">
+      <Filter>Scale</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomScaleFixer.cpp">
+      <Filter>Scale</Filter>
+    </ClCompile>
+    <ClCompile Include="DofScaleFixer.cpp">
+      <Filter>Scale</Filter>
+    </ClCompile>
+    <ClCompile Include="ForceAlphaColorFixer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="FxPipelineEnabler.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalShadowFixer.cpp">
+      <Filter>Shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="TransparentShadowFixer.cpp">
+      <Filter>Shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticlePostProcessor.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneEffectOverrider.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowCaster.cpp">
+      <Filter>Shadow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
-    <ClInclude Include="Crc32.h" />
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="ResolutionScaler.h">
+      <Filter>Scale</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomScaleFixer.h">
+      <Filter>Scale</Filter>
+    </ClInclude>
+    <ClInclude Include="DofScaleFixer.h">
+      <Filter>Scale</Filter>
+    </ClInclude>
+    <ClInclude Include="ForceAlphaColorFixer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="FxPipelineEnabler.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalShadowFixer.h">
+      <Filter>Shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="TransparentShadowFixer.h">
+      <Filter>Shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticlePostProcessor.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash.h" />
+    <ClInclude Include="SceneEffectOverrider.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowCaster.h">
+      <Filter>Shadow</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shadow">
+      <UniqueIdentifier>{9e1103a4-4555-4d6e-b170-28bbfa951ca4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{39ad817a-58a7-454e-8b90-89e0b21b394a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scale">
+      <UniqueIdentifier>{e7d7cb61-c79b-4ccf-b26a-1a71df65e3e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

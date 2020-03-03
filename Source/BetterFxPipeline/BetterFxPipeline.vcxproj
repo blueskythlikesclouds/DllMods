@@ -95,18 +95,40 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Configuration.cpp" />
+    <ClCompile Include="DirectionalShadowFixer.cpp" />
+    <ClCompile Include="BloomScaleFixer.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="DofScaleFixer.cpp" />
+    <ClCompile Include="ForceAlphaColorFixer.cpp" />
+    <ClCompile Include="FxPipelineEnabler.cpp" />
     <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="ShadowCaster.cpp" />
+    <ClCompile Include="ParticlePostProcessor.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="ResolutionScaler.cpp" />
+    <ClCompile Include="SceneEffectOverrider.cpp" />
+    <ClCompile Include="TransparentShadowFixer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Crc32.h" />
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="DirectionalShadowFixer.h" />
+    <ClInclude Include="BloomScaleFixer.h" />
+    <ClInclude Include="DofScaleFixer.h" />
+    <ClInclude Include="ForceAlphaColorFixer.h" />
+    <ClInclude Include="FxPipelineEnabler.h" />
+    <ClInclude Include="Hash.h" />
+    <ClInclude Include="ShadowCaster.h" />
+    <ClInclude Include="ParticlePostProcessor.h" />
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="ResolutionScaler.h" />
+    <ClInclude Include="SceneEffectOverrider.h" />
+    <ClInclude Include="TransparentShadowFixer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
