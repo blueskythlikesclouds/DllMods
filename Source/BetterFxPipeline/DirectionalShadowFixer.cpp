@@ -1,32 +1,9 @@
-﻿#include "Configuration.h"
-#include "DirectionalShadowFixer.h"
+﻿#include "DirectionalShadowFixer.h"
 
 double one = 1.0;
 
 uint32_t renderGameSceneMidAsmHookDisableLambertReturnAddress = 0x10C7E3A;
 uint32_t renderGameSceneMidAsmHookEnableLambertReturnAddress = 0x10C8049;
-
-void __declspec(naked) renderGameSceneIsTerrain()
-{
-    __asm
-    {
-        push eax
-        push ebx
-
-        mov eax, [ebp + 0x08]
-        mov eax, [eax]
-
-        mov ebx, [ebp + 0x0C]
-        mov ebx, [ebx]
-
-        cmp eax, ebx
-
-        pop ebx
-        pop eax
-
-        retn
-    }
-}
 
 void __declspec(naked) renderGameSceneMidAsmHook()
 {
@@ -37,18 +14,23 @@ void __declspec(naked) renderGameSceneMidAsmHook()
         movaps[esp + 0x20], xmm0
         xorps xmm1, xmm1
 
-        call renderGameSceneIsTerrain
+        mov eax, [ebp + 0x08]
+        mov eax, [eax]
+
+        mov ebx, [ebp + 0x0C]
+        mov ebx, [ebx]
+
+        cmp eax, ebx
         jz loadTerrainBias
 
         mov edx, 0x1E5E32C // Ambient_Bias_Shadow_Object
-        movss xmm0, [edx]
         jmp main
 
     loadTerrainBias:
         mov edx, 0x1E5E328 // Ambient_Shadow_Bias_Terrain
-        movss xmm0, [edx]
 
     main:
+        movss xmm0, [edx]
         movsd xmm1, one
         cvtps2pd xmm0, xmm0
         subsd xmm1, xmm0
@@ -70,18 +52,23 @@ void __declspec(naked) renderGameSceneMidAsmHook()
         call edx
 
     return:
-        call renderGameSceneIsTerrain
+        mov eax, [ebp + 0x08]
+        mov eax, [eax]
+
+        mov ebx, [ebp + 0x0C]
+        mov ebx, [ebx]
+
+        cmp eax, ebx
         jz moveIsEnableLambertShadowTerrain
 
         mov edx, 0x1A4358A // ms_IsEnableLambertShadowObject
-        mov al, byte ptr[edx]
         jmp compareIsEnable
 
     moveIsEnableLambertShadowTerrain:
         mov edx, 0x1A43589 // ms_IsEnableLambertShadowTerrain
-        mov al, byte ptr[edx]
 
     compareIsEnable:
+        mov al, byte ptr[edx]
         cmp al, 1
         jz enableLambert
 
