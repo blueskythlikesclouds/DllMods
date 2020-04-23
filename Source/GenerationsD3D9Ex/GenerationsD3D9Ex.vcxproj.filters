@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Pch.cpp" />
+    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="D3D9Ex.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExBaseTexture.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExCubeTexture.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExDevice.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExIndexBuffer.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExVertexBuffer.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExPixelShader.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExResource.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExSurface.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExTexture.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExUnknown.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExVertexDeclaration.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D9ExVertexShader.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="D3D9ExHandler.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureHandler.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Pch.h" />
+    <ClInclude Include="D3D9Ex.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExBaseTexture.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExCubeTexture.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExDevice.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExIndexBuffer.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExVertexBuffer.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExPixelShader.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExResource.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExSurface.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExTexture.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExUnknown.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExVertexDeclaration.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExVertexShader.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D9ExHandler.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureHandler.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="D3D9Ex">
+      <UniqueIdentifier>{f68f68ac-6722-4d73-928e-fdc280e6d83c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Patches">
+      <UniqueIdentifier>{a5bea2f3-212f-4069-b50d-7556dd19e38a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
