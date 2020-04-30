@@ -6,7 +6,6 @@ class D3D9ExDevice;
 
 class D3D9Ex : public D3D9ExUnknown
 {
-    IDirect3D9* d3d;
     IDirect3D9Ex* d3dEx;
 
 public:

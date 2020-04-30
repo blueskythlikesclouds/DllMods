@@ -25,7 +25,7 @@ class D3D9ExDevice : public D3D9ExUnknown
     std::array<D3D9ExBaseTexture*, 16> dxpStageTextures;
     D3D9ExVertexDeclaration* dxpVertexDeclaration;
     D3D9ExVertexShader* dxpVertexShader;
-    std::array<D3D9ExVertexBuffer*, 16> dxpVertexBuffers; // not sure about the length
+    std::array<D3D9ExVertexBuffer*, 8> dxpVertexBuffers;
     D3D9ExIndexBuffer* dxpIndexBuffer;
     D3D9ExPixelShader* dxpPixelShader;
 
