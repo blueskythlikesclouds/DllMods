@@ -1,0 +1,79 @@
+{
+   "Groups":[
+      {
+         "Name":"Mod",
+         "DisplayName":"Direct3D 9 Ex",
+         "Elements":[
+            {
+               "Name":"DisplayMode",
+               "Description":[
+                  "Display mode of the game window."
+               ],
+               "DisplayName":"Display mode",
+               "Type":"DisplayMode",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+            {
+               "Name":"AllowResizeInWindowed",
+               "Description":[
+                  "Allows the game window to be resized in windowed mode."
+               ],
+               "DisplayName":"Allow resize in windowed mode",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
+            },
+            {
+               "Name":"UseConfigWorkaround",
+               "Description":[
+                  "Uses a workaround for fixing the infamous configuration mismatch error when using this mod.",
+                  "If you are getting it, try enabling this.",
+                  "",
+                  "Please note that it's not guaranteed to work correctly."
+               ],
+               "DisplayName":"Use configuration mismatch workaround",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
+            }
+         ]
+      }
+   ],
+   "Enums":{
+      "DisplayMode":[
+         {
+            "DisplayName":"Fullscreen",
+            "Description":[
+               "Exclusive fullscreen window."
+            ],
+            "Value":"0"
+         },
+         {
+            "DisplayName":"Borderless",
+            "Description":[
+               "Borderless window that spawns at the center of the work area."
+            ],
+            "Value":"1"
+         },
+         {
+            "DisplayName":"Borderless Fullscreen",
+            "Description":[
+               "Borderless window that covers the whole screen."
+            ],
+            "Value":"2"
+         },
+         {
+            "DisplayName":"Windowed",
+            "Description":[
+               "Window with titlebar that spawns at the center of the work area."
+            ],
+            "Value":"3"
+         }
+      ]
+   },
+   "IniFile":"GenerationsD3D9Ex.ini"
+}

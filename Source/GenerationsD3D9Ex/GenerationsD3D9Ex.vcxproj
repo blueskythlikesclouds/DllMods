@@ -97,6 +97,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="D3D9Ex.cpp" />
     <ClCompile Include="D3D9ExBaseTexture.cpp" />
     <ClCompile Include="D3D9ExCubeTexture.cpp" />
@@ -122,6 +123,7 @@
     <ClCompile Include="TextureHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Configuration.h" />
     <ClInclude Include="D3D9Ex.h" />
     <ClInclude Include="D3D9ExBaseTexture.h" />
     <ClInclude Include="D3D9ExCubeTexture.h" />
