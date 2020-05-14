@@ -1,9 +1,10 @@
 #include "BloomScaleFixer.h"
 #include "Configuration.h"
+#include "ConstantParameterFixer.h"
 #include "DirectionalShadowFixer.h"
 #include "DofScaleFixer.h"
-#include "ForceAlphaColorFixer.h"
 #include "FxPipelineEnabler.h"
+#include "LoadingScreenFixer.h"
 #include "LostCodeLoader.h"
 #include "ParticlePostProcessor.h"
 #include "ResolutionScaler.h"
@@ -27,16 +28,12 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
     if (!Configuration::load(dir + "BetterFxPipeline.ini"))
         MessageBox(NULL, L"Failed to parse BetterFxPipeline.ini", NULL, MB_ICONERROR);
 
-    // Swap MTFx to FxPipeline
     FxPipelineEnabler::applyPatches();
 
-    // Fix black directional shadows
     DirectionalShadowFixer::applyPatches();
 
-    // Fix g_ForceAlphaColor
-    ForceAlphaColorFixer::applyPatches();
+    ConstantParameterFixer::applyPatches();
 
-    // Patch the transparent shadow shader to ignore mrgTexcoordOffset
     TransparentShadowFixer::applyPatches();
 
     if (Configuration::fixBloomScale)
@@ -52,4 +49,6 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     if (Configuration::enableResolutionScale)
         ResolutionScaler::applyPatches();
+
+    LoadingScreenFixer::applyPatches();
 }

@@ -14,9 +14,6 @@
     <ClCompile Include="DofScaleFixer.cpp">
       <Filter>Scale</Filter>
     </ClCompile>
-    <ClCompile Include="ForceAlphaColorFixer.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="FxPipelineEnabler.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -35,6 +32,12 @@
     <ClCompile Include="ShadowCaster.cpp">
       <Filter>Shadow</Filter>
     </ClCompile>
+    <ClCompile Include="LoadingScreenFixer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantParameterFixer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -47,9 +50,6 @@
     </ClInclude>
     <ClInclude Include="DofScaleFixer.h">
       <Filter>Scale</Filter>
-    </ClInclude>
-    <ClInclude Include="ForceAlphaColorFixer.h">
-      <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="FxPipelineEnabler.h">
       <Filter>Renderer</Filter>
@@ -69,6 +69,13 @@
     </ClInclude>
     <ClInclude Include="ShadowCaster.h">
       <Filter>Shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingScreenFixer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DX_PATCH.h" />
+    <ClInclude Include="ConstantParameterFixer.h">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

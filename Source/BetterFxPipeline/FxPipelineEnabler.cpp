@@ -20,7 +20,4 @@ void FxPipelineEnabler::applyPatches()
     WRITE_MEMORY(0xD1D45B, uint8_t, 0xC0, 0x20);
     WRITE_MEMORY(0xD1D462, uint8_t, 0xF8, 0x20);
     WRITE_MEMORY(0xD1D468, uint8_t, 0x0C);
-
-    // Fix mrgPlayableParam
-    WRITE_MEMORY(0x15CA070, uint8_t, 0x00);
 }

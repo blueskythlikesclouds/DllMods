@@ -1,0 +1,239 @@
+{
+   "Groups":[
+      {
+         "Name":"Renderer",
+         "DisplayName":"Renderer",
+         "Elements":[
+            {
+               "Name":"FixBloomScale",
+               "Description":[
+                  "Scales bloom correctly at all resolutions."
+               ],
+               "DisplayName":"Fix bloom scale",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":true
+            },
+            {
+               "Name":"FixDOFScale",
+               "Description":[
+                  "Scales depth of field correctly at all resolutions."
+               ],
+               "DisplayName":"Fix depth of field scale",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":true
+            },
+            {
+               "Name":"ForceIgnoreFinalLightColorAdjustment",
+               "Description":[
+                  "Forces final light color adjustment to get ignored like Sonic Unleashed."
+               ],
+               "DisplayName":"Force ignore final light color adjustment",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
+            },
+            {
+               "Name":"PostProcessingOnParticles",
+               "Description":[
+                  "Applies post processing to particles, just like Sonic Unleashed.",
+                  "",
+                  "Please note that custom stages and vanilla stages were not optimized for this,",
+                  "so some particles might look awfully bright or broken in a few stages. (eg. Aquarium Park)"
+               ],
+               "DisplayName":"Enable post processing on particles",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":true
+            }
+         ]
+      },
+      {
+         "Name":"Shadows",
+         "DisplayName":"Shadows",
+         "Elements":[
+            {
+               "Name":"AmbientShadowBiasObject",
+               "Description":[
+                  "Controls how much shadows blend while they are on top of each other.",
+                  "The lower the value, the higher the blending is.",
+                  "",
+                  "For example, Sonic Unleashed has these values set to 0",
+                  "which makes shadows blend with each other completely.",
+                  "",
+                  "Sonic Generations usually has them set to 0.3 which makes",
+                  "shadows blend less, thus appear darker.",
+                  "",
+                  "Set to -1 to have the stage set the values."
+               ],
+               "DisplayName":"Ambient shadow bias of objects",
+               "Type":"float",
+               "MinValue":-1,
+               "MaxValue":1,
+               "DefaultValue":-1
+            },
+            {
+               "Name":"AmbientShadowBiasTerrain",
+               "Description":[
+                  "Controls how much shadows blend while they are on top of each other.",
+                  "The lower the value, the higher the blending is.",
+                  "",
+                  "For example, Sonic Unleashed has these values set to 0",
+                  "which makes shadows blend with each other completely.",
+                  "",
+                  "Sonic Generations usually has them set to 0.3 which makes",
+                  "shadows blend less, thus appear darker.",
+                  "",
+                  "Set to -1 to have the stage set the values."
+               ],
+               "DisplayName":"Ambient shadow bias of terrain",
+               "Type":"float",
+               "MinValue":-1,
+               "MaxValue":1,
+               "DefaultValue":-1
+            },
+            {
+               "Name":"EnableTerrainShadowCast",
+               "Description":[
+                  "Makes terrain cast real-time shadows.",
+                  "It looks like a mess in most stages and",
+                  "should be enabled only for entertainment purposes."
+               ],
+               "DisplayName":"Enable terrain shadow casting",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
+            },
+            {
+               "Name":"ForceCastShadow",
+               "Description":[
+                  "Forces all objects to cast shadows."
+               ],
+               "DisplayName":"Force shadow casting for objects",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
+            },
+            {
+               "Name":"ForceDirectionalShadow",
+               "Description":[
+                  "Forces all stages to use directional shadows."
+               ],
+               "DisplayName":"Force directional shadows",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":true
+            },
+            {
+               "Name":"LambertShadowObject",
+               "Description":[
+                  "Controls the falloff-like effect on directional shadows.",
+                  "",
+                  "Sonic Generations has this effect on for vertical shadows",
+                  "meanwhile Sonic Unleashed makes no use of it."
+               ],
+               "DisplayName":"Lambert shadow mode of objects",
+               "Type":"LambertShadowMode",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+            {
+               "Name":"LambertShadowTerrain",
+               "Description":[
+                  "Controls the falloff-like effect on directional shadows.",
+                  "",
+                  "Sonic Generations has this effect on for vertical shadows",
+                  "meanwhile Sonic Unleashed makes no use of it."
+               ],
+               "DisplayName":"Lambert shadow mode of terrain",
+               "Type":"LambertShadowMode",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            }
+         ]
+      },
+      {
+         "Name":"InternalResolution",
+         "DisplayName":"Internal resolution",
+         "Elements":[
+            {
+               "Name":"Scale",
+               "Description":[
+                  "If you enable this option, you can increase or decrease the",
+                  "game's internal rendering resolution.",
+                  "In other words, this allows for both supersampling and downsampling",
+                  "without affecting the game's HUD.",
+                  "",
+                  "Increasing resolution will require more powerful hardware",
+                  "while decreasing the resolution will allow lower-end hardware",
+                  "to run the game more easily.",
+                  "",
+                  "Example resolutions:",
+                  "",
+                  "720p: 1280x720",
+                  "1080p: 1920x1080",
+                  "2k: 2560x1440",
+                  "4k: 3840x2160",
+                  "",
+                  "For supersampling, it's recommended that you do 2x your base resolution:",
+                  "1280x720 x 2 = 2560x1440 while 1920x1080 x 2 = 3840x2160"
+               ],
+               "DisplayName":"Enable resolution scale",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
+            },
+            {
+               "Name":"Width",
+               "Description":[
+                  "Width of the resolution."
+               ],
+               "DisplayName":"Width",
+               "Type":"int",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":3840
+            },
+            {
+               "Name":"Height",
+               "Description":[
+                  "Height of the resolution."
+               ],
+               "DisplayName":"Height",
+               "Type":"int",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":2160
+            }
+         ]
+      }
+   ],
+   "Enums":{
+      "LambertShadowMode":[
+         {
+            "DisplayName":"Enable (controlled by stage)",
+            "Value":"0"
+         },
+         {
+            "DisplayName":"Force disable",
+            "Value":"1"
+         },
+         {
+            "DisplayName":"Force enable",
+            "Value":"2"
+         }
+      ]
+   },
+   "IniFile":"BetterFxPipeline.ini"
+}

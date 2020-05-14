@@ -13,3 +13,5 @@
 #include <INIReader.h>
 
 #include <Helpers.h>
+
+#include "DX_PATCH.h"

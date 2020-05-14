@@ -100,8 +100,9 @@
     <ClCompile Include="BloomScaleFixer.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="DofScaleFixer.cpp" />
-    <ClCompile Include="ForceAlphaColorFixer.cpp" />
+    <ClCompile Include="ConstantParameterFixer.cpp" />
     <ClCompile Include="FxPipelineEnabler.cpp" />
+    <ClCompile Include="LoadingScreenFixer.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="ShadowCaster.cpp" />
     <ClCompile Include="ParticlePostProcessor.cpp" />
@@ -120,9 +121,11 @@
     <ClInclude Include="DirectionalShadowFixer.h" />
     <ClInclude Include="BloomScaleFixer.h" />
     <ClInclude Include="DofScaleFixer.h" />
-    <ClInclude Include="ForceAlphaColorFixer.h" />
+    <ClInclude Include="DX_PATCH.h" />
+    <ClInclude Include="ConstantParameterFixer.h" />
     <ClInclude Include="FxPipelineEnabler.h" />
     <ClInclude Include="Hash.h" />
+    <ClInclude Include="LoadingScreenFixer.h" />
     <ClInclude Include="ShadowCaster.h" />
     <ClInclude Include="ParticlePostProcessor.h" />
     <ClInclude Include="Pch.h" />

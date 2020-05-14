@@ -1,3 +1,4 @@
 add BetterFxPipeline.dll
 add BetterFxPipeline.ini
+add BetterFxPipeline.json
 add mod.ini

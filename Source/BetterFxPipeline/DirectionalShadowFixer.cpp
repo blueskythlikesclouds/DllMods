@@ -1,6 +1,6 @@
 ﻿#include "DirectionalShadowFixer.h"
 
-double one = 1.0;
+const volatile double ONE = 1.0;
 
 uint32_t renderGameSceneMidAsmHookDisableLambertReturnAddress = 0x10C7E3A;
 uint32_t renderGameSceneMidAsmHookEnableLambertReturnAddress = 0x10C8049;
@@ -31,7 +31,7 @@ void __declspec(naked) renderGameSceneMidAsmHook()
 
     main:
         movss xmm0, [edx]
-        movsd xmm1, one
+        movsd xmm1, ONE
         cvtps2pd xmm0, xmm0
         subsd xmm1, xmm0
         cvtpd2ps xmm0, xmm1

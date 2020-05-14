@@ -40,7 +40,7 @@ const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
             DWORD oldProtect; \
             VirtualProtect(addr, sizeof(void*), PAGE_EXECUTE_READWRITE, &oldProtect); \
             *addr = implOf##className##functionName; \
-            VirtualProtect(addr, sizeof(void*), oldProtect, NULL); \
+            VirtualProtect(addr, sizeof(void*), oldProtect, &oldProtect); \
         } \
     }
 
@@ -50,7 +50,7 @@ const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
         DWORD oldProtect; \
         VirtualProtect((void*)(location), sizeof(data), PAGE_EXECUTE_READWRITE, &oldProtect); \
         memcpy((void*)(location), data, sizeof(data)); \
-        VirtualProtect((void*)(location), sizeof(data), oldProtect, NULL); \
+        VirtualProtect((void*)(location), sizeof(data), oldProtect, &oldProtect); \
     }
 
 #define WRITE_JUMP(location, function) \
@@ -65,5 +65,5 @@ const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
         VirtualProtect((void*)(location), (size_t)(count), PAGE_EXECUTE_READWRITE, &oldProtect); \
         for (size_t i = 0; i < (size_t)(count); i++) \
             *((uint8_t*)(location) + i) = 0x90; \
-        VirtualProtect((void*)(location), (size_t)(count), oldProtect, NULL); \
+        VirtualProtect((void*)(location), (size_t)(count), oldProtect, &oldProtect); \
     }

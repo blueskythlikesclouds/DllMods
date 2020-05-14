@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class ForceAlphaColorFixer
+class LoadingScreenFixer
 {
     static bool enabled;
 
