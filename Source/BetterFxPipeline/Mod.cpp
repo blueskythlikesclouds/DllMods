@@ -1,11 +1,12 @@
 #include "BloomScaleFixer.h"
 #include "Configuration.h"
-#include "ConstantParameterFixer.h"
 #include "DirectionalShadowFixer.h"
 #include "DofScaleFixer.h"
+#include "FxaaRenderer.h"
 #include "FxPipelineEnabler.h"
 #include "LoadingScreenFixer.h"
 #include "LostCodeLoader.h"
+#include "ParameterFixer.h"
 #include "ParticlePostProcessor.h"
 #include "ResolutionScaler.h"
 #include "SceneEffectOverrider.h"
@@ -32,7 +33,7 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     DirectionalShadowFixer::applyPatches();
 
-    ConstantParameterFixer::applyPatches();
+    ParameterFixer::applyPatches();
 
     TransparentShadowFixer::applyPatches();
 
@@ -44,6 +45,10 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     if (Configuration::postProcessingOnParticles)
         ParticlePostProcessor::applyPatches();
+
+    if (Configuration::fxaaIntensity > FxaaIntensity::DISABLED &&
+        Configuration::fxaaIntensity <= FxaaIntensity::INTENSITY_6)
+        FxaaRenderer::applyPatches();
 
     ShadowCaster::applyPatches();
 

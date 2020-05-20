@@ -100,7 +100,9 @@
     <ClCompile Include="BloomScaleFixer.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="DofScaleFixer.cpp" />
-    <ClCompile Include="ConstantParameterFixer.cpp" />
+    <ClCompile Include="FxaaRenderer.cpp" />
+    <ClCompile Include="IndependentArchiveLoader.cpp" />
+    <ClCompile Include="ParameterFixer.cpp" />
     <ClCompile Include="FxPipelineEnabler.cpp" />
     <ClCompile Include="LoadingScreenFixer.cpp" />
     <ClCompile Include="Mod.cpp" />
@@ -115,6 +117,7 @@
     <ClCompile Include="ResolutionScaler.cpp" />
     <ClCompile Include="SceneEffectOverrider.cpp" />
     <ClCompile Include="TransparentShadowFixer.cpp" />
+    <ClCompile Include="Types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configuration.h" />
@@ -122,7 +125,10 @@
     <ClInclude Include="BloomScaleFixer.h" />
     <ClInclude Include="DofScaleFixer.h" />
     <ClInclude Include="DX_PATCH.h" />
-    <ClInclude Include="ConstantParameterFixer.h" />
+    <ClInclude Include="Functions.h" />
+    <ClInclude Include="FxaaRenderer.h" />
+    <ClInclude Include="IndependentArchiveLoader.h" />
+    <ClInclude Include="ParameterFixer.h" />
     <ClInclude Include="FxPipelineEnabler.h" />
     <ClInclude Include="Hash.h" />
     <ClInclude Include="LoadingScreenFixer.h" />
@@ -132,6 +138,7 @@
     <ClInclude Include="ResolutionScaler.h" />
     <ClInclude Include="SceneEffectOverrider.h" />
     <ClInclude Include="TransparentShadowFixer.h" />
+    <ClInclude Include="Types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

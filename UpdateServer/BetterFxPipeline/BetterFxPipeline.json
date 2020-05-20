@@ -38,6 +38,17 @@
                "DefaultValue":false
             },
             {
+               "Name":"FxaaIntensity",
+               "Description":[
+                  "Controls FXAA (Fast Approximate Anti-Aliasing) intensity."
+               ],
+               "DisplayName":"FXAA intensity",
+               "Type":"FxaaIntensity",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+            {
                "Name":"PostProcessingOnParticles",
                "Description":[
                   "Applies post processing to particles, just like Sonic Unleashed.",
@@ -232,6 +243,40 @@
          {
             "DisplayName":"Force enable",
             "Value":"2"
+         }
+      ],
+      "FxaaIntensity":[
+         {
+            "DisplayName":"Disabled",
+            "Value":"0"
+         },
+         {
+            "DisplayName":"Very Low",
+            "Value":"1"
+         },
+         {
+            "DisplayName":"Low",
+            "Value":"2"
+         },
+         {
+            "DisplayName":"Medium",
+            "Value":"3"
+         },
+         {
+            "DisplayName":"High",
+            "Value":"4"
+         },
+         {
+            "DisplayName":"Very High",
+            "Value":"5"
+         },
+         {
+            "DisplayName":"Ultra",
+            "Value":"6"
+         },
+         {
+            "DisplayName":"Extreme",
+            "Value":"7"
          }
       ]
    },

@@ -15,9 +15,9 @@ void SceneEffectOverrider::update()
     if (Configuration::forceDirectionalShadow)
         *(bool*)0x1A43588 = false;
 
-    if (Configuration::lambertShadowObject != ENABLE)
-        *(bool*)0x1A4358A = Configuration::lambertShadowObject == FORCE_ENABLE;
+    if (Configuration::lambertShadowObject != LambertShadowMode::ENABLE)
+        *(bool*)0x1A4358A = Configuration::lambertShadowObject == LambertShadowMode::FORCE_ENABLE;
 
-    if (Configuration::lambertShadowTerrain != ENABLE)
-        *(bool*)0x1A43589 = Configuration::lambertShadowTerrain == FORCE_ENABLE;
+    if (Configuration::lambertShadowTerrain != LambertShadowMode::ENABLE)
+        *(bool*)0x1A43589 = Configuration::lambertShadowTerrain == LambertShadowMode::FORCE_ENABLE;
 }

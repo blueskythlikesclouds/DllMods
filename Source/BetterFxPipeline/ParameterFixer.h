@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class ConstantParameterFixer
+class ParameterFixer
 {
     static bool enabled;
 

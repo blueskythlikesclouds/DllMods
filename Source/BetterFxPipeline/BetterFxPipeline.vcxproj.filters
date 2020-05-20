@@ -35,8 +35,15 @@
     <ClCompile Include="LoadingScreenFixer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="ConstantParameterFixer.cpp">
+    <ClCompile Include="ParameterFixer.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="FxaaRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Types.cpp" />
+    <ClCompile Include="IndependentArchiveLoader.cpp">
+      <Filter>Other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -63,7 +70,6 @@
     <ClInclude Include="ParticlePostProcessor.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Hash.h" />
     <ClInclude Include="SceneEffectOverrider.h">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -73,9 +79,18 @@
     <ClInclude Include="LoadingScreenFixer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="DX_PATCH.h" />
-    <ClInclude Include="ConstantParameterFixer.h">
+    <ClInclude Include="ParameterFixer.h">
       <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DX_PATCH.h" />
+    <ClInclude Include="Hash.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Functions.h" />
+    <ClInclude Include="FxaaRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="IndependentArchiveLoader.h">
+      <Filter>Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +102,9 @@
     </Filter>
     <Filter Include="Scale">
       <UniqueIdentifier>{e7d7cb61-c79b-4ccf-b26a-1a71df65e3e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Other">
+      <UniqueIdentifier>{5c83a44c-a1ac-407b-8c9f-20213ea29c1a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

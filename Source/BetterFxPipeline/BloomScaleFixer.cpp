@@ -1,11 +1,11 @@
 ﻿#include "BloomScaleFixer.h"
 #include "ResolutionScaler.h"
 
-HOOK(uint32_t, __stdcall, InitializeBloomGlareFrameBuffers, 0x10D1C90, uint32_t a1)
+HOOK(void*, __stdcall, InitializeBloomGlareFrameBuffers, 0x10D1C90, YggJob* This)
 {
     ResolutionScaler::scaleTo720p = true;
 
-    const uint32_t result = originalInitializeBloomGlareFrameBuffers(a1);
+    void* result = originalInitializeBloomGlareFrameBuffers(This);
 
     ResolutionScaler::scaleTo720p = false;
 
