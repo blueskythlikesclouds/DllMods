@@ -8,6 +8,7 @@ public:
     static constexpr const char* FILE_NAME =
         "GenerationsParameterEditor.ini";
 
+    static bool loadDebugShaders;
     static bool showDescriptions;
     static bool wrapNames;
     static float bgAlpha;

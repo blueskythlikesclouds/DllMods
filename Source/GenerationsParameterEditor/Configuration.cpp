@@ -8,6 +8,7 @@
 
 bool Configuration::visible = false;
 
+bool Configuration::loadDebugShaders = true;
 bool Configuration::showDescriptions = false;
 bool Configuration::wrapNames = true;
 float Configuration::bgAlpha = 0.625f;
@@ -24,6 +25,7 @@ void Configuration::load()
         return;
     }
 
+    loadDebugShaders = reader.GetBoolean("Configuration", "LoadDebugShaders", true);
     showDescriptions = reader.GetBoolean("Configuration", "ShowDescriptions", false);
     wrapNames = reader.GetBoolean("Configuration", "WrapNames", true);
     bgAlpha = reader.GetFloat("Configuration", "BgAlpha", 0.625f);
@@ -45,6 +47,7 @@ void Configuration::save()
     }
 
     stream << "[Configuration]" << std::endl;
+    stream << "LoadDebugShaders" << "=" << (loadDebugShaders ? "true" : "false") << std::endl;
     stream << "ShowDescriptions" << "=" << (showDescriptions ? "true" : "false") << std::endl;
     stream << "WrapNames" << "=" << (wrapNames ? "true" : "false") << std::endl;
     stream << "BgAlpha" << "=" << bgAlpha << std::endl;
@@ -79,15 +82,16 @@ void Configuration::update()
     ImGui::SetNextWindowBgAlpha(bgAlpha);
     if (ImGui::Begin("Configuration", &visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize))
     {
+        ImGui::Checkbox("Load debug shaders (Takes effect after restart)", &loadDebugShaders);
         ImGui::Checkbox("Show parameter descriptions", &showDescriptions);
         ImGui::Checkbox("Wrap parameter names", &wrapNames);
         ImGui::SliderFloat("Window background alpha", &bgAlpha, 0.0f, 1.0f);
-        ImGui::InputFloat("Font size (Takes effect after restart)", &fontSize, 1.0f);
-        ImGui::InputFloat("Value step amount", &valueStepAmount, 0.1f);
+        ImGui::InputFloat("Font size (Takes effect after restart)", &fontSize, 1.0f, 0, "%g");
+        ImGui::InputFloat("Value step amount", &valueStepAmount, 0.1f, 0, "%g");
         ImGui::Checkbox("Display parameter editor window", &ParameterEditor::visible);
         ImGui::Checkbox("Display player info window", &PlayerInfo::visible);
         ImGui::Checkbox("Display status window", &Status::visible);
-        ImGui::InputFloat("Status label display time", &Status::labelDisplayTime, 1.0f);
+        ImGui::InputFloat("Status label display time", &Status::labelDisplayTime, 1.0f, 0, "%g");
     }
     ImGui::End();
 

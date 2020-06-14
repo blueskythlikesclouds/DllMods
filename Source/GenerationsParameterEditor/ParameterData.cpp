@@ -116,7 +116,7 @@ void ParamValueData::update()
         break;
 
     case ParamBase::VTABLE_FLOAT:
-        result = ImGui::InputFloat(name.c_str(), (float*)paramValue->funcData->valueAddress, Configuration::valueStepAmount);
+        result = ImGui::InputFloat(name.c_str(), (float*)paramValue->funcData->valueAddress, Configuration::valueStepAmount, 0, "%g");
         break;
 
     case ParamBase::VTABLE_INT:

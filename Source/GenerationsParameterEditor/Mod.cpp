@@ -74,4 +74,12 @@ extern "C" __declspec(dllexport) void Init(ModInfo* modInfo)
     std::atexit(Configuration::save);
 
     INSTALL_HOOK(WndProc);
+
+    if (Configuration::loadDebugShaders)
+    {
+        WRITE_MEMORY(0x1AD99D0, char*, "shader_debug.ar");
+        WRITE_MEMORY(0x1AD99D4, char*, "shader_debug_add.ar");
+        WRITE_MEMORY(0x1AD99E8, char*, "shader_debug.arl");
+        WRITE_MEMORY(0x1AD99EC, char*, "shader_debug_add.arl");
+    }
 }
