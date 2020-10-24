@@ -1,3 +1,4 @@
 add LostWorldQuickBoot.dll
 add mod.ini
 add QuickBoot.ini
+add QuickBoot.json

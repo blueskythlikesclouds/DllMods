@@ -13,6 +13,8 @@ https://github.com/benhoyt/inih
 
 */
 
+// This header was altered.
+
 #ifndef __INI_H__
 #define __INI_H__
 
@@ -395,7 +397,16 @@ inline const std::set<std::string>& INIReader::Sections() const
 inline std::string INIReader::Get(std::string section, std::string name, std::string default_value) const
 {
     std::string key = MakeKey(section, name);
-    return _values.count(key) ? _values.at(key) : default_value;
+
+    if (!_values.count(key))
+        return default_value;
+
+    std::string value = _values.at(key);
+
+    value.erase(0, value.find_first_not_of('"'));
+    value.erase(value.find_last_not_of('"') + 1);
+
+    return value;
 }
 
 inline long INIReader::GetInteger(std::string section, std::string name, long default_value) const

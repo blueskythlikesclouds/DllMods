@@ -1,0 +1,61 @@
+{
+  "Groups": [
+    {
+      "Name": "QuickBoot",
+      "DisplayName": "QuickBoot",
+      "Elements": [
+        {
+          "Name": "StageId",
+          "DisplayName": "Stage id",
+          "Type": "string",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "w5a01"
+        },
+        {
+          "Name": "Type",
+          "DisplayName": "Boot type",
+          "Type": "Type",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "0"
+        },
+        {
+          "Name": "ExitType",
+          "DisplayName": "Exit type",
+          "Type": "ExitType",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "0"
+        }
+      ]
+    }
+  ],
+  "Enums": {
+    "Type": [
+	  {
+        "DisplayName": "Normal",
+        "Value": "0",
+      },
+      {
+        "DisplayName": "Title menu",
+        "Value": "1",
+      },
+      {
+        "DisplayName": "Stage",
+        "Value": "2",
+      }
+    ],
+	"ExitType": [
+      {
+        "DisplayName": "Normal",
+        "Value": "0"
+      },
+      {
+        "DisplayName": "Reload stage",
+        "Value": "1"
+      }
+    ]
+  },
+  "IniFile": "QuickBoot.ini"
+}

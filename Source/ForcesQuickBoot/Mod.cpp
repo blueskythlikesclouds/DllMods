@@ -43,8 +43,8 @@ extern "C" __declspec(dllexport) void Init(const char* path)
 		MessageBox(NULL, L"Failed to parse QuickBoot.ini", NULL, MB_ICONERROR);
 
 	stageId = reader->Get("QuickBoot", "StageId", "w1a01");
-	type = static_cast<Type>(reader->GetInteger("QuickBoot", "Type", TYPE_TO_STAGE));
-	exitType = static_cast<ExitType>(reader->GetInteger("QuickBoot", "ExitType", EXIT_TYPE_NORMAL));
+	type = (Type)reader->GetInteger("QuickBoot", "Type", TYPE_TO_STAGE);
+	exitType = (ExitType)reader->GetInteger("QuickBoot", "ExitType", EXIT_TYPE_NORMAL);
 
 	if (type != TYPE_NORMAL)
 	{
@@ -75,6 +75,9 @@ extern "C" __declspec(dllexport) void Init(const char* path)
 
 	if (exitType == EXIT_TYPE_RELOAD)
 		INSTALL_HOOK(StageState);
+
+    // Skip telemetry (garry.sgaas.net)
+	WRITE_NOP(0x1406E01CB, 5);
 
 	delete reader;
 }

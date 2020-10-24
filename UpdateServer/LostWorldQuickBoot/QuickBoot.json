@@ -1,0 +1,81 @@
+{
+  "Groups": [
+    {
+      "Name": "QuickBoot",
+      "DisplayName": "QuickBoot",
+      "Elements": [
+        {
+          "Name": "StageId",
+          "DisplayName": "Stage id",
+          "Type": "string",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "w1a01"
+        },
+        {
+          "Name": "Type",
+          "DisplayName": "Boot type",
+          "Type": "Type",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "0"
+        },
+        {
+          "Name": "ExitType",
+          "DisplayName": "Exit type",
+          "Type": "ExitType",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "0"
+        }
+      ]
+    }
+  ],
+  "Enums": {
+    "Type": [
+	  {
+        "DisplayName": "Normal",
+        "Value": "0",
+      },
+      {
+        "DisplayName": "Title menu",
+        "Value": "1",
+      },
+      {
+        "DisplayName": "E3 title menu",
+        "Value": "2",
+      },
+      {
+        "DisplayName": "Multiplayer menu",
+        "Value": "3",
+      },
+      {
+        "DisplayName": "Multiplayer battle",
+        "Value": "4",
+      },
+      {
+        "DisplayName": "World map",
+        "Value": "5",
+      },
+      {
+        "DisplayName": "Stage",
+        "Value": "6",
+      },
+      {
+        "DisplayName": "Minigame",
+        "Value": "7",
+      }
+    ],
+	"ExitType": [
+      {
+        "DisplayName": "Normal",
+        "Value": "0"
+      },
+      {
+        "DisplayName": "Reload stage",
+        "Value": "1"
+      }
+    ]
+  },
+  "IniFile": "QuickBoot.ini"
+}
