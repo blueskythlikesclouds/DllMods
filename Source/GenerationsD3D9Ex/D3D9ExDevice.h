@@ -149,4 +149,9 @@ public:
     virtual HRESULT DrawTriPatch(UINT Handle, const float* pNumSegs, const D3DTRIPATCH_INFO* pTriPatchInfo);
     virtual HRESULT DeletePatch(UINT Handle);
     virtual HRESULT CreateQuery(D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery);
+
+    IDirect3DDevice9Ex* GetD3DDevice()
+    {
+        return d3dDevice;
+    }
 };

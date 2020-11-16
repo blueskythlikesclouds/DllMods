@@ -50,6 +50,9 @@
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Configuration.cpp" />
+    <ClCompile Include="D3D9ExVolumeTexture.cpp">
+      <Filter>D3D9Ex</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -99,6 +102,9 @@
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Configuration.h" />
+    <ClInclude Include="D3D9ExVolumeTexture.h">
+      <Filter>D3D9Ex</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="D3D9Ex">

@@ -112,6 +112,7 @@
     <ClCompile Include="D3D9ExUnknown.cpp" />
     <ClCompile Include="D3D9ExVertexDeclaration.cpp" />
     <ClCompile Include="D3D9ExVertexShader.cpp" />
+    <ClCompile Include="D3D9ExVolumeTexture.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
@@ -138,6 +139,7 @@
     <ClInclude Include="D3D9ExUnknown.h" />
     <ClInclude Include="D3D9ExVertexDeclaration.h" />
     <ClInclude Include="D3D9ExVertexShader.h" />
+    <ClInclude Include="D3D9ExVolumeTexture.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="TextureHandler.h" />
   </ItemGroup>
