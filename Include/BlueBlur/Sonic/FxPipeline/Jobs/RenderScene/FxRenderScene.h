@@ -2,7 +2,10 @@
 
 #include <BlueBlur.h>
 
+#include <Hedgehog/Yggdrasill/hhYggMisc.h>
 #include <Hedgehog/Yggdrasill/hhYggSceneRenderer.h>
+#include <Hedgehog/Yggdrasill/hhYggScheduler.h>
+
 #include <Sonic/FxPipeline/Jobs/FxJob.h>
 
 namespace Sonic
