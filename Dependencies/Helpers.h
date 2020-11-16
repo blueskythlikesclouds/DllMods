@@ -1,5 +1,20 @@
 ﻿#pragma once
 
+#ifndef offsetof
+#define offsetof(s, m) ((size_t)&(((s*)0)->m))
+#endif
+
+#define _CONCAT2(x, y) x##y
+#define CONCAT2(x, y) _CONCAT(x, y)
+#define INSERT_PADDING(length) \
+    uint8_t CONCAT2(pad, __LINE__)[length]
+
+#define ASSERT_OFFSETOF(type, field, offset) \
+    static_assert(offsetof(type, field) == offset, "offsetof assertion failed")
+
+#define ASSERT_SIZEOF(type, size) \
+    static_assert(sizeof(type) == size, "sizeof assertion failed")
+
 #ifdef BASE_ADDRESS
 const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
 
