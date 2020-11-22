@@ -3,3 +3,4 @@
 #include <Sonic/Camera.h>
 #include <Sonic/FxPipeline.h>
 #include <Sonic/System.h>
+#include <Sonic/Tool.h>

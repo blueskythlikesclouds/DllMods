@@ -8,6 +8,7 @@
 namespace Hedgehog::Mirage
 {
     class CCamera;
+    class CLightManager;
     class CRenderingDevice;
     class CRenderingInfrastructure;
 }
@@ -69,8 +70,10 @@ namespace Hedgehog::Yggdrasill
         Mirage::CRenderingInfrastructure* m_pRenderingInfrastructure;
         Mirage::CCamera* m_pCamera;
         Base::CStringSymbol m_SymbolDefault;
+        INSERT_PADDING(0xC);
+        Mirage::CLightManager* m_pLightManager;
         
-        INSERT_PADDING(0x8C);
+        INSERT_PADDING(0x7C);
 
         virtual void _4() = 0;
         virtual void _8() = 0;
@@ -96,5 +99,6 @@ namespace Hedgehog::Yggdrasill
     ASSERT_OFFSETOF(CYggSceneRenderer, m_pRenderingInfrastructure, 0x18);
     ASSERT_OFFSETOF(CYggSceneRenderer, m_pCamera, 0x1C);
     ASSERT_OFFSETOF(CYggSceneRenderer, m_SymbolDefault, 0x20);
+    ASSERT_OFFSETOF(CYggSceneRenderer, m_pLightManager, 0x30);
     ASSERT_SIZEOF(CYggSceneRenderer, 0xB0);
 }

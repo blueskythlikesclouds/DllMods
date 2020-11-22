@@ -1,10 +1,11 @@
 ﻿#pragma once
 
 #include <BlueBlur.h>
+#include <Hedgehog/Base/hhObject.h>
 
 namespace Hedgehog::Universe
 {
-    class Message
+    class Message : public Base::CObject
     {
     public:
         INSERT_PADDING(0xC);
