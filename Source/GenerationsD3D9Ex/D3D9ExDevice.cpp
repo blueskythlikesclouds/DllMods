@@ -10,6 +10,8 @@
 #include "D3D9ExVertexDeclaration.h"
 #include "D3D9ExVertexShader.h"
 
+#include "Configuration.h"
+
 D3D9ExDevice::D3D9ExDevice(D3D9Ex* dxp, IDirect3DDevice9Ex* d3dDevice)
     : d3dDevice(d3dDevice), dxp(dxp), dxpBackBuffer(nullptr), dxpRenderTargets {}, dxpDepthStencil(nullptr), dxpStageTextures{}, dxpVertexDeclaration(nullptr), dxpVertexShader(nullptr), dxpVertexBuffers{}, dxpIndexBuffer(nullptr), dxpPixelShader(nullptr)
 {
@@ -173,7 +175,10 @@ void D3D9ExDevice::GetGammaRamp(UINT iSwapChain, D3DGAMMARAMP* pRamp)
 
 HRESULT D3D9ExDevice::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3D9ExTexture** ppTexture, HANDLE* pSharedHandle)
 {
-    IDirect3DTexture9* d3dTexture;
+    IDirect3DTexture9* d3dTexture = nullptr;
+
+    if (Usage == D3DUSAGE_RENDERTARGET && Configuration::enableHdrOutput && (Format == D3DFMT_A8B8G8R8 || Format == D3DFMT_A8R8G8B8))
+        Format = D3DFMT_A16B16G16R16;
 
     HRESULT result = d3dDevice->CreateTexture(Width, Height, Levels, Usage | (Pool == D3DPOOL_MANAGED ? D3DUSAGE_DYNAMIC : NULL), Format, Pool == D3DPOOL_MANAGED ? D3DPOOL_DEFAULT : Pool, &d3dTexture, pSharedHandle);
     if (FAILED(result))

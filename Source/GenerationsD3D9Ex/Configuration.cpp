@@ -3,6 +3,7 @@
 DisplayMode Configuration::displayMode = DisplayMode::FULLSCREEN;
 bool Configuration::allowResizeInWindowed = false;
 bool Configuration::useConfigWorkaround = false;
+bool Configuration::enableHdrOutput = false;
 
 bool Configuration::load(const std::string& filePath)
 {
@@ -13,6 +14,7 @@ bool Configuration::load(const std::string& filePath)
     displayMode = (DisplayMode)reader.GetInteger("Mod", "DisplayMode", (uint32_t)DisplayMode::FULLSCREEN);
     allowResizeInWindowed = reader.GetBoolean("Mod", "AllowResizeInWindowed", false);
     useConfigWorkaround = reader.GetBoolean("Mod", "UseConfigWorkaround", false);
+    enableHdrOutput = reader.GetBoolean("Mod", "EnableHdrOutput", false);
 
     return true;
 }

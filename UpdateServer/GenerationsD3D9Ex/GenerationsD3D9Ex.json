@@ -39,6 +39,26 @@
                "MinValue":null,
                "MaxValue":null,
                "DefaultValue":false
+            },
+			{
+               "Name":"EnableHdrOutput",
+               "Description":[
+                  "Makes the game output 10-bit colors.",
+				  "",
+				  "The game was not optimized for HDR, so the result is heavily subjective, hence the experimental tag.",
+				  "",
+				  "Remarks:",
+				  " - You need a GPU capable of outputting 10-bit colors.",
+				  " - You need a 10-bit HDR monitor.",
+				  " - The game needs to be in exclusive fullscreen.",
+				  "",
+				  "If you don't meet any of the conditions above, you might get \"Graphics Device Unsupported\" error or not see any difference."
+               ],
+               "DisplayName":"Enable HDR output (Experimental)",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
             }
          ]
       }
@@ -46,7 +66,7 @@
    "Enums":{
       "DisplayMode":[
          {
-            "DisplayName":"Fullscreen",
+            "DisplayName":"Exclusive Fullscreen",
             "Description":[
                "Exclusive fullscreen window."
             ],

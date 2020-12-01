@@ -14,6 +14,7 @@ public:
     static DisplayMode displayMode;
     static bool allowResizeInWindowed;
     static bool useConfigWorkaround;
+    static bool enableHdrOutput;
 
     static bool load(const std::string& filePath);
 };
