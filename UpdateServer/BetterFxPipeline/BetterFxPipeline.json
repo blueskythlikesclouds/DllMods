@@ -61,6 +61,22 @@
                "MinValue":null,
                "MaxValue":null,
                "DefaultValue":true
+            },
+            {
+               "Name":"SWABloomShader",
+               "Description":[
+                  "Uses the Sonic Unleashed bloom shader.",
+                  "",
+                  "Please note that vanilla stages (or custom ones) were not optimized with this in mind,",
+                  "so bloom might look terrible in most of them. No one stops you from playing with it, though.",
+				  "",
+				  "This option is recommended to be used with Sonic Unleashed stage ports instead."
+               ],
+               "DisplayName":"Use Sonic Unleashed bloom shader",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
             }
          ]
       },

@@ -3,4 +3,6 @@ add BetterFxPipeline.ini
 add BetterFxPipeline.json
 add disk/bb3/FxFXAA.ar.00
 add disk/bb3/FxFXAA.arl
+add disk/bb3/SWA.ar.00
+add disk/bb3/SWA.arl
 add mod.ini
