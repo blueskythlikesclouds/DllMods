@@ -3,10 +3,40 @@
 #include <BlueBlur.h>
 
 #include <Hedgehog/Base/Container/hhMap.h>
+#include <Hedgehog/Base/System/hhAllocator.h>
 #include <Sonic/Tool/EditParam/ParamBase.h>
 
 namespace Sonic
 {
+    class CParamTypeList;
+
+    static void* const pCParamTypeListConstructor = (void*)0xCEBF90;
+    static void* const pCParamTypeListAddValue = (void*)0xCEBD70;
+
+    static CParamTypeList* fCParamTypeListConstructor(
+        CParamTypeList* pParamTypeList, const Hedgehog::Base::CSharedString* pDescription, uint32_t* pValue, uint32_t unknown)
+    {
+        __asm
+        {
+            mov esi, pParamTypeList
+            push unknown
+            push pValue
+            push pDescription
+            call[pCParamTypeListConstructor]
+        }
+    }
+
+    static void fCParamTypeListAddValue(CParamTypeList* pParamTypeList, const Hedgehog::Base::CSharedString* pName, uint32_t value)
+    {
+        __asm
+        {
+            mov eax, pName
+            mov edi, pParamTypeList
+            mov esi, value
+            call[pCParamTypeListAddValue]
+        }
+    }
+
     class CParamTypeList : public CParamBase
     {
     public:
@@ -35,6 +65,20 @@ namespace Sonic
         };
 
         CMember* m_pMember;
+
+        void AddValue(const Hedgehog::Base::CSharedString& name, uint32_t value)
+        {
+            fCParamTypeListAddValue(this, &name, value);
+        }
+
+        static CParamTypeList* Create(uint32_t* pValue, const Hedgehog::Base::CSharedString& description)
+        {
+            CParamTypeList* pParamTypeList = (CParamTypeList*)Hedgehog::Base::fpOperatorNew(sizeof(CParamTypeList));
+            fCParamTypeListConstructor(pParamTypeList, &description, pValue, 0);
+
+            pParamTypeList->AddRef();
+            return pParamTypeList;
+        }
     };
 
     ASSERT_OFFSETOF(CParamTypeList::CMember::FuncData, m_ValueMap, 0xC);

@@ -27,6 +27,7 @@ namespace Sonic
     static void* const pCParameterCategoryCreateParamLong = (void*)0x590FB0;
     static void* const pCParameterCategoryCreateParamInt = (void*)0x590DA0;
     static void* const pCParameterCategoryCreateParamFloat = (void*)0x590770;
+    static void* const pCParameterCategoryAddParamTypeList = (void*)0xCEF700;
 
     static CParamBool* fCParameterCategoryCreateParamBool(
         const SParamValueCreationParams<bool>* pCreationParams, CParameterCategory* pParameterCategory, const Hedgehog::Base::CSharedString* pName)
@@ -88,6 +89,17 @@ namespace Sonic
         }
     }
 
+    static void fCParameterCategoryAddParamTypeList(const Hedgehog::Base::CSharedString* pName, CParameterCategory* pParameterCategory, CParamTypeList* pParamTypeList)
+    {
+        __asm
+        {
+            mov eax, pName
+            mov ecx, pParameterCategory
+            push pParamTypeList
+            call[pCParameterCategoryAddParamTypeList]
+        }
+    }
+
     class CParameterCategory : public CAbstractParameterNode
     {
     public:
@@ -143,6 +155,20 @@ namespace Sonic
         CParamValue<float>* CreateParamFloat(float* pValue, const Hedgehog::Base::CSharedString& name)
         {
             return CreateParamFloat({ pValue, *pValue }, name);
+        }
+
+        CParamTypeList* CreateParamTypeList(
+            uint32_t* pValue, const Hedgehog::Base::CSharedString& name, const Hedgehog::Base::CSharedString& description, const std::initializer_list<std::pair<const char*, uint32_t>>& values)
+        {
+            CParamTypeList* pParamTypeList = CParamTypeList::Create(pValue, description);
+
+            for (auto& value : values)
+                pParamTypeList->AddValue(value.first, value.second);
+
+            pParamTypeList->AddRef();
+            fCParameterCategoryAddParamTypeList(&name, this, pParamTypeList);
+
+            return pParamTypeList;
         }
     };
 

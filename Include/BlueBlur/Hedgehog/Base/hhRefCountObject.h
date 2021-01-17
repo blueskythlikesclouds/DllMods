@@ -5,10 +5,25 @@
 
 namespace Hedgehog::Base
 {
+    class CRefCountObject;
+
+    static inline FUNCTION_PTR(LONG, __thiscall, fpCRefCountObjectAddRef, 0x660180, CRefCountObject* This);
+    static inline FUNCTION_PTR(LONG, __thiscall, fpCRefCountObjectRelease, 0x660190, CRefCountObject* This);
+
     class CRefCountObject : public CObject
     {
     public:
         uint32_t m_RefCount;
+
+        LONG AddRef()
+        {
+            return fpCRefCountObjectAddRef(this);
+        }
+
+        LONG Release()
+        {
+            return fpCRefCountObjectRelease(this);
+        }
     };
 
     ASSERT_OFFSETOF(CRefCountObject, m_RefCount, 0x4);
