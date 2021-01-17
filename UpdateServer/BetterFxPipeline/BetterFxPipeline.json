@@ -63,20 +63,27 @@
                "DefaultValue":true
             },
             {
-               "Name":"SWABloomShader",
+               "Name":"BloomType",
                "Description":[
-                  "Uses the Sonic Unleashed bloom shader.",
-                  "",
-                  "Please note that vanilla stages (or custom ones) were not optimized with this in mind,",
-                  "so bloom might look terrible in most of them. No one stops you from playing with it, though.",
+				  "Determines the type of bloom shader to be used.",
 				  "",
-				  "This option is recommended to be used with Sonic Unleashed stage ports instead."
+				  "Sonic Generations bloom shader is recommended to be used in vanilla Sonic Generations stages and level mods.",
+				  "It's strict when including objects in bloom, but it's very colorful.",
+				  "",
+				  "Sonic Unleashed bloom shader is recommended to be used in Sonic Unleashed stage ports.",
+				  "It's very relaxed when including objects in bloom (like jumpball) and it's very colorful.",
+				  "",
+				  "FxPipeline Renderer bloom shader is the original shader for the early renderer.",
+				  "It's in the middle when it comes to including objects in bloom, but it looks very white.",
+				  "You're not recommended to use this shader unless you prefer how it looks or a stage mod was designed for it.",
+				  "",
+				  "Stage mods can override this value. In these cases, your option is going to be ignored.",
                ],
-               "DisplayName":"Use Sonic Unleashed bloom shader",
-               "Type":"bool",
+               "DisplayName":"Bloom type",
+               "Type":"BloomType",
                "MinValue":null,
                "MaxValue":null,
-               "DefaultValue":false
+               "DefaultValue":"0"
             }
          ]
       },
@@ -293,6 +300,20 @@
          {
             "DisplayName":"Extreme",
             "Value":"7"
+         },
+      ],
+	  "BloomType":[
+         {
+            "DisplayName":"Sonic Generations",
+            "Value":"0"
+         },
+         {
+            "DisplayName":"Sonic Unleashed",
+            "Value":"1"
+         },
+         {
+            "DisplayName":"FxPipeline Renderer (Legacy)",
+            "Value":"2"
          }
       ]
    },

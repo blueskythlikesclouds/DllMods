@@ -18,3 +18,7 @@
 #include "DX_PATCH.h"
 #include "Types.h"
 #include "Functions.h"
+
+// BlueBlur
+#include <Hedgehog.h>
+#include <Sonic.h>

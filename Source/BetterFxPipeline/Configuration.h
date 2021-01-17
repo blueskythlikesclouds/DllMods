@@ -19,6 +19,13 @@ enum class FxaaIntensity : uint32_t
     INTENSITY_6 = 7,
 };
 
+enum class BloomType : uint32_t
+{
+    MTFx = 0,
+    SWA = 1,
+    FxPipeline = 2
+};
+
 class Configuration
 {
 public:
@@ -27,6 +34,7 @@ public:
     static bool forceIgnoreFinalLightColorAdjustment;
     static FxaaIntensity fxaaIntensity;
     static bool postProcessingOnParticles;
+    static BloomType bloomType;
 
     static float ambientShadowBiasObject;
     static float ambientShadowBiasTerrain;

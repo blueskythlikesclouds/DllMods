@@ -45,6 +45,9 @@
     <ClCompile Include="IndependentArchiveLoader.cpp">
       <Filter>Other</Filter>
     </ClCompile>
+    <ClCompile Include="BloomTypeHandler.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -82,7 +85,6 @@
     <ClInclude Include="ParameterFixer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="DX_PATCH.h" />
     <ClInclude Include="Hash.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Functions.h" />
@@ -91,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="IndependentArchiveLoader.h">
       <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomTypeHandler.h">
+      <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

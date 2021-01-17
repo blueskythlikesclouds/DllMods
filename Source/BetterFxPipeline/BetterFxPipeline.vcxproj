@@ -60,8 +60,9 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -82,8 +83,9 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,6 +118,7 @@
     </ClCompile>
     <ClCompile Include="ResolutionScaler.cpp" />
     <ClCompile Include="SceneEffectOverrider.cpp" />
+    <ClCompile Include="BloomTypeHandler.cpp" />
     <ClCompile Include="TransparentShadowFixer.cpp" />
     <ClCompile Include="Types.cpp" />
   </ItemGroup>
@@ -124,7 +127,6 @@
     <ClInclude Include="DirectionalShadowFixer.h" />
     <ClInclude Include="BloomScaleFixer.h" />
     <ClInclude Include="DofScaleFixer.h" />
-    <ClInclude Include="DX_PATCH.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="FxaaRenderer.h" />
     <ClInclude Include="IndependentArchiveLoader.h" />
@@ -137,6 +139,7 @@
     <ClInclude Include="Pch.h" />
     <ClInclude Include="ResolutionScaler.h" />
     <ClInclude Include="SceneEffectOverrider.h" />
+    <ClInclude Include="BloomTypeHandler.h" />
     <ClInclude Include="TransparentShadowFixer.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>

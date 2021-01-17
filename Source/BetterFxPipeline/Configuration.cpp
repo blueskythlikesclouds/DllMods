@@ -4,6 +4,8 @@ bool Configuration::fixBloomScale = true;
 bool Configuration::fixDofScale = true;
 bool Configuration::forceIgnoreFinalLightColorAdjustment = false;
 bool Configuration::postProcessingOnParticles = true;
+BloomType Configuration::bloomType = BloomType::MTFx;
+
 FxaaIntensity Configuration::fxaaIntensity = FxaaIntensity::DISABLED;
 
 float Configuration::ambientShadowBiasObject = -1;
@@ -29,6 +31,7 @@ bool Configuration::load(const std::string& filePath)
     forceIgnoreFinalLightColorAdjustment = reader.GetBoolean("Renderer", "ForceIgnoreFinalLightColorAdjustment", false);
     fxaaIntensity = (FxaaIntensity)reader.GetInteger("Renderer", "FxaaIntensity", (uint32_t)FxaaIntensity::DISABLED);
     postProcessingOnParticles = reader.GetBoolean("Renderer", "PostProcessingOnParticles", true);
+    bloomType = (BloomType)reader.GetInteger("Renderer", "BloomType", 0);
 
     ambientShadowBiasObject = reader.GetFloat("Shadows", "AmbientShadowBiasObject", -1);
     ambientShadowBiasTerrain = reader.GetFloat("Shadows", "AmbientShadowBiasTerrain", -1);

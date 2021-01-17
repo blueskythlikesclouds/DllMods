@@ -11,6 +11,7 @@
 #include "ResolutionScaler.h"
 #include "SceneEffectOverrider.h"
 #include "ShadowCaster.h"
+#include "BloomTypeHandler.h"
 #include "TransparentShadowFixer.h"
 
 extern "C" __declspec(dllexport) void __cdecl OnFrame()
@@ -45,6 +46,8 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     if (Configuration::postProcessingOnParticles)
         ParticlePostProcessor::applyPatches();
+
+    BloomTypeHandler::applyPatches();
 
     if (Configuration::fxaaIntensity > FxaaIntensity::DISABLED &&
         Configuration::fxaaIntensity <= FxaaIntensity::INTENSITY_6)

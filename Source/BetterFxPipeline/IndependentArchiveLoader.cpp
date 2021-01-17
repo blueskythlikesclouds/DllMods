@@ -1,8 +1,9 @@
 ﻿#include "IndependentArchiveLoader.h"
 
-const std::array<const char*, 1> ARCHIVE_NAMES =
+const std::array<const char*, 2> ARCHIVE_NAMES =
 {
-    "FxFXAA"
+    "FxFXAA",
+    "SWA"
 };
 
 FUNCTION_PTR(void*, __thiscall, fun69C270, 0x69C270, 
