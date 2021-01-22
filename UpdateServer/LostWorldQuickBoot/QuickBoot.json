@@ -35,35 +35,39 @@
     "Type": [
 	  {
         "DisplayName": "Normal",
-        "Value": "0",
+        "Value": "0"
       },
       {
         "DisplayName": "Title menu",
-        "Value": "1",
+        "Value": "1"
       },
       {
         "DisplayName": "E3 title menu",
-        "Value": "2",
+        "Value": "2"
       },
       {
         "DisplayName": "Multiplayer menu",
-        "Value": "3",
+        "Value": "3"
       },
       {
         "DisplayName": "Multiplayer battle",
-        "Value": "4",
+        "Value": "4"
       },
       {
         "DisplayName": "World map",
-        "Value": "5",
+        "Value": "5"
       },
       {
         "DisplayName": "Stage",
-        "Value": "6",
+        "Value": "6"
       },
       {
         "DisplayName": "Minigame",
-        "Value": "7",
+        "Value": "7"
+      },
+      {
+        "DisplayName": "Developer Menu",
+        "Value": "8"
       }
     ],
 	"ExitType": [
