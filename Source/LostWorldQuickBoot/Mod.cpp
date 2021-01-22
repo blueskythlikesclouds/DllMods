@@ -2,7 +2,7 @@
 
 std::string stageId;
 
-enum Type { TYPE_NORMAL, TYPE_TO_TITLE, TYPE_TO_E3_TITLE, TYPE_TO_MULTISELECT, TYPE_TO_BATTLE, TYPE_TO_WORLD_MAP, TYPE_TO_STAGE, TYPE_TO_MINIGAME } type;
+enum Type { TYPE_NORMAL, TYPE_TO_TITLE, TYPE_TO_E3_TITLE, TYPE_TO_MULTISELECT, TYPE_TO_BATTLE, TYPE_TO_WORLD_MAP, TYPE_TO_STAGE, TYPE_TO_MINIGAME, TYPE_TO_DEVMENU } type;
 
 enum ExitType { EXIT_TYPE_NORMAL, EXIT_TYPE_RELOAD } exitType;
 
@@ -54,6 +54,10 @@ HOOK(void*, __fastcall, SaveInitState, ASLR(0x910690), void* gameSequence, void*
 
 		case TYPE_TO_MINIGAME:
 			*(uint32_t*)((uint32_t)gameSequence + 80) = ASLR(0x9108D0);
+			break;
+
+		case TYPE_TO_DEVMENU:
+			*(uint32_t*)((uint32_t)gameSequence + 80) = ASLR(0x9101A0);
 			break;
 		}
 	}
