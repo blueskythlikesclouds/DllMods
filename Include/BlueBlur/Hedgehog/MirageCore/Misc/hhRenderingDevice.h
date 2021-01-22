@@ -35,6 +35,9 @@ namespace Hedgehog::Mirage
     static FUNCTION_PTR(void, __thiscall, fpCRenderingDeviceSetViewMatrix, 0x6FA760,
         CRenderingDevice* This, const Eigen::Matrix4f& viewMatrix);
 
+    static FUNCTION_PTR(void, __thiscall, fpCRenderingDeviceSetAtlasParameterData, 0x6FA080,
+        CRenderingDevice* This, float* const pData);
+
     class CRenderingDevice
     {
     public:
@@ -79,6 +82,11 @@ namespace Hedgehog::Mirage
         void SetViewMatrix(const Eigen::Matrix4f& viewMatrix)
         {
             fpCRenderingDeviceSetViewMatrix(this, viewMatrix);
+        }
+
+        void SetAtlasParameterData(float* const pData)
+        {
+            fpCRenderingDeviceSetAtlasParameterData(this, pData);
         }
     };
 
