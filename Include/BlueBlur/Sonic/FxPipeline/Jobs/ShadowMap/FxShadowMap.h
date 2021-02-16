@@ -22,7 +22,9 @@ namespace Sonic
         boost::shared_ptr<Hedgehog::Yggdrasill::CYggSurface> m_spColorTex;
         boost::shared_ptr<Hedgehog::Yggdrasill::CYggTexture> m_spShadowMap;
         boost::shared_ptr<Hedgehog::Yggdrasill::CYggTexture> m_spShadowMapNoTerrain;
-        INSERT_PADDING(0x44);
+        Hedgehog::Mirage::SShaderPair m_MakeShadowMapShader;
+        Hedgehog::Mirage::SShaderPair m_MakeShadowMapTransparentShader;
+        INSERT_PADDING(0x24);
         uint32_t m_ShadowMapSize;
         INSERT_PADDING(0x4);
     };
@@ -30,6 +32,8 @@ namespace Sonic
     ASSERT_OFFSETOF(CFxShadowMap, m_spColorTex, 0x48);
     ASSERT_OFFSETOF(CFxShadowMap, m_spShadowMap, 0x50);
     ASSERT_OFFSETOF(CFxShadowMap, m_spShadowMapNoTerrain, 0x58);
+    ASSERT_OFFSETOF(CFxShadowMap, m_MakeShadowMapShader, 0x60);
+    ASSERT_OFFSETOF(CFxShadowMap, m_MakeShadowMapTransparentShader, 0x70);
     ASSERT_OFFSETOF(CFxShadowMap, m_ShadowMapSize, 0xA4);
     ASSERT_SIZEOF(CFxShadowMap, 0xAC);
 }
