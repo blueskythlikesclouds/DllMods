@@ -11,6 +11,7 @@ namespace Hedgehog::Mirage
     class CLightManager;
     class CRenderingDevice;
     class CRenderingInfrastructure;
+    struct SShaderPair;
 }
 
 namespace Hedgehog::Yggdrasill
@@ -60,6 +61,11 @@ namespace Hedgehog::Yggdrasill
 
     static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererRender, 0x789890, CYggSceneRenderer* This, ERenderType type, ERenderSlot slot);
     static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererResetMaterialColor, 0x10D4EB0, CYggSceneRenderer* This);
+    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererSetLightViewProjection, 0x789360, CYggSceneRenderer* This, const Eigen::Matrix4f& view, const Eigen::Matrix4f& projection);
+    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererLockShader, 0x789BE0, CYggSceneRenderer* This, const Hedgehog::Mirage::SShaderPair& shaderPair, size_t flags);
+    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererUnlockShader, 0x789860, CYggSceneRenderer* This);
+    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererSetCamera, 0x7890F0, CYggSceneRenderer* This, Hedgehog::Mirage::CCamera* pCamera, size_t flags);
+    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererUnsetCamera, 0x789110, CYggSceneRenderer* This);
 
     class CYggSceneRenderer : public Base::CObject
     {
@@ -91,6 +97,31 @@ namespace Hedgehog::Yggdrasill
         void ResetMaterialColor()
         {
             fpCYggSceneRendererResetMaterialColor(this);
+        }
+
+        void SetLightViewProjection(const Eigen::Matrix4f& view, const Eigen::Matrix4f& projection)
+        {
+            fpCYggSceneRendererSetLightViewProjection(this, view, projection);
+        }
+
+        void LockShader(const Hedgehog::Mirage::SShaderPair& shaderPair, const size_t flags)
+        {
+            fpCYggSceneRendererLockShader(this, shaderPair, flags);
+        }
+
+        void UnlockShader()
+        {
+            fpCYggSceneRendererUnlockShader(this);
+        }
+
+        void SetCamera(Hedgehog::Mirage::CCamera* pCamera, const size_t flags)
+        {
+            fpCYggSceneRendererSetCamera(this, pCamera, flags);
+        }
+
+        void UnsetCamera()
+        {
+            fpCYggSceneRendererUnsetCamera(this);
         }
     };
 

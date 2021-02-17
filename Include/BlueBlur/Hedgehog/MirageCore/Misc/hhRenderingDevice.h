@@ -47,7 +47,9 @@ namespace Hedgehog::Mirage
         void* m_pGlobalParametersData;
         uint32_t m_GlobalParameterIndex;
 
-        INSERT_PADDING(0x75E0);
+        INSERT_PADDING(0x4);
+        uint32_t m_Field14;
+        INSERT_PADDING(0x75D8);
 
         void SetRenderState(D3DRENDERSTATETYPE type, uint32_t value)
         {
@@ -94,5 +96,6 @@ namespace Hedgehog::Mirage
     ASSERT_OFFSETOF(CRenderingDevice, m_pD3DDevice, 0x4);
     ASSERT_OFFSETOF(CRenderingDevice, m_pGlobalParametersData, 0x8);
     ASSERT_OFFSETOF(CRenderingDevice, m_GlobalParameterIndex, 0xC);
+    ASSERT_OFFSETOF(CRenderingDevice, m_Field14, 0x14);
     ASSERT_SIZEOF(CRenderingDevice, 0x75F0);
 }

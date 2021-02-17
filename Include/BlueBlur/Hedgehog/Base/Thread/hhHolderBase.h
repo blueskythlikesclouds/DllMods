@@ -16,6 +16,11 @@ namespace Hedgehog::Base
         CSynchronizedObject* m_pSynchronizedObject;
         bool m_Success;
 
+        CHolderBase() : m_pSynchronizedObject(nullptr), m_Success(false)
+        {
+            
+        }
+
         CHolderBase(CSynchronizedObject* pSynchronizedObject, bool forceSync = false)
         {
             fpCHolderBaseCtor(this, pSynchronizedObject, forceSync);
