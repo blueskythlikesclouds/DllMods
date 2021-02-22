@@ -48,7 +48,6 @@ namespace Sonic
             class FuncData : public Hedgehog::Base::CRefCountObject
             {
             public:
-                INSERT_PADDING(0x4);
                 hh::map<uint32_t, Hedgehog::Base::CSharedString> m_ValueMap;
                 INSERT_PADDING(0x44);
                 uint32_t* m_pValue;
@@ -81,7 +80,7 @@ namespace Sonic
         }
     };
 
-    ASSERT_OFFSETOF(CParamTypeList::CMember::FuncData, m_ValueMap, 0xC);
+    ASSERT_OFFSETOF(CParamTypeList::CMember::FuncData, m_ValueMap, 0x8);
     ASSERT_OFFSETOF(CParamTypeList::CMember::FuncData, m_pValue, 0x58);
     ASSERT_OFFSETOF(CParamTypeList::CMember::FuncData, m_DefaultValue, 0x5C);
     ASSERT_OFFSETOF(CParamTypeList::CMember::FuncData, m_Description, 0x60);

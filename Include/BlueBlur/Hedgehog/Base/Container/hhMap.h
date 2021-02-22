@@ -7,12 +7,13 @@ namespace hh
     template<typename TKey, typename TValue>
     class pair
     {
+    public:
         TKey m_Key;
         TValue m_Value;
     };
 
     template<typename TKey, typename TValue>
-    class map : tree<pair<TKey, TValue>>
+    class map : public tree<pair<TKey, TValue>>
     {
         
     };

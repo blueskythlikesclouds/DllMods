@@ -12,7 +12,8 @@ namespace hh
             node* m_pPrevious;
             T m_Value;
         };
-        
+
+        INSERT_PADDING(0x4);
         node* m_pHead;
         size_t m_Count;
 

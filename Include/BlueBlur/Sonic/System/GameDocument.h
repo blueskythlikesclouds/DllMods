@@ -24,7 +24,6 @@ namespace Sonic
         public:
             INSERT_PADDING(0x1C);
             boost::shared_ptr<Hedgehog::Database::CDatabase> m_spDatabase;
-            INSERT_PADDING(0x4);
             hh::list<boost::shared_ptr<CGameObject>> m_GameObjects;
             INSERT_PADDING(0x50);
             boost::shared_ptr<CLightManager> m_spLightManager;
@@ -44,7 +43,7 @@ namespace Sonic
     };
 
     ASSERT_OFFSETOF(CGameDocument::CMember, m_spDatabase, 0x1C);
-    ASSERT_OFFSETOF(CGameDocument::CMember, m_GameObjects, 0x28);
+    ASSERT_OFFSETOF(CGameDocument::CMember, m_GameObjects, 0x24);
     ASSERT_OFFSETOF(CGameDocument::CMember, m_spLightManager, 0x80);
     ASSERT_SIZEOF(CGameDocument::CMember, 0x1B0);
 

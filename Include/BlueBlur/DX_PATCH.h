@@ -33,18 +33,16 @@ namespace DX_PATCH
     class IUnknown9
     {
     public:
-        IUnknown9();
-
         virtual HRESULT QueryInterface(REFIID riid, void** ppvObj) = 0;
 
         virtual ULONG AddRef() = 0;
 
         virtual ULONG Release() = 0;
 
-        virtual ~IUnknown9() = 0;
+        virtual ~IUnknown9() = default;
     };
 
-    class IDirect3D9 : IUnknown9
+    class IDirect3D9 : public IUnknown9
     {
     public:
         virtual HRESULT RegisterSoftwareDevice(void* pInitializeFunction) = 0;
@@ -76,7 +74,7 @@ namespace DX_PATCH
         virtual HRESULT CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DDevice9** ppReturnedDeviceInterface) = 0;
     };
 
-    class IDirect3DDevice9 : IUnknown9
+    class IDirect3DDevice9 : public IUnknown9
     {
     public:
         virtual HRESULT TestCooperativeLevel() = 0;
@@ -312,7 +310,7 @@ namespace DX_PATCH
         virtual HRESULT CreateQuery(D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery) = 0;
     };
 
-    class IDirect3DResource9 : IUnknown9
+    class IDirect3DResource9 : public IUnknown9
     {
     public:
         virtual HRESULT GetDevice(IDirect3DDevice9** ppDevice) = 0;
@@ -332,7 +330,7 @@ namespace DX_PATCH
         virtual D3DRESOURCETYPE GetType() = 0;
     };
 
-    class IDirect3DVertexDeclaration9 : IUnknown9
+    class IDirect3DVertexDeclaration9 : public IUnknown9
     {
     public:
         virtual HRESULT GetDevice(IDirect3DDevice9** ppDevice) = 0;
@@ -340,7 +338,7 @@ namespace DX_PATCH
         virtual HRESULT GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements) = 0;
     };
 
-    class IDirect3DVertexShader9 : IUnknown9
+    class IDirect3DVertexShader9 : public IUnknown9
     {
     public:
         virtual HRESULT GetDevice(IDirect3DDevice9** ppDevice) = 0;
@@ -348,7 +346,7 @@ namespace DX_PATCH
         virtual HRESULT GetFunction(void*, UINT* pSizeOfData) = 0;
     };
 
-    class IDirect3DPixelShader9 : IUnknown9
+    class IDirect3DPixelShader9 : public IUnknown9
     {
     public:
         virtual HRESULT GetDevice(IDirect3DDevice9** ppDevice) = 0;
@@ -356,7 +354,7 @@ namespace DX_PATCH
         virtual HRESULT GetFunction(void*, UINT* pSizeOfData) = 0;
     };
 
-    class IDirect3DBaseTexture9 : IDirect3DResource9
+    class IDirect3DBaseTexture9 : public IDirect3DResource9
     {
     public:
         virtual DWORD SetLOD(DWORD LODNew) = 0;
@@ -378,7 +376,7 @@ namespace DX_PATCH
         virtual HRESULT FUN_4C(void* A1) = 0;
     };
 
-    class IDirect3DTexture9 : IDirect3DBaseTexture9
+    class IDirect3DTexture9 : public IDirect3DBaseTexture9
     {
     public:
         virtual HRESULT GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc) = 0;
@@ -392,7 +390,7 @@ namespace DX_PATCH
         virtual HRESULT AddDirtyRect(CONST RECT* pDirtyRect) = 0;
     };
 
-    class IDirect3DCubeTexture9 : IDirect3DBaseTexture9
+    class IDirect3DCubeTexture9 : public IDirect3DBaseTexture9
     {
     public:
         virtual HRESULT GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc) = 0;
@@ -406,7 +404,7 @@ namespace DX_PATCH
         virtual HRESULT AddDirtyRect(D3DCUBEMAP_FACES FaceType, CONST RECT* pDirtyRect) = 0;
     };
 
-    class IDirect3DVertexBuffer9 : IDirect3DResource9
+    class IDirect3DVertexBuffer9 : public IDirect3DResource9
     {
     public:
         virtual HRESULT Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags) = 0;
@@ -416,7 +414,7 @@ namespace DX_PATCH
         virtual HRESULT GetDesc(D3DVERTEXBUFFER_DESC *pDesc) = 0;
     };
 
-    class IDirect3DIndexBuffer9 : IDirect3DResource9
+    class IDirect3DIndexBuffer9 : public IDirect3DResource9
     {
     public:
         virtual HRESULT Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags) = 0;
@@ -426,7 +424,7 @@ namespace DX_PATCH
         virtual HRESULT GetDesc(D3DINDEXBUFFER_DESC *pDesc) = 0;
     };
 
-    class IDirect3DSurface9 : IDirect3DResource9
+    class IDirect3DSurface9 : public IDirect3DResource9
     {
     public:
         virtual HRESULT GetContainer(REFIID riid, void** ppContainer) = 0;

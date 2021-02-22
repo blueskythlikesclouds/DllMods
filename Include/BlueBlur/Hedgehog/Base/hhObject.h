@@ -7,7 +7,7 @@ namespace Hedgehog::Base
     class CObject
     {
     public:
-        virtual ~CObject() = 0;
+        virtual ~CObject() = default;
 
         template<typename T>
         bool IsOfType()

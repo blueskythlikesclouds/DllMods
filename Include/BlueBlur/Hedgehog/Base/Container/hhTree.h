@@ -17,13 +17,13 @@ namespace hh
             int8_t m_Color;
             bool m_IsNil;
 
-            T* next()
+            node* next()
             {
-                T* ptr = this;
+                node* ptr = this;
 
                 if (ptr->m_pRight->m_IsNil)
                 {
-                    T* node;
+                    node* node;
                     while (!(node = ptr->m_pParent)->m_IsNil && ptr == node->m_pRight)
                         ptr = node;
 
@@ -41,6 +41,7 @@ namespace hh
             }
         };
 
+        INSERT_PADDING(0x4);
         node* m_pHead;
         size_t m_Count;
 

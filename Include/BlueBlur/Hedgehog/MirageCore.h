@@ -7,6 +7,7 @@
 #include <Hedgehog/MirageCore/Misc/hhStaticLightContext.h>
 #include <Hedgehog/MirageCore/RenderData/hhLightData.h>
 #include <Hedgehog/MirageCore/RenderData/hhLightListData.h>
+#include <Hedgehog/MirageCore/RenderData/hhMirageDatabaseWrapper.h>
 #include <Hedgehog/MirageCore/RenderData/hhPictureData.h>
 #include <Hedgehog/MirageCore/RenderData/hhPixelShaderData.h>
 #include <Hedgehog/MirageCore/RenderData/hhVertexShaderData.h>
