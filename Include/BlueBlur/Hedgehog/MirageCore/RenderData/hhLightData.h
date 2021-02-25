@@ -7,8 +7,8 @@ namespace Hedgehog::Mirage
 {
     enum ELightType : uint32_t
     {
-        HH_MR_LIGHT_TYPE_DIRECTIONAL = 0,
-        HH_MR_LIGHT_TYPE_OMNI = 1
+        eLightType_Directional = 0,
+        eLightType_Omni = 1
     };
 
     class CLightData : public Hedgehog::Database::CDatabaseData

@@ -18,42 +18,42 @@ namespace Hedgehog::Yggdrasill
 {
     enum ERenderType : uint32_t
     {
-        HH_YGG_RENDER_TYPE_TERRAIN              = 0x2,
-        HH_YGG_RENDER_TYPE_OBJECT               = 0x4,
-        HH_YGG_RENDER_TYPE_OBJECT_XLU           = 0x8,
-        HH_YGG_RENDER_TYPE_OBJECT_PRE_ZPASS     = 0x10,
-        HH_YGG_RENDER_TYPE_OBJECT_ZPASS         = 0x20,
-        HH_YGG_RENDER_TYPE_OBJECT_ZPASS_CONST   = 0x200000,
-        HH_YGG_RENDER_TYPE_OBJECT_OVERLAY_ZPASS = 0x40,
-        HH_YGG_RENDER_TYPE_OBJECT_OVERLAY       = 0x80,
-        HH_YGG_RENDER_TYPE_OBJECT_ICON          = 0x100,
-        HH_YGG_RENDER_TYPE_PLAYER               = 0x1,
-        HH_YGG_RENDER_TYPE_SPARKLE_FRAMEBUFFER  = 0x80000,
-        HH_YGG_RENDER_TYPE_SPARKLE_OBJECT       = 0x40000,
-        HH_YGG_RENDER_TYPE_SPARKLE_STENCIL      = 0x100000,
-        HH_YGG_RENDER_TYPE_EFFECT               = 0x400,
-        HH_YGG_RENDER_TYPE_SHADOW_MAP_OBJECT    = 0x4000,
-        HH_YGG_RENDER_TYPE_SHADOW_MAP_TERRAIN   = 0x8000,
-        HH_YGG_RENDER_TYPE_MOTION_BLUR_PLAYER   = 0x10000,
-        HH_YGG_RENDER_TYPE_MOTION_BLUR_OBJECT   = 0x20000,
-        HH_YGG_RENDER_TYPE_DEBUG                = 0x800,
-        HH_YGG_RENDER_TYPE_HUD                  = 0x1000,
-        HH_YGG_RENDER_TYPE_SYSTEM_HUD           = 0x2000,
-        HH_YGG_RENDER_TYPE_SKY                  = 0x200
+        eRenderType_Terrain            = 0x2,
+        eRenderType_Object             = 0x4,
+        eRenderType_ObjectXlu          = 0x8,
+        eRenderType_ObjectPreZPass     = 0x10,
+        eRenderType_ObjectZPass        = 0x20,
+        eRenderType_ObjectZPassConst   = 0x200000,
+        eRenderType_ObjectOverlayZPass = 0x40,
+        eRenderType_ObjectOverlay      = 0x80,
+        eRenderType_ObjectIcon         = 0x100,
+        eRenderType_Player             = 0x1,
+        eRenderType_SparkleFramebuffer = 0x80000,
+        eRenderType_SparkleObject      = 0x40000,
+        eRenderType_SparkleStencil     = 0x100000,
+        eRenderType_Effect             = 0x400,
+        eRenderType_ShadowMapObject    = 0x4000,
+        eRenderType_ShadowMapTerrain   = 0x8000,
+        eRenderType_MotionBlurPlayer   = 0x10000,
+        eRenderType_MotionBlurObject   = 0x20000,
+        eRenderType_Debug              = 0x800,
+        eRenderType_HUD                = 0x1000,
+        eRenderType_SystemHUD          = 0x2000,
+        eRenderType_Sky                = 0x200
     };
 
     enum ERenderSlot : uint32_t
     {
-        HH_YGG_RENDER_SLOT_OPAQUE        = 0x1,
-        HH_YGG_RENDER_SLOT_PUNCH_THROUGH = 0x2,
-        HH_YGG_RENDER_SLOT_TRANSPARENT   = 0x4,
-        HH_YGG_RENDER_SLOT_WATER         = 0x8,
-        HH_YGG_RENDER_SLOT_SPECIAL1      = 0x10,
-        HH_YGG_RENDER_SLOT_SPECIAL2      = 0x20,
-        HH_YGG_RENDER_SLOT_MAIN          = 0x40,
-        HH_YGG_RENDER_SLOT_DEBUG         = 0x80,
-        HH_YGG_RENDER_SLOT_PRIMITIVE     = 0x100,
-        HH_YGG_RENDER_SLOT_RESIDENT      = 0x200
+        eRenderSlot_Opaque       = 0x1,
+        eRenderSlot_PunchThrough = 0x2,
+        eRenderSlot_Transparent  = 0x4,
+        eRenderSlot_Water        = 0x8,
+        eRenderSlot_Special1     = 0x10,
+        eRenderSlot_Special2     = 0x20,
+        eRenderSlot_Main         = 0x40,
+        eRenderSlot_Debug        = 0x80,
+        eRenderSlot_Primitive    = 0x100,
+        eRenderSlot_Resident     = 0x200
     };
 
     class CYggSceneRenderer;

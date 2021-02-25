@@ -7,10 +7,10 @@ namespace Hedgehog::Mirage
 {
     enum EPictureType : uint32_t
     {
-        HH_MR_PICTURE_TYPE_INVALID = (uint32_t)-1,
-        HH_MR_PICTURE_TYPE_TEXTURE = 0,
-        HH_MR_PICTURE_TYPE_CUBE_TEXTURE = 1,
-        HH_MR_PICTURE_TYPE_VOLUME_TEXTURE = 2
+        ePictureType_Invalid = (uint32_t)-1,
+        ePictureType_Texture = 0,
+        ePictureType_CubeTexture = 1,
+        ePictureType_VolumeTexture = 2
     };
 
     class CPictureData : public Database::CDatabaseData
