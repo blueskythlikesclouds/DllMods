@@ -174,7 +174,7 @@ HRESULT D3D9Ex::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWin
     if (pPresentationParameters->Windowed)
         pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 
-    if (Configuration::enableHdrOutput)
+    if (Configuration::enable10BitOutput)
         pPresentationParameters->BackBufferFormat = D3DFMT_A2R10G10B10;
 
     D3DDISPLAYMODEEX displayModeEx;

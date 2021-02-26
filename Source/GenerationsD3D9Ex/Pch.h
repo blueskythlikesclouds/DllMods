@@ -16,3 +16,8 @@
 #include <INIReader.h>
 
 #include <Helpers.h>
+
+#include <Sonic.h>
+#include <Hedgehog.h>
+
+#include <DDSTextureLoader9.h>

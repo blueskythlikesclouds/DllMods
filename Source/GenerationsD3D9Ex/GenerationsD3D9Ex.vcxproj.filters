@@ -46,12 +46,15 @@
     <ClCompile Include="D3D9ExHandler.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="TextureHandler.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="D3D9ExVolumeTexture.cpp">
       <Filter>D3D9Ex</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSHandler.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader9.cpp">
+      <Filter>Dependencies\DDSTextureLoader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,12 +101,15 @@
     <ClInclude Include="D3D9ExHandler.h">
       <Filter>Patches</Filter>
     </ClInclude>
-    <ClInclude Include="TextureHandler.h">
-      <Filter>Patches</Filter>
-    </ClInclude>
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="D3D9ExVolumeTexture.h">
       <Filter>D3D9Ex</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSHandler.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader9.h">
+      <Filter>Dependencies\DDSTextureLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +118,12 @@
     </Filter>
     <Filter Include="Patches">
       <UniqueIdentifier>{a5bea2f3-212f-4069-b50d-7556dd19e38a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies">
+      <UniqueIdentifier>{4c6bcc79-c748-4465-b3a0-427a249f25da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies\DDSTextureLoader">
+      <UniqueIdentifier>{5c28931d-45e8-43ad-8aa8-5f587443ea2f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 #include "Configuration.h"
 #include "D3D9ExHandler.h"
 #include "LostCodeLoader.h"
-#include "TextureHandler.h"
+#include "DDSHandler.h"
 
 extern "C" __declspec(dllexport) void Init(ModInfo* info)
 {
@@ -15,7 +15,7 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
         MessageBox(NULL, L"Failed to parse GenerationsD3D9Ex.ini", NULL, MB_ICONERROR);
 
     D3D9ExHandler::applyPatches();
-    TextureHandler::applyPatches();
+    DDSHandler::applyPatches();
 
     // Hide window when it's first created because it's not a pleasant sight to see it centered/resized afterwards.
     if (Configuration::displayMode != DisplayMode::FULLSCREEN)

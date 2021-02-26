@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class TextureHandler
+class DDSHandler
 {
 public:
     static void applyPatches();

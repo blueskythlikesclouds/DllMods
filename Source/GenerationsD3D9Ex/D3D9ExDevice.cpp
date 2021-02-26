@@ -177,8 +177,23 @@ HRESULT D3D9ExDevice::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD 
 {
     IDirect3DTexture9* d3dTexture = nullptr;
 
-    if (Usage == D3DUSAGE_RENDERTARGET && Configuration::enableHdrOutput && (Format == D3DFMT_A8B8G8R8 || Format == D3DFMT_A8R8G8B8))
-        Format = D3DFMT_A16B16G16R16;
+    if (Usage == D3DUSAGE_RENDERTARGET && Configuration::enable10BitOutput)
+    {
+        switch (Format)
+        {
+        case D3DFMT_A8B8G8R8:
+        case D3DFMT_A8R8G8B8:
+            Format = D3DFMT_A16B16G16R16;
+            break;
+
+        case D3DFMT_L8:
+            Format = D3DFMT_L16;
+            break;
+
+        default:
+            break;
+        }
+    }
 
     HRESULT result = d3dDevice->CreateTexture(Width, Height, Levels, Usage | (Pool == D3DPOOL_MANAGED ? D3DUSAGE_DYNAMIC : NULL), Format, Pool == D3DPOOL_MANAGED ? D3DPOOL_DEFAULT : Pool, &d3dTexture, pSharedHandle);
     if (FAILED(result))
