@@ -122,6 +122,11 @@ namespace Hedgehog::Yggdrasill
             fpCYggDeviceSetDepthStencil(this, spSurface);
         }
 
+        void UnsetDepthStencil()
+        {
+            SetDepthStencil(boost::shared_ptr<CYggSurface>());
+        }
+
         void GetRenderTarget(boost::shared_ptr<CYggSurface>& spSurface, uint32_t index)
         {
             fpCYggDeviceGetRenderTarget(this, spSurface, index);
@@ -130,6 +135,11 @@ namespace Hedgehog::Yggdrasill
         void SetRenderTarget(uint32_t index, const boost::shared_ptr<CYggSurface>& spSurface)
         {
             fpCYggDeviceSetRenderTarget(this, index, spSurface);
+        }
+
+        void UnsetRenderTarget(uint32_t index)
+        {
+            SetRenderTarget(index, boost::shared_ptr<CYggSurface>());
         }
 
         void SetSamplerAddressMode(uint32_t index, uint32_t value)

@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <detours.h>
 
+#define BOOST_NO_AUTO_PTR
 #include <boost/shared_ptr.hpp>
 
 #include <array>

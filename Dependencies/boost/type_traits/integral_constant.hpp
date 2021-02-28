@@ -1,4 +1,4 @@
-//  (C) Copyright John Maddock 2015. 
+//  (C) Copyright John Maddock 2005. 
 //  Use, modification and distribution are subject to the 
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,90 +7,75 @@
 #define BOOST_TYPE_TRAITS_INTEGRAL_CONSTANT_HPP
 
 #include <boost/config.hpp>
-#include <boost/detail/workaround.hpp>
-
-#if (BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1400)) \
-   || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610)) \
-   || BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840)) \
-   || BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3202)) \
-   || BOOST_WORKAROUND(BOOST_INTEL_CXX_VERSION, BOOST_TESTED_AT(810)) )\
-   || defined(BOOST_MPL_CFG_NO_ADL_BARRIER_NAMESPACE)
-
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/integral_c.hpp>
 
 namespace boost{
-   namespace mpl
-   {
-      template <bool B> struct bool_;
-      template <class I, I val> struct integral_c;
-      struct integral_c_tag;
-   }
-}
 
+#if defined(BOOST_NO_DEPENDENT_TYPES_IN_TEMPLATE_VALUE_PARAMETERS) || defined(__BORLANDC__)
+template <class T, int val>
 #else
-
-namespace mpl_{
-
-   template <bool B> struct bool_;
-   template <class I, I val> struct integral_c;
-   struct integral_c_tag;
-}
-
-namespace boost
+template <class T, T val>
+#endif
+struct integral_constant : public mpl::integral_c<T, val>
 {
-   namespace mpl
-   {
-      using ::mpl_::bool_;
-      using ::mpl_::integral_c;
-      using ::mpl_::integral_c_tag;
-   }
-}
+   //BOOST_STATIC_CONSTANT(T, value = val);
+   //typedef T value_type;
+   typedef integral_constant<T,val> type;
 
+#if 0
+   //
+   // everything that follows now, is MPL-compatibility code:
+   //
+   typedef ::boost::mpl::integral_c_tag tag;
+
+   // have to #ifdef here: some compilers don't like the 'val + 1' form (MSVC),
+   // while some other don't like 'value + 1' (Borland), and some don't like
+   // either
+#if BOOST_WORKAROUND(__EDG_VERSION__, <= 243)
+private:
+   BOOST_STATIC_CONSTANT(T, next_value = BOOST_MPL_AUX_STATIC_CAST(T, (val + 1)));
+   BOOST_STATIC_CONSTANT(T, prior_value = BOOST_MPL_AUX_STATIC_CAST(T, (val - 1)));
+public:
+   typedef integral_constant<T,next_value> next;
+   typedef integral_constant<T,prior_value> prior;
+#elif BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x561)) \
+   || BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(502)) \
+   || BOOST_WORKAROUND(__HP_aCC, BOOST_TESTED_AT(53800))
+   typedef integral_constant<T, ( BOOST_MPL_AUX_STATIC_CAST(T, (val + 1)) )> next;
+   typedef integral_constant<T, ( BOOST_MPL_AUX_STATIC_CAST(T, (val - 1)) )> prior;
+#else
+   typedef integral_constant<T, ( BOOST_MPL_AUX_STATIC_CAST(T, (value + 1)) )> next;
+   typedef integral_constant<T, ( BOOST_MPL_AUX_STATIC_CAST(T, (value - 1)) )> prior;
 #endif
 
-namespace boost{
+   // enables uniform function call syntax for families of overloaded 
+   // functions that return objects of both arithmetic ('int', 'long',
+   // 'double', etc.) and wrapped integral types (for an example, see 
+   // "mpl/example/power.cpp")
+   operator T() const { return static_cast<T>(this->value); } 
+#endif
+};
 
-   template <class T, T val>
-   struct integral_constant
-   {
-      typedef mpl::integral_c_tag tag;
-      typedef T value_type;
-      typedef integral_constant<T, val> type;
-      static const T value = val;
+template<> struct integral_constant<bool,true> : public mpl::true_ 
+{
+#if BOOST_WORKAROUND(BOOST_MSVC, <= 1200)
+   typedef mpl::true_ base_;
+   using base_::value;
+#endif
+   typedef integral_constant<bool,true> type;
+};
+template<> struct integral_constant<bool,false> : public mpl::false_ 
+{
+#if BOOST_WORKAROUND(BOOST_MSVC, <= 1200)
+   typedef mpl::false_ base_;
+   using base_::value;
+#endif
+   typedef integral_constant<bool,false> type;
+};
 
-      operator const mpl::integral_c<T, val>& ()const
-      {
-         static const char data[sizeof(long)] = { 0 };
-         static const void* pdata = data;
-         return *(reinterpret_cast<const mpl::integral_c<T, val>*>(pdata));
-      }
-      BOOST_CONSTEXPR operator T()const { return val; }
-   };
-
-   template <class T, T val>
-   T const integral_constant<T, val>::value;
-      
-   template <bool val>
-   struct integral_constant<bool, val>
-   {
-      typedef mpl::integral_c_tag tag;
-      typedef bool value_type;
-      typedef integral_constant<bool, val> type;
-      static const bool value = val;
-
-      operator const mpl::bool_<val>& ()const
-      {
-         static const char data[sizeof(long)] = { 0 };
-         static const void* pdata = data;
-         return *(reinterpret_cast<const mpl::bool_<val>*>(pdata));
-      }
-      BOOST_CONSTEXPR operator bool()const { return val; }
-   };
-
-   template <bool val>
-   bool const integral_constant<bool, val>::value;
-
-   typedef integral_constant<bool, true> true_type;
-   typedef integral_constant<bool, false> false_type;
+typedef integral_constant<bool,true> true_type;
+typedef integral_constant<bool,false> false_type;
 
 }
 

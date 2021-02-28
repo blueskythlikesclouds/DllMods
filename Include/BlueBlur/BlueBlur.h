@@ -1,6 +1,7 @@
 #pragma once
 
 // boost
+#define BOOST_NO_AUTO_PTR
 #include <boost/shared_ptr.hpp>
 
 // Eigen

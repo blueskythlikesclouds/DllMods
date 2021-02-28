@@ -32,7 +32,7 @@ HOOK(void*, __stdcall, LoadApplicationAndShaders, 0xD6A580, void* This)
         uint32_t unk0[53];
 
         fun446F90((void*)&unk0, 200, 5);
-        fun69C270(archiveDatabaseLoader, nullptr, arFileName, arlFileName, (void*)&unk0);
+        fun69C270(archiveDatabaseLoader, boost::shared_ptr<void>(), arFileName, arlFileName, (void*)&unk0);
         fun446E30((void*)&unk0);
 
         uint32_t field04 = *(uint32_t*)((uint32_t)This + 4);

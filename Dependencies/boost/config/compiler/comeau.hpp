@@ -12,7 +12,7 @@
 
 //  Comeau C++ compiler setup:
 
-#include <boost/config/compiler/common_edg.hpp>
+#include "boost/config/compiler/common_edg.hpp"
 
 #if (__COMO_VERSION__ <= 4245)
 
@@ -24,8 +24,8 @@
 #  endif
 
 // Void returns don't work when emulating VC 6 (Peter Dimov)
-// TODO: look up if this doesn't apply to the whole 12xx range
-#  if defined(_MSC_VER) && (_MSC_VER < 1300)
+
+#  if defined(_MSC_VER) && (_MSC_VER == 1200)
 #     define BOOST_NO_VOID_RETURNS
 #  endif
 
@@ -50,7 +50,7 @@
 // last known and checked version is 4245:
 #if (__COMO_VERSION__ > 4245)
 #  if defined(BOOST_ASSERT_CONFIG)
-#     error "boost: Unknown compiler version - please run the configure tests and report the results"
+#     error "Unknown compiler version - please run the configure tests and report the results"
 #  endif
 #endif
 

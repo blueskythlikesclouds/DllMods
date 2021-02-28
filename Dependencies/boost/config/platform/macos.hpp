@@ -25,7 +25,7 @@
 // to replace the platform-native BSD one. G++ users
 // should also always be able to do this on MaxOS X.
 //
-#  include <boost/config/detail/posix_features.hpp>
+#  include <boost/config/posix_features.hpp>
 #  ifndef BOOST_HAS_STDINT_H
 #     define BOOST_HAS_STDINT_H
 #  endif
@@ -47,14 +47,6 @@
 #    define BOOST_NO_STDC_NAMESPACE
 #  endif
 
-#  if (__GNUC__ >= 4)
-
-// Both gcc and intel require these.  
-#    define BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE
-#    define BOOST_HAS_NANOSLEEP
-
-#  endif
-
 #else
 
 // Using the MSL C library.
@@ -64,17 +56,16 @@
 #  if ( defined(TARGET_API_MAC_CARBON) && TARGET_API_MAC_CARBON ) || ( defined(TARGET_CARBON) && TARGET_CARBON )
 
 #  if !defined(BOOST_HAS_PTHREADS)
-// MPTasks support is deprecated/removed from Boost:
-//#    define BOOST_HAS_MPTASKS
+#    define BOOST_HAS_MPTASKS
 #  elif ( __dest_os == __mac_os_x )
 // We are doing a Carbon/Mach-O/MSL build which has pthreads, but only the
 // gettimeofday and no posix.
 #  define BOOST_HAS_GETTIMEOFDAY
 #  endif
 
-#ifdef BOOST_HAS_PTHREADS
-#  define BOOST_HAS_THREADS
-#endif
+// The MP task implementation of Boost Threads aims to replace MP-unsafe
+// parts of the MSL, so we turn on threads unconditionally.
+#    define BOOST_HAS_THREADS
 
 // The remote call manager depends on this.
 #    define BOOST_BIND_ENABLE_PASCAL
