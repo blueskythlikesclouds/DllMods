@@ -12,3 +12,8 @@
 
 // Devil's Details' bullshit
 #include <DX_PATCH.h>
+
+template<int n> struct InsertPadding
+{
+    INSERT_PADDING(n);
+};

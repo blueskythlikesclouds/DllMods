@@ -15,6 +15,7 @@ namespace Sonic
 {
     class CGameObject;
     class CLightManager;
+    class CRenderDirector;
 
     class CGameDocument : public Hedgehog::Base::CObject, public Hedgehog::Base::CSynchronizedObject
     {
@@ -22,7 +23,9 @@ namespace Sonic
         class CMember
         {
         public:
-            INSERT_PADDING(0x1C);
+            INSERT_PADDING(0x8);
+            boost::shared_ptr<CRenderDirector> m_spRenderDirector;
+            INSERT_PADDING(0xC);
             boost::shared_ptr<Hedgehog::Database::CDatabase> m_spDatabase;
             hh::list<boost::shared_ptr<CGameObject>> m_GameObjects;
             INSERT_PADDING(0x50);
@@ -42,6 +45,7 @@ namespace Sonic
         virtual void _14() = 0;
     };
 
+    ASSERT_OFFSETOF(CGameDocument::CMember, m_spRenderDirector, 0x8);
     ASSERT_OFFSETOF(CGameDocument::CMember, m_spDatabase, 0x1C);
     ASSERT_OFFSETOF(CGameDocument::CMember, m_GameObjects, 0x24);
     ASSERT_OFFSETOF(CGameDocument::CMember, m_spLightManager, 0x80);
