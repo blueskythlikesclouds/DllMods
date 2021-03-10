@@ -29,6 +29,8 @@
 #include <Hedgehog/MirageCore/RenderData/hhPictureData.h>
 #include <Hedgehog/MirageCore/RenderData/hhPixelShaderData.h>
 #include <Hedgehog/MirageCore/RenderData/hhVertexShaderData.h>
+#include <Hedgehog/MotionCore/MotionData/hhLightMotionData.h>
+#include <Hedgehog/MotionCore/MotionData/hhMotionDatabaseWrapper.h>
 #include <Hedgehog/Universe/Engine/hhMessage.h>
 #include <Hedgehog/Universe/Engine/hhMessageActor.h>
 #include <Hedgehog/Universe/Engine/hhMessageProcess.h>
