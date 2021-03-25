@@ -1,5 +1,4 @@
 add BetterFxPipeline.dll
-add BetterFxPipeline.ini
 add BetterFxPipeline.json
 add disk/bb3/FxFXAA.ar.00
 add disk/bb3/FxFXAA.arl
