@@ -1,0 +1,31 @@
+{
+  "Groups": [
+    {
+      "Name": "Main",
+      "DisplayName": "Options",
+      "Elements": [
+        {
+          "Name": "IncludeDir0",
+          "DisplayName": "Shadows",
+          "Type": "Shadows",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "disk1"
+        },
+      ]
+    }
+  ],
+  "Enums": {
+    "Shadows": [
+	  {
+        "DisplayName": "Soft",
+        "Value": "disk"
+      },
+      {
+        "DisplayName": "Softer",
+        "Value": "disk1"
+      }
+    ]
+  },
+  "IniFile": "mod.ini"
+}

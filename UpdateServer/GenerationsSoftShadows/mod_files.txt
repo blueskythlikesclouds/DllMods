@@ -5,5 +5,12 @@ add disk/bb3/shader_r_add.ar.01
 add disk/bb3/shader_r_add.ar.02
 add disk/bb3/shader_r_add.ar.03
 add disk/bb3/shader_r_add.arl
+add disk1/bb3/shader_r.ar.00
+add disk1/bb3/shader_r.arl
+add disk1/bb3/shader_r_add.ar.00
+add disk1/bb3/shader_r_add.ar.01
+add disk1/bb3/shader_r_add.ar.02
+add disk1/bb3/shader_r_add.arl
 add GenerationsSoftShadows.dll
 add mod.ini
+add mod.json
