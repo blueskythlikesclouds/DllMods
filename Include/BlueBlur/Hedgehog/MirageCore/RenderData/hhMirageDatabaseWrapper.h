@@ -14,12 +14,16 @@ namespace Hedgehog::Mirage
 {
     class CMirageDatabaseWrapper;
     class CPictureData;
+    class CLightListData;
 
     static FUNCTION_PTR(CMirageDatabaseWrapper*, __thiscall, fpCMirageDatabaseWrapperCtor, 0x72EE30,
         CMirageDatabaseWrapper* This, Hedgehog::Database::CDatabase* pDatabase);
 
     static FUNCTION_PTR(void, __thiscall, fpCDatabaseGetPictureData, 0x72EFE0,
         CMirageDatabaseWrapper* This, boost::shared_ptr<CPictureData>& spPictureData, const Hedgehog::Base::CSharedString& name, uint32_t unknown);
+
+    static FUNCTION_PTR(void, __thiscall, fpCDatabaseGetLightListData, 0x72F6F0,
+        CMirageDatabaseWrapper* This, boost::shared_ptr<CLightListData>& spLightListData, const Hedgehog::Base::CSharedString& name, uint32_t unknown);
 
     class CMirageDatabaseWrapper : public Hedgehog::Base::CObject
     {
@@ -35,6 +39,11 @@ namespace Hedgehog::Mirage
         void GetPictureData(boost::shared_ptr<CPictureData>& spPictureData, const Base::CSharedString& name, uint32_t unknown)
         {
             fpCDatabaseGetPictureData(this, spPictureData, name, unknown);
+        }
+
+        void GetLightListData(boost::shared_ptr<CLightListData>& spLightListData, const Base::CSharedString& name, uint32_t unknown)
+        {
+            fpCDatabaseGetLightListData(this, spLightListData, name, unknown);
         }
     };
 
