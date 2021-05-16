@@ -8,11 +8,11 @@ protected:
 public:
     D3D9ExUnknown();
 
-    virtual HRESULT QueryInterface(REFIID riid, void** ppvObj);
+    virtual HRESULT QueryInterface(REFIID riid, void** ppvObj) final;
 
-    virtual ULONG AddRef();
+    virtual ULONG AddRef() final;
 
-    virtual ULONG Release();
+    virtual ULONG Release() final;
 
     virtual ~D3D9ExUnknown();
 };

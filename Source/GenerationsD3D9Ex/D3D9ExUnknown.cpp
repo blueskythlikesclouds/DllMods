@@ -13,12 +13,12 @@ HRESULT D3D9ExUnknown::QueryInterface(const IID& riid, void** ppvObj)
 
 ULONG D3D9ExUnknown::AddRef()
 {
-    return InterlockedIncrement(&refCount);
+    return ++refCount;
 }
 
 ULONG D3D9ExUnknown::Release()
 {
-    const ULONG result = InterlockedDecrement(&refCount);
+    const ULONG result = --refCount;
     if (result == 0)
         delete this;
 

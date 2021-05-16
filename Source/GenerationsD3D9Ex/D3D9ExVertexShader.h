@@ -13,8 +13,8 @@ public:
     D3D9ExVertexShader(D3D9ExDevice* dxpDevice, IDirect3DVertexShader9* d3dVertexShader);
     ~D3D9ExVertexShader();
 
-    virtual HRESULT GetDevice(D3D9ExDevice** ppDevice);
-    virtual HRESULT GetFunction(void*, UINT* pSizeOfData);
+    virtual HRESULT GetDevice(D3D9ExDevice** ppDevice) final;
+    virtual HRESULT GetFunction(void*, UINT* pSizeOfData) final;
 
     IDirect3DVertexShader9* GetD3DVertexShader() const
     {

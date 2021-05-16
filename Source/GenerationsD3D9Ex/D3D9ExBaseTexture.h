@@ -9,14 +9,14 @@ class D3D9ExBaseTexture : public D3D9ExResource
 public:
     D3D9ExBaseTexture(D3D9ExDevice* d3dDevice, IDirect3DBaseTexture9* d3dBaseTexture);
 
-    virtual DWORD SetLOD(DWORD LODNew);
-    virtual DWORD GetLOD();
-    virtual DWORD GetLevelCount();
-    virtual HRESULT SetAutoGenFilterType(D3DTEXTUREFILTERTYPE FilterType);
-    virtual D3DTEXTUREFILTERTYPE GetAutoGenFilterType();
-    virtual void GenerateMipSubLevels();
-    virtual void FUN_48();
-    virtual HRESULT FUN_4C(void* A1);
+    virtual DWORD SetLOD(DWORD LODNew) final;
+    virtual DWORD GetLOD() final;
+    virtual DWORD GetLevelCount() final;
+    virtual HRESULT SetAutoGenFilterType(D3DTEXTUREFILTERTYPE FilterType) final;
+    virtual D3DTEXTUREFILTERTYPE GetAutoGenFilterType() final;
+    virtual void GenerateMipSubLevels() final;
+    virtual void FUN_48() final;
+    virtual HRESULT FUN_4C(void* A1) final;
 
     IDirect3DBaseTexture9* GetD3DBaseTexture() const
     {

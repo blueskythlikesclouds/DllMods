@@ -13,8 +13,8 @@ public:
     D3D9ExVertexDeclaration(D3D9ExDevice* dxpDevice, IDirect3DVertexDeclaration9* d3dVertexDeclaration);
     ~D3D9ExVertexDeclaration();
 
-    virtual HRESULT GetDevice(D3D9ExDevice** ppDevice);
-    virtual HRESULT GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements);
+    virtual HRESULT GetDevice(D3D9ExDevice** ppDevice) final;
+    virtual HRESULT GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements) final;
 
     IDirect3DVertexDeclaration9* GetD3DVertexDeclaration() const
     {

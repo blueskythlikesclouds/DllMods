@@ -13,7 +13,7 @@
 #include "Configuration.h"
 
 D3D9ExDevice::D3D9ExDevice(D3D9Ex* dxp, IDirect3DDevice9Ex* d3dDevice)
-    : d3dDevice(d3dDevice), dxp(dxp), dxpBackBuffer(nullptr), dxpRenderTargets {}, dxpDepthStencil(nullptr), dxpStageTextures{}, dxpVertexDeclaration(nullptr), dxpVertexShader(nullptr), dxpVertexBuffers{}, dxpIndexBuffer(nullptr), dxpPixelShader(nullptr)
+    : d3dDevice(d3dDevice), dxp(dxp), dxpBackBuffer(nullptr), dxpRenderTargets {}, dxpDepthStencil(nullptr), dxpStageTextures{}, dxpVertexDeclaration(nullptr), dxpVertexShader(nullptr), dxpIndexBuffer(nullptr), dxpPixelShader(nullptr)
 {
     d3dDevice->AddRef();
     dxp->AddRef();
@@ -41,9 +41,9 @@ D3D9ExDevice::~D3D9ExDevice()
     if (dxpVertexDeclaration) 
         dxpVertexDeclaration->Release();
 
-    for (auto& dxpVertexBuffer : dxpVertexBuffers)
-        if (dxpVertexBuffer) 
-            dxpVertexBuffer->Release();
+    for (auto& src : streamSources)
+        if (src.dxpVertexBuffer) 
+            src.dxpVertexBuffer->Release();
 
     if (dxpIndexBuffer) 
         dxpIndexBuffer->Release();
@@ -326,6 +326,8 @@ HRESULT D3D9ExDevice::CreateOffscreenPlainSurface(UINT Width, UINT Height, D3DFO
 
 HRESULT D3D9ExDevice::SetRenderTarget(DWORD RenderTargetIndex, D3D9ExSurface* pRenderTarget)
 {
+    if (dxpRenderTargets[RenderTargetIndex] == pRenderTarget) return S_OK;
+
     IDirect3DSurface9* d3dRenderTarget = pRenderTarget ? pRenderTarget->GetD3DSurface() : nullptr;
 
     HRESULT result = d3dDevice->SetRenderTarget(RenderTargetIndex, d3dRenderTarget);
@@ -354,6 +356,8 @@ HRESULT D3D9ExDevice::GetRenderTarget(DWORD RenderTargetIndex, D3D9ExSurface** p
 
 HRESULT D3D9ExDevice::SetDepthStencilSurface(D3D9ExSurface* pNewZStencil)
 {
+    if (dxpDepthStencil == pNewZStencil) return S_OK;
+
     IDirect3DSurface9* d3dNewZStencil = pNewZStencil ? pNewZStencil->GetD3DSurface() : nullptr;
 
     HRESULT result = d3dDevice->SetDepthStencilSurface(d3dNewZStencil);
@@ -506,6 +510,8 @@ HRESULT D3D9ExDevice::GetTexture(DWORD Stage, D3D9ExBaseTexture** ppTexture)
 
 HRESULT D3D9ExDevice::SetTexture(DWORD Stage, D3D9ExBaseTexture* pTexture)
 {
+    if (dxpStageTextures[Stage] == pTexture) return S_OK;
+
     IDirect3DBaseTexture9* d3dTexture = pTexture ? pTexture->GetD3DBaseTexture() : nullptr;
 
     HRESULT result = d3dDevice->SetTexture(Stage, d3dTexture);
@@ -639,6 +645,8 @@ HRESULT D3D9ExDevice::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexEl
 
 HRESULT D3D9ExDevice::SetVertexDeclaration(D3D9ExVertexDeclaration* pDecl)
 {
+    if (dxpVertexDeclaration == pDecl) return S_OK;
+
     IDirect3DVertexDeclaration9* d3dDecl = pDecl ? pDecl->GetD3DVertexDeclaration() : nullptr;
 
     HRESULT result = d3dDevice->SetVertexDeclaration(d3dDecl);
@@ -691,6 +699,8 @@ HRESULT D3D9ExDevice::CreateVertexShader(CONST DWORD* pFunction, D3D9ExVertexSha
 
 HRESULT D3D9ExDevice::SetVertexShader(D3D9ExVertexShader* pShader)
 {
+    if (dxpVertexShader == pShader) return S_OK;
+
     IDirect3DVertexShader9* d3dShader = pShader ? pShader->GetD3DVertexShader() : nullptr;
 
     HRESULT result = d3dDevice->SetVertexShader(d3dShader);
@@ -739,6 +749,12 @@ HRESULT D3D9ExDevice::GetVertexShaderConstantI(UINT StartRegister, int* pConstan
 
 HRESULT D3D9ExDevice::SetVertexShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
 {
+    void* pDst = &boolParamsVs[StartRegister];
+    const size_t dstSize = BoolCount * sizeof(BOOL);
+
+    if (memcmp(pDst, pConstantData, dstSize) == 0) return S_OK;
+    memcpy(pDst, pConstantData, dstSize);
+
     return d3dDevice->SetVertexShaderConstantB(StartRegister, pConstantData, BoolCount);
 }
 
@@ -749,18 +765,22 @@ HRESULT D3D9ExDevice::GetVertexShaderConstantB(UINT StartRegister, BOOL* pConsta
 
 HRESULT D3D9ExDevice::SetStreamSource(UINT StreamNumber, D3D9ExVertexBuffer* pStreamData, UINT OffsetInBytes, UINT Stride)
 {
+    StreamSource& src = streamSources[StreamNumber];
+    if (src.dxpVertexBuffer == pStreamData && src.OffsetInBytes == OffsetInBytes && src.Stride == Stride)
+        return S_OK;
+
     IDirect3DVertexBuffer9* d3dStreamData = pStreamData ? pStreamData->GetD3DVertexBuffer() : nullptr;
 
     HRESULT result = d3dDevice->SetStreamSource(StreamNumber, d3dStreamData, OffsetInBytes, Stride);;
     if (SUCCEEDED(result))
     {
-        if (dxpVertexBuffers[StreamNumber])
-            dxpVertexBuffers[StreamNumber]->Release();
+        if (src.dxpVertexBuffer)
+            src.dxpVertexBuffer->Release();
 
-        dxpVertexBuffers[StreamNumber] = pStreamData;
+        src.dxpVertexBuffer = pStreamData;
 
-        if (dxpVertexBuffers[StreamNumber])
-            dxpVertexBuffers[StreamNumber]->AddRef();
+        if (src.dxpVertexBuffer)
+            src.dxpVertexBuffer->AddRef();
     }
 
     return result;
@@ -784,6 +804,8 @@ HRESULT D3D9ExDevice::GetStreamSourceFreq(UINT StreamNumber, UINT* pSetting)
 
 HRESULT D3D9ExDevice::SetIndices(D3D9ExIndexBuffer* pIndexData)
 {
+    if (dxpIndexBuffer == pIndexData) return S_OK;
+
     IDirect3DIndexBuffer9* d3dIndexData = pIndexData ? pIndexData->GetD3DIndexBuffer() : nullptr;
 
     HRESULT result = d3dDevice->SetIndices(d3dIndexData);
@@ -826,6 +848,8 @@ HRESULT D3D9ExDevice::CreatePixelShader(CONST DWORD* pFunction, D3D9ExPixelShade
 
 HRESULT D3D9ExDevice::SetPixelShader(D3D9ExPixelShader* pShader)
 {
+    if (dxpPixelShader == pShader) return S_OK;
+
     IDirect3DPixelShader9* d3dShader = pShader ? pShader->GetD3DPixelShader() : nullptr;
 
     HRESULT result = d3dDevice->SetPixelShader(d3dShader);
@@ -874,6 +898,12 @@ HRESULT D3D9ExDevice::GetPixelShaderConstantI(UINT StartRegister, int* pConstant
 
 HRESULT D3D9ExDevice::SetPixelShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
 {
+    void* pDst = &boolParamsPs[StartRegister];
+    const size_t dstSize = BoolCount * sizeof(BOOL);
+
+    if (memcmp(pDst, pConstantData, dstSize) == 0) return S_OK;
+    memcpy(pDst, pConstantData, dstSize);
+
     return d3dDevice->SetPixelShaderConstantB(StartRegister, pConstantData, BoolCount);
 }
 

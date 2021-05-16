@@ -13,8 +13,8 @@ public:
     D3D9ExPixelShader(D3D9ExDevice* dxpDevice, IDirect3DPixelShader9* d3dPixelShader);
     ~D3D9ExPixelShader();
 
-    virtual HRESULT GetDevice(D3D9ExDevice** ppDevice);
-    virtual HRESULT GetFunction(void*, UINT* pSizeOfData);
+    virtual HRESULT GetDevice(D3D9ExDevice** ppDevice) final;
+    virtual HRESULT GetFunction(void*, UINT* pSizeOfData) final;
 
     IDirect3DPixelShader9* GetD3DPixelShader() const
     {

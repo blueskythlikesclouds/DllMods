@@ -9,9 +9,9 @@ class D3D9ExVertexBuffer : public D3D9ExResource
 public:
     D3D9ExVertexBuffer(D3D9ExDevice* d3dDevice, IDirect3DVertexBuffer9* d3dVertexBuffer);
 
-    virtual HRESULT Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags);
-    virtual HRESULT Unlock();
-    virtual HRESULT GetDesc(D3DVERTEXBUFFER_DESC* pDesc);
+    virtual HRESULT Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags) final;
+    virtual HRESULT Unlock() final;
+    virtual HRESULT GetDesc(D3DVERTEXBUFFER_DESC* pDesc) final;
 
     IDirect3DVertexBuffer9* GetD3DVertexBuffer() const
     {
