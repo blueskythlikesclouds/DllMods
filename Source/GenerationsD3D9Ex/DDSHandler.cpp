@@ -7,7 +7,7 @@
 HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
      Hedgehog::Mirage::CPictureData* pPictureData, const uint8_t* pData, size_t length, Hedgehog::Mirage::CRenderingInfrastructure* pRenderingInfrastructure)
 {
-    if ((pPictureData->m_Flags & 1) != 0 || (pData && *(uint32_t*)pData != MAKEFOURCC('D', 'D', 'S', ' ')))
+    if (!pPictureData || (pPictureData->m_Flags & 1) != 0 || (pData && *(uint32_t*)pData != MAKEFOURCC('D', 'D', 'S', ' ')))
         return originalLoadPictureData(pPictureData, pData, length, pRenderingInfrastructure);
 
     D3D9ExDevice* const pDxpDevice = 
