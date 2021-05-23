@@ -41,11 +41,11 @@
                "DefaultValue":false
             },
 			{
-               "Name":"EnableHdrOutput",
+               "Name":"Enable10BitOutput",
                "Description":[
                   "Makes the game output 10-bit colors.",
 				  "",
-				  "The game was not optimized for HDR, so the result is heavily subjective, hence the experimental tag.",
+				  "The game was not optimized for this, so the result is heavily subjective, hence the experimental tag.",
 				  "",
 				  "Remarks:",
 				  " - You need a GPU capable of outputting 10-bit colors.",
@@ -54,7 +54,7 @@
 				  "",
 				  "If you don't meet any of the conditions above, you might get \"Graphics Device Unsupported\" error or not see any difference."
                ],
-               "DisplayName":"Enable HDR output (Experimental)",
+               "DisplayName":"Enable 10-bit output (Experimental)",
                "Type":"bool",
                "MinValue":null,
                "MaxValue":null,
