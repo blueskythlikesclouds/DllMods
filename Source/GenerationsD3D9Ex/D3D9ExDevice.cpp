@@ -645,7 +645,8 @@ HRESULT D3D9ExDevice::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexEl
 
 HRESULT D3D9ExDevice::SetVertexDeclaration(D3D9ExVertexDeclaration* pDecl)
 {
-    if (dxpVertexDeclaration == pDecl) return S_OK;
+    // Doing this breaks SEGA logo and certain UI elements, for some reason...?
+    //if (dxpVertexDeclaration == pDecl) return S_OK;
 
     IDirect3DVertexDeclaration9* d3dDecl = pDecl ? pDecl->GetD3DVertexDeclaration() : nullptr;
 
