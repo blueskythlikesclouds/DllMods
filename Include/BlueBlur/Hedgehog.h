@@ -47,3 +47,15 @@
 #include <Hedgehog/Yggdrasill/hhYggScheduler.h>
 #include <Hedgehog/Yggdrasill/hhYggSurface.h>
 #include <Hedgehog/Yggdrasill/hhYggTexture.h>
+
+// Lost World/Forces style namespace aliases
+namespace hh = Hedgehog;
+namespace Hedgehog
+{
+    namespace base = Base;
+    namespace db = Database;
+    namespace mr = Mirage;
+    namespace mot = Motion;
+    namespace fnd = Universe;
+    namespace ygg = Yggdrasill;
+}

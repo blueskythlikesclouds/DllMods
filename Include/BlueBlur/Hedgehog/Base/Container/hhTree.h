@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace hh
+namespace Hedgehog
 {
     template<typename T>
     class tree

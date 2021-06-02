@@ -16,7 +16,7 @@ namespace Sonic
         CEditParam* m_pEditParam;
         Hedgehog::Base::CSharedString m_Name;
         Hedgehog::Base::CSharedString m_Description;
-        hh::vector<boost::shared_ptr<CAbstractParameter>> m_Children;
+        Hedgehog::vector<boost::shared_ptr<CAbstractParameter>> m_Children;
         INSERT_PADDING(0x14);
     };
 

@@ -31,3 +31,6 @@
 #include <Sonic/Tool/ParameterEditor/ParameterCategory.h>
 #include <Sonic/Tool/ParameterEditor/ParameterFile.h>
 #include <Sonic/Tool/ParameterEditor/ParameterGroup.h>
+
+// Lost World/Forces style namespace alias
+namespace app = Sonic;

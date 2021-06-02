@@ -48,7 +48,7 @@ namespace Sonic
             class FuncData : public Hedgehog::Base::CRefCountObject
             {
             public:
-                hh::map<uint32_t, Hedgehog::Base::CSharedString> m_ValueMap;
+                Hedgehog::map<uint32_t, Hedgehog::Base::CSharedString> m_ValueMap;
                 INSERT_PADDING(0x44);
                 uint32_t* m_pValue;
                 uint32_t m_DefaultValue;

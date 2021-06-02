@@ -27,7 +27,7 @@ namespace Sonic
             boost::shared_ptr<CRenderDirector> m_spRenderDirector;
             INSERT_PADDING(0xC);
             boost::shared_ptr<Hedgehog::Database::CDatabase> m_spDatabase;
-            hh::list<boost::shared_ptr<CGameObject>> m_GameObjects;
+            Hedgehog::list<boost::shared_ptr<CGameObject>> m_GameObjects;
             INSERT_PADDING(0x50);
             boost::shared_ptr<CLightManager> m_spLightManager;
             INSERT_PADDING(0x128);

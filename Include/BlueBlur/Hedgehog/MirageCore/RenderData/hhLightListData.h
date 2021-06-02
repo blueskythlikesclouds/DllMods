@@ -12,7 +12,7 @@ namespace Hedgehog::Mirage
     class CLightListData : public Hedgehog::Database::CDatabaseData
     {
     public:
-        hh::vector<boost::shared_ptr<CLightData>> m_Lights;
+        vector<boost::shared_ptr<CLightData>> m_Lights;
     };
 
     ASSERT_OFFSETOF(CLightListData, m_Lights, 0xC);

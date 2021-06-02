@@ -2,7 +2,7 @@
 
 #include <BlueBlur.h>
 
-namespace hh
+namespace Hedgehog
 {
     template<typename T>
     class vector

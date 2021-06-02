@@ -24,7 +24,7 @@ namespace Sonic
     {
     public:
         INSERT_PADDING(0x8);
-        hh::vector<CLocalLight*> m_LocalLights;
+        Hedgehog::vector<CLocalLight*> m_LocalLights;
     };
 
     ASSERT_OFFSETOF(CLocalLightContext, m_LocalLights, 0x8);

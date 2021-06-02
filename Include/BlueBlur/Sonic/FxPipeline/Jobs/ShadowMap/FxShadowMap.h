@@ -58,7 +58,7 @@ namespace Sonic
         Hedgehog::Mirage::SShaderPair m_MakeShadowMapShader;
         Hedgehog::Mirage::SShaderPair m_MakeShadowMapTransparentShader;
         Hedgehog::Mirage::CCamera* m_pCurrentShadowMapCamera;
-        hh::vector<boost::shared_ptr<Hedgehog::Mirage::CCamera>> m_ShadowMapCameras;
+        Hedgehog::vector<boost::shared_ptr<Hedgehog::Mirage::CCamera>> m_ShadowMapCameras;
         boost::shared_ptr<Hedgehog::Mirage::CCamera> m_spDirectionalShadowMapCamera;
         boost::shared_ptr<Hedgehog::Mirage::CCamera> m_spVerticalShadowMapCamera;
         uint32_t m_ShadowMapSize;

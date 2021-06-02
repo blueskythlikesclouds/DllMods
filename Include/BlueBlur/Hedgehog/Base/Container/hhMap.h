@@ -2,7 +2,7 @@
 
 #include <Hedgehog/Base/Container/hhTree.h>
 
-namespace hh
+namespace Hedgehog
 {
     template<typename TKey, typename TValue>
     class pair
