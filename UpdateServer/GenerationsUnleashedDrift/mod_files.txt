@@ -1,0 +1,6 @@
+add disk/bb3/SonicDrift.ar.00
+add disk/bb3/SonicDrift.arl
+add GenerationsUnleashedDrift.dll
+add GenerationsUnleashedDrift.ini
+add GenerationsUnleashedDrift.json
+add mod.ini
