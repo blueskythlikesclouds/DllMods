@@ -60,7 +60,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -83,7 +83,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
