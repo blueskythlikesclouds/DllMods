@@ -66,11 +66,13 @@ void FreeCamera::update(const float elapsedTime)
         fieldOfView = fmodf(resetFieldOfView ? config->defaultFieldOfView : fieldOfView + (increaseFieldOfView ? config->fieldOfViewIncreaseRatio : config->fieldOfViewDecreaseRatio), 180.0f);
 
     camera->viewMatrix = (Eigen::Translation3f(position) * rotation).inverse().matrix();
+    camera->inputViewMatrix = camera->viewMatrix;
     camera->fieldOfView = 2.0f * atan(tan(DEGREES_TO_RADIANS(fieldOfView / 2.0f) * (16.0f / 9.0f / min(aspectRatio, 16.0f / 9.0f))));
     camera->projectionMatrix = Eigen::CreatePerspectiveMatrix(camera->fieldOfView, aspectRatio, camera->zNear, camera->zFar);
     camera->position = position;
     camera->direction = frontDirection;
-    camera->aspectRatio = aspectRatio;
+    // Setting aspect ratio has issues with the ultrawide code, so don't do it
+    // camera->aspectRatio = aspectRatio;
 }
 
 void FreeCamera::reset()
@@ -82,7 +84,7 @@ void FreeCamera::reset()
     rotation = Eigen::Quaternionf(viewMatrix.rotation()).normalized();
     moveSpeed = config->moveSpeed;
     fieldOfView = config->defaultFieldOfView;
-    aspectRatio = (float)*WIDTH / *HEIGHT;
+    aspectRatio = (float)*WIDTH / (float)*HEIGHT;
 }
 
 FreeCamera::FreeCamera(Configuration* config, Camera* camera) : config(config), camera(camera)

@@ -49,6 +49,7 @@ public:
     const bool disableDepthOfField;
     const bool disableHud;
     const bool loadObjectsInRange;
+    const bool frameAdvance;
 
     Configuration(INIReader* reader);
 };

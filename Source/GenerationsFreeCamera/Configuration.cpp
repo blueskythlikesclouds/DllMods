@@ -53,6 +53,7 @@ Configuration::Configuration(INIReader* reader) :
     disableBlur(GET_BOOL("Misc", "DisableBlur", true)),
     disableDepthOfField(GET_BOOL("Misc", "DisableDepthOfField", false)),
     disableHud(GET_BOOL("Misc", "DisableHud", true)),
-    loadObjectsInRange(GET_BOOL("Misc", "LoadObjectsInRange", true))
+    loadObjectsInRange(GET_BOOL("Misc", "LoadObjectsInRange", true)),
+    frameAdvance(GET_BOOL("Misc", "FrameAdvance", false))
 {
 }

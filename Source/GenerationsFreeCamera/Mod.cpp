@@ -24,6 +24,17 @@ bool enableFreeCamera;
 bool pauseGame;
 bool handledPauseRequest;
 
+bool wasSelect;
+bool isSelect;
+
+bool wasTeleport;
+bool isTeleport;
+
+bool wasStart;
+bool isStart;
+
+float timeParam;
+
 HOOK(void, __fastcall, UpdateCamera, 0x10FB770, Camera* This, void* Edx, uint32_t a2)
 {
     if (!cameras[This] || !enableFreeCamera)
@@ -146,14 +157,18 @@ HOOK(void*, __fastcall, UpdateApplication, 0xE7BED0, void* This, void* Edx, floa
     if (cameras.empty())
         return originalUpdateApplication(This, Edx, elapsedTime, a3);
 
+    timeParam = elapsedTime;
+
     InputState* inputState = getInputState();
 
-    if (inputState->isDown(SELECT) && inputState->isDown(START) && !handledPauseRequest)
+    isSelect = inputState->isDown(SELECT);
+
+    if (isSelect && inputState->isDown(START) && !handledPauseRequest)
     {
         pauseGame = enableFreeCamera && !pauseGame;
         handledPauseRequest = true;
     }
-    else if (inputState->isReleased(SELECT))
+    else if (wasSelect && !isSelect)
     {
         if (enableFreeCamera && !handledPauseRequest)
         {
@@ -174,13 +189,19 @@ HOOK(void*, __fastcall, UpdateApplication, 0xE7BED0, void* This, void* Edx, floa
         handledPauseRequest = false;
     }
 
+    wasSelect = isSelect;
+
     if (!enableFreeCamera)
         return originalUpdateApplication(This, Edx, elapsedTime, a3);
 
     for (auto& it : cameras)
         it.second->update(elapsedTime);
 
-    if (config->teleportPlayer.isTapped(inputState) && *PLAYER_CONTEXT)
+    isTeleport = config->teleportPlayer.isTapped(inputState);
+
+    const bool previousPauseGame = pauseGame;
+
+    if (!wasTeleport && isTeleport && *PLAYER_CONTEXT)
     {
         void* player = *(void**)((uint32_t)*PLAYER_CONTEXT + 0x110);
 
@@ -207,22 +228,24 @@ HOOK(void*, __fastcall, UpdateApplication, 0xE7BED0, void* This, void* Edx, floa
             *(bool*)(result + 1512) = true;
             *(bool*)(result + 1513) = false;
 
+            pauseGame = false;
             break;
         }
     }
+
+    wasTeleport = isTeleport;
 
     const bool previousEnableHud = *ENABLE_HUD;
     const bool previousEnableBlur = *ENABLE_BLUR;
     const bool previousEnableDof = *ENABLE_DOF;
 
-    const bool previousPauseGame = pauseGame;
-
     *ENABLE_HUD &= !config->disableHud;
     *ENABLE_BLUR &= !config->disableBlur;
     *ENABLE_DOF &= !config->disableDepthOfField;
 
-    pauseGame &= !inputState->isDown(START);
-    pauseGame &= !config->teleportPlayer.isTapped(inputState);
+    isStart = inputState->isDown(START);
+    pauseGame &= config->frameAdvance ? wasStart || !isStart : !isStart;
+    wasStart = isStart;
 
     void* result = originalUpdateApplication(This, Edx, elapsedTime, a3);
 
@@ -233,6 +256,35 @@ HOOK(void*, __fastcall, UpdateApplication, 0xE7BED0, void* This, void* Edx, floa
     pauseGame = previousPauseGame;
 
     return result;
+}
+
+
+// Make eye adaptation work when game is paused
+
+void setTimeParam(DX_PATCH::IDirect3DDevice9* device)
+{
+    if (!pauseGame) 
+        return;
+
+    float param[] = { timeParam, 0, 0, 0 };
+    device->SetPixelShaderConstantF(68, param, 1);
+}
+
+// MTFx
+FUNCTION_PTR(void, __cdecl, SceneTraversed_ScreenDefaultExec, 0x6517E0, void*, void*);
+
+void sceneTraverseTonemapFilter(void* A1, void* A2)
+{
+    hh::mr::CRenderingDevice* renderingDevice = **(hh::mr::CRenderingDevice***)((char*)A1 + 16);
+    setTimeParam(renderingDevice->m_pD3DDevice);
+    SceneTraversed_ScreenDefaultExec(A1, A2);
+}
+
+// FxPipeline
+HOOK(void, __stdcall, CalculateAdaptedLuminance, 0x10C4830, Sonic::CFxJob* This)
+{
+    setTimeParam(This->m_pScheduler->m_pMisc->m_pDevice->m_pD3DDevice);
+    originalCalculateAdaptedLuminance(This);
 }
 
 extern "C" void __declspec(dllexport) Init()
@@ -268,4 +320,7 @@ extern "C" void __declspec(dllexport) Init()
     // "6" -> "3"
     WRITE_MEMORY(0xCD46DC, uint8_t, 0x00); // Object Instancer
     WRITE_MEMORY(0xCD73A0, uint8_t, 0x00); // Instancer Manager
+
+    WRITE_MEMORY(0x13DF98C, void*, &sceneTraverseTonemapFilter);
+    INSTALL_HOOK(CalculateAdaptedLuminance);
 }

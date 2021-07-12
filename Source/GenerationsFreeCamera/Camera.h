@@ -21,8 +21,10 @@ struct Camera
     float aspectRatio; // 0x1C0
     float zNear; // 0x1C4
     float zFar; // 0x1C8
+    uint32_t gap1CC;
+    Eigen::Matrix4f inputViewMatrix;
 
-    uint8_t gap1CC[0x26C];
+    uint8_t gap210[0x228];
     float fieldOfView; // 0x438
     uint8_t gap43C[0x2C];
     uint32_t field468;

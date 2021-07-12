@@ -1,0 +1,447 @@
+{
+  "Groups": [
+    {
+      "Name": "Speed",
+      "DisplayName": "Speed Configuration",
+      "Elements": [
+        {
+          "Name": "SlowDown",
+          "Description": [
+            "The button used to slow down the camera."
+          ],
+          "DisplayName": "Slow Down",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "LEFT_TRIGGER"
+        },
+        {
+          "Name": "SpeedUp",
+          "Description": [
+            "The button used to speed up the camera."
+          ],
+          "DisplayName": "Speed Up",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "RIGHT_TRIGGER"
+        }
+      ]
+    },
+    {
+      "Name": "Position",
+      "DisplayName": "Movement Configuration",
+      "Elements": [
+        {
+          "Name": "Descend",
+          "Description": [
+            "The button used to make the camera descend."
+          ],
+          "DisplayName": "Descend",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "LEFT_BUMPER"
+        },
+        {
+          "Name": "Ascend",
+          "Description": [
+            "The button used to make the camera ascend."
+          ],
+          "DisplayName": "Ascend",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "RIGHT_BUMPER"
+        },
+        {
+          "Name": "DescendAscendSpeed",
+          "Description": [
+            "The speed at which the camera descends/ascends."
+          ],
+          "DisplayName": "Descend/Ascend Speed",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 0.75
+        },
+        {
+          "Name": "ResetMoveSpeed",
+          "Description": [
+            "The button used to reset the camera's movement speed."
+          ],
+          "DisplayName": "Reset Move Speed",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "A"
+        },
+        {
+          "Name": "DecreaseMoveSpeed",
+          "Description": [
+            "The button used to decrease the camera's movement speed."
+          ],
+          "DisplayName": "Decrease Move Speed",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "B"
+        },
+        {
+          "Name": "IncreaseMoveSpeed",
+          "Description": [
+            "The button used to increase the camera's movement speed."
+          ],
+          "DisplayName": "Increase Move Speed",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "X"
+        },
+        {
+          "Name": "MoveSpeed",
+          "Description": [
+            "The camera's default movement speed."
+          ],
+          "DisplayName": "Default Movement Speed",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 0.5
+        },
+        {
+          "Name": "MoveSpeedDecreaseRatio",
+          "Description": [
+            "The ratio used towards decreasing the camera's movement speed."
+          ],
+          "DisplayName": "Move Speed Decrease Ratio",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": -0.01
+        },
+        {
+          "Name": "MoveSpeedIncreaseRatio",
+          "Description": [
+            "The ratio used towards increasing the camera's movement speed."
+          ],
+          "DisplayName": "Move Speed Increase Ratio",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 0.01
+        },
+        {
+          "Name": "MoveSpeedSlowDownMultiplier",
+          "Description": [
+            "The multiplier used towards slowing down the camera's movement speed."
+          ],
+          "DisplayName": "Move Speed Slow Down Multiplier",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 0.25
+        },
+        {
+          "Name": "MoveSpeedSpeedUpMultiplier",
+          "Description": [
+            "The multiplier used towards speeding up the camera's movement speed."
+          ],
+          "DisplayName": "Move Speed Speed Up Multiplier",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 4.0
+        }
+      ]
+    },
+    {
+      "Name": "Rotation",
+      "DisplayName": "Rotation Configuration",
+      "Elements": [
+        {
+          "Name": "ResetRotation",
+          "Description": [
+            "The button used to reset the camera's rotation."
+          ],
+          "DisplayName": "Reset Rotation",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "RIGHT_STICK"
+        },
+        {
+          "Name": "RotateLeft",
+          "Description": [
+            "The button used to rotate the camera clockwise."
+          ],
+          "DisplayName": "Rotate Clockwise",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "DPAD_LEFT"
+        },
+        {
+          "Name": "RotateRight",
+          "Description": [
+            "The button used to rotate the camera anti-clockwise."
+          ],
+          "DisplayName": "Rotate Anti-Clockwise",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "DPAD_RIGHT"
+        },
+        {
+          "Name": "RotateSpeed",
+          "Description": [
+            "The camera's default rotation speed."
+          ],
+          "DisplayName": "Default Rotation Speed",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 1.5
+        },
+        {
+          "Name": "RotateSpeedSlowDownMultiplier",
+          "Description": [
+            "The multiplier used towards slowing down the camera's rotation speed."
+          ],
+          "DisplayName": "Rotate Speed Slow Down Multiplier",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 0.65
+        },
+        {
+          "Name": "RotateSpeedSpeedUpMultiplier",
+          "Description": [
+            "The multiplier used towards speeding up the camera's rotation speed."
+          ],
+          "DisplayName": "Rotate Speed Speed Up Multiplier",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 1.35
+        },
+        {
+          "Name": "UseFixedYawAxis",
+          "Description": [
+            "Ignores the camera's current rotation."
+          ],
+          "DisplayName": "Use Fixed Yaw Axis",
+          "Type": "bool",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": true
+        }
+      ]
+    },
+    {
+      "Name": "FieldOfView",
+      "DisplayName": "Field of View Configuration",
+      "Elements": [
+        {
+          "Name": "ResetFieldOfView",
+          "Description": [
+            "The button used to reset the camera's field of view."
+          ],
+          "DisplayName": "Reset Field of View",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "Y"
+        },
+        {
+          "Name": "DecreaseFieldOfView",
+          "Description": [
+            "The button used to decrease the camera's field of view."
+          ],
+          "DisplayName": "Decrease Field of View",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "DPAD_DOWN"
+        },
+        {
+          "Name": "IncreaseFieldOfView",
+          "Description": [
+            "The button used to increase the camera's field of view."
+          ],
+          "DisplayName": "Increase Field of View",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "DPAD_UP"
+        },
+        {
+          "Name": "DefaultFieldOfView",
+          "Description": [
+            "The camera's default field of view."
+          ],
+          "DisplayName": "Default Field of View",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 45.0
+        },
+        {
+          "Name": "FieldOfViewDecreaseRatio",
+          "Description": [
+            "The ratio used towards decreasing the camera's field of view."
+          ],
+          "DisplayName": "Field of View Decrease Ratio",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": -1.0
+        },
+        {
+          "Name": "FieldOfViewIncreaseRatio",
+          "Description": [
+            "The ratio used towards increasing the camera's field of view."
+          ],
+          "DisplayName": "Field of View Increase Ratio",
+          "Type": "double",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": 1.0
+        }
+      ]
+    },
+    {
+      "Name": "Misc",
+      "DisplayName": "Miscellaneous",
+      "Elements": [
+        {
+          "Name": "TeleportPlayer",
+          "Description": [
+            "The button used to teleport Sonic to where the camera is in the stage."
+          ],
+          "DisplayName": "Teleport Sonic",
+          "Type": "Keys",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "LEFT_STICK"
+        },
+        {
+          "Name": "DisableBlur",
+          "Description": [
+            "Disables the game's motion blur when free camera is active."
+          ],
+          "DisplayName": "Disable Motion Blur",
+          "Type": "bool",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": true
+        },
+        {
+          "Name": "DisableDepthOfField",
+          "Description": [
+            "Disables the game's depth of field when free camera is active."
+          ],
+          "DisplayName": "Disable Depth of Field",
+          "Type": "bool",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": false
+        },
+        {
+          "Name": "DisableHud",
+          "Description": [
+            "Disables the game's UI when free camera is active."
+          ],
+          "DisplayName": "Disable UI",
+          "Type": "bool",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": true
+        },
+        {
+          "Name": "LoadObjectsInRange",
+          "Description": [
+            "Loads the objects that are in range of the camera when free camera is active."
+          ],
+          "DisplayName": "Load Objects in Range",
+          "Type": "bool",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": true
+        },
+        {
+          "Name": "FrameAdvance",
+          "Description": [
+            "Determines whether pressing Start button is going to advance a single frame instead of continuing gameplay."
+          ],
+          "DisplayName": "Frame Advance",
+          "Type": "bool",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": false
+        }
+      ]
+    }
+  ],
+  "Enums": {
+    "Keys": [
+      {
+        "DisplayName": "A Button",
+        "Value": "A"
+      },
+      {
+        "DisplayName": "B Button",
+        "Value": "B"
+      },
+      {
+        "DisplayName": "X Button",
+        "Value": "X"
+      },
+      {
+        "DisplayName": "Y Button",
+        "Value": "Y"
+      },
+      {
+        "DisplayName": "D-Pad Up",
+        "Value": "DPAD_UP"
+      },
+      {
+        "DisplayName": "D-Pad Down",
+        "Value": "DPAD_DOWN"
+      },
+      {
+        "DisplayName": "D-Pad Left",
+        "Value": "DPAD_LEFT"
+      },
+      {
+        "DisplayName": "D-Pad Right",
+        "Value": "DPAD_RIGHT"
+      },
+      {
+        "DisplayName": "Left Bumper",
+        "Value": "LEFT_BUMPER"
+      },
+      {
+        "DisplayName": "Right Bumper",
+        "Value": "RIGHT_BUMPER"
+      },
+      {
+        "DisplayName": "Left Trigger",
+        "Value": "LEFT_TRIGGER"
+      },
+      {
+        "DisplayName": "Right Trigger",
+        "Value": "RIGHT_TRIGGER"
+      },
+      {
+        "DisplayName": "Left Stick Click",
+        "Value": "LEFT_STICK"
+      },
+      {
+        "DisplayName": "Right Stick Click",
+        "Value": "RIGHT_STICK"
+      }
+    ]
+  },
+  "IniFile": "GenerationsFreeCamera.ini"
+}
