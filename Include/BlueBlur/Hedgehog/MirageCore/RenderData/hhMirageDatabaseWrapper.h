@@ -15,6 +15,8 @@ namespace Hedgehog::Mirage
     class CMirageDatabaseWrapper;
     class CPictureData;
     class CLightListData;
+    class CVertexShaderData;
+    class CPixelShaderData;
 
     static FUNCTION_PTR(CMirageDatabaseWrapper*, __thiscall, fpCMirageDatabaseWrapperCtor, 0x72EE30,
         CMirageDatabaseWrapper* This, Hedgehog::Database::CDatabase* pDatabase);
@@ -24,6 +26,12 @@ namespace Hedgehog::Mirage
 
     static FUNCTION_PTR(void, __thiscall, fpCDatabaseGetLightListData, 0x72F6F0,
         CMirageDatabaseWrapper* This, boost::shared_ptr<CLightListData>& spLightListData, const Hedgehog::Base::CSharedString& name, uint32_t unknown);
+
+    static FUNCTION_PTR(void, __thiscall, fpCDatabaseGetVertexShaderData, 0x72F560,
+        CMirageDatabaseWrapper* This, boost::shared_ptr<CVertexShaderData>& spVertexShaderData, const Hedgehog::Base::CSharedString& name, uint32_t unknown);
+
+    static FUNCTION_PTR(void, __thiscall, fpCDatabaseGetPixelShaderData, 0x72F4F0,
+        CMirageDatabaseWrapper* This, boost::shared_ptr<CPixelShaderData>& spPixelShaderData, const Hedgehog::Base::CSharedString& name, uint32_t unknown);
 
     class CMirageDatabaseWrapper : public Hedgehog::Base::CObject
     {
@@ -44,6 +52,16 @@ namespace Hedgehog::Mirage
         void GetLightListData(boost::shared_ptr<CLightListData>& spLightListData, const Base::CSharedString& name, uint32_t unknown)
         {
             fpCDatabaseGetLightListData(this, spLightListData, name, unknown);
+        }
+
+        void GetVertexShaderData(boost::shared_ptr<CVertexShaderData>& spVertexShaderData, const Base::CSharedString& name, uint32_t unknown)
+        {
+            fpCDatabaseGetVertexShaderData(this, spVertexShaderData, name, unknown);
+        }
+
+        void GetPixelShaderData(boost::shared_ptr<CPixelShaderData>& spPixelShaderData, const Base::CSharedString& name, uint32_t unknown)
+        {
+            fpCDatabaseGetPixelShaderData(this, spPixelShaderData, name, unknown);
         }
     };
 
