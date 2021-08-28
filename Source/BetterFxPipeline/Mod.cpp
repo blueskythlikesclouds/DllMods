@@ -1,6 +1,6 @@
 #include "BloomScaleFixer.h"
 #include "Configuration.h"
-#include "DirectionalShadowFixer.h"
+#include "ShadowHandler.h"
 #include "DofScaleFixer.h"
 #include "FxaaRenderer.h"
 #include "FxPipelineEnabler.h"
@@ -16,7 +16,9 @@
 
 extern "C" __declspec(dllexport) void __cdecl OnFrame()
 {
+    BloomTypeHandler::update();
     SceneEffectOverrider::update();
+    ShadowHandler::update();
 }
 
 extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
@@ -30,9 +32,7 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
     if (!Configuration::load(dir + "BetterFxPipeline.ini"))
         MessageBox(NULL, L"Failed to parse BetterFxPipeline.ini", NULL, MB_ICONERROR);
 
-    FxPipelineEnabler::applyPatches();
-
-    DirectionalShadowFixer::applyPatches();
+    ShadowHandler::applyPatches();
 
     ParameterFixer::applyPatches();
 
@@ -57,6 +57,12 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     if (Configuration::enableResolutionScale)
         ResolutionScaler::applyPatches();
+}
 
+extern "C" __declspec(dllexport) void __cdecl PostInit()
+{
+    if (!GetModuleHandle(TEXT("GenerationsPBRShaders.dll"))) return;
+
+    FxPipelineEnabler::applyPatches();
     LoadingScreenFixer::applyPatches();
 }

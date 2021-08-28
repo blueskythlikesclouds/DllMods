@@ -12,10 +12,14 @@ void ShadowCaster::applyPatches()
 
     if (Configuration::enableTerrainShadowCast)
     {
+        // FxPipeline
         WRITE_MEMORY(0x10C63F3, uint8_t, 0xC0);
         WRITE_MEMORY(0x10C641D, uint8_t, 0xC0);
         WRITE_MEMORY(0x10C65CC, uint8_t, 0xC0);
         WRITE_MEMORY(0x10C65F6, uint8_t, 0xC0);
+
+        // MTFx
+        WRITE_MEMORY(0x13DD294, uint32_t, 0x180);
     }
 
     if (Configuration::forceCastShadow)

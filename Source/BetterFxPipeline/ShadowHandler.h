@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-class DirectionalShadowFixer
+class ShadowHandler
 {
     static bool enabled;
 
 public:
+    static void update();
     static void applyPatches();
 };

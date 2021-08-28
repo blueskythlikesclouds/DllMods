@@ -17,7 +17,7 @@
     <ClCompile Include="FxPipelineEnabler.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="DirectionalShadowFixer.cpp">
+    <ClCompile Include="ShadowHandler.cpp">
       <Filter>Shadow</Filter>
     </ClCompile>
     <ClCompile Include="TransparentShadowFixer.cpp">
@@ -64,7 +64,7 @@
     <ClInclude Include="FxPipelineEnabler.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="DirectionalShadowFixer.h">
+    <ClInclude Include="ShadowHandler.h">
       <Filter>Shadow</Filter>
     </ClInclude>
     <ClInclude Include="TransparentShadowFixer.h">

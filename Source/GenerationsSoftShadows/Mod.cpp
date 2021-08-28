@@ -1,12 +1,12 @@
-HOOK(void, __fastcall, CFxRenderGameSceneExecute, Sonic::fpCFxRenderGameSceneExecute, Sonic::CFxRenderGameScene* This)
+HOOK(void, __fastcall, CApplicationUpdate, 0xE7BED0, void* This, void* Edx, void* A2, void* A3)
 {
-    boost::shared_ptr<Hedgehog::Yggdrasill::CYggTexture> spShadowMapTex;
-    This->GetTexture(spShadowMapTex, "shadowmap");
+    DX_PATCH::IDirect3DDevice9* device = *(DX_PATCH::IDirect3DDevice9**)((char*)This + 80);
 
-    float shadowMapSize[] = { spShadowMapTex->m_CreationParams.Width, 1.0f / spShadowMapTex->m_CreationParams.Width, 0, 0 };
-    This->m_pScheduler->m_pMisc->m_pDevice->m_pD3DDevice->SetPixelShaderConstantF(223, shadowMapSize, 1);
+    const uint32_t shadowMapSize = *(uint32_t*)0x10C6039;
+    float shadowMapParams[] = { (float)shadowMapSize, 1.0f / (float)shadowMapSize, 0, 0 };
+    device->SetPixelShaderConstantF(223, shadowMapParams, 1);
 
-    originalCFxRenderGameSceneExecute(This);
+    originalCApplicationUpdate(This, Edx, A2, A3);
 }
 
 HOOK(uint32_t, __fastcall, CRenderingDeviceSetAtlasParameterData, Hedgehog::Mirage::fpCRenderingDeviceSetAtlasParameterData, 
@@ -41,6 +41,15 @@ void __declspec(naked) CFxShadowMapInitializeMidAsmHook()
     }
 }
 
+HOOK(void, __cdecl, SetFBTexture, 0x64EBC0, void* A1, uint32_t index, uint8_t flags)
+{
+    // Linear -> Point
+    if (index == 7 || index == 13) 
+        flags |= 0x40;
+
+    originalSetFBTexture(A1, index, flags);
+}
+
 extern "C" __declspec(dllexport) void OnFrame()
 {
     *(float*)0x1A4356C = 0; // Force shadow bias to 0
@@ -48,12 +57,15 @@ extern "C" __declspec(dllexport) void OnFrame()
 
 extern "C" __declspec(dllexport) void Init()
 {
-    INSTALL_HOOK(CFxRenderGameSceneExecute);
+    INSTALL_HOOK(CApplicationUpdate);
     INSTALL_HOOK(CRenderingDeviceSetAtlasParameterData);
 
+    //
+    // FxPipeline
+    //
     WRITE_JUMP(0x10C60AA, CFxShadowMapInitializeMidAsmHook);
 
-    // Linear -> Point
+    // Linear -> Point 
     WRITE_MEMORY(0x10C7D6B, uint8_t, 0x00);
     WRITE_MEMORY(0x10C7D6B + 2, uint8_t, 0x01);
     WRITE_MEMORY(0x10C7D6B + 4, uint8_t, 0x01);
@@ -69,6 +81,15 @@ extern "C" __declspec(dllexport) void Init()
     WRITE_MEMORY(0x10C7F00, uint8_t, 0x00);
     WRITE_MEMORY(0x10C7F00 + 2, uint8_t, 0x01);
     WRITE_MEMORY(0x10C7F00 + 4, uint8_t, 0x01);
+
+    //
+    // MTFx
+    //
+    WRITE_MEMORY(0x655B14, uint32_t, RAWZ);
+    WRITE_MEMORY(0x655B47, uint32_t, RAWZ);
+    WRITE_MEMORY(0x655C6B, uint8_t, 0xEB);
+    WRITE_MEMORY(0x655C75, uint8_t, 0xEB);
+    INSTALL_HOOK(SetFBTexture);
 }
 
 extern "C" __declspec(dllexport) void PostInit()

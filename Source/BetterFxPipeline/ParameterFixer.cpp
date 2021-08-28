@@ -1,10 +1,13 @@
 ﻿#include "ParameterFixer.h"
 
+//
+// FxPipeline
+// 
+
 HOOK(void*, __fastcall, SetShader, 0x415EE0, YggSchedulerSubInternal* This, void* Edx, const boost::shared_ptr<VertexShaderData>& vertexShaderData, const boost::shared_ptr<PixelShaderData>& pixelShaderData)
 {
     void* result = originalSetShader(This, Edx, vertexShaderData, pixelShaderData);
 
-    // g_ForceAlphaColor
     const float forceAlphaColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     const uint8_t forceAlphaColorRegister = *(uint8_t*)((uint8_t*)This->renderingInfrastructure->internal.globalParametersData + 
         This->renderingInfrastructure->internal.globalParameterIndex * 2 + 544);
@@ -21,6 +24,18 @@ HOOK(void*, __fastcall, RenderMeshes, 0x789890, void* This, void* Edx, void* a2,
 {
     resetForceAlphaColor(This);
     return originalRenderMeshes(This, Edx, a2, a3);
+}
+
+//
+// MTFx
+//
+
+HOOK(void, __fastcall, SetMaterialParameters, 0x6FD2C0, void* This, void* Edx, hh::mr::CRenderingDevice* device, void* A2)
+{
+    const float luminanceRange[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    device->m_pD3DDevice->SetPixelShaderConstantF(63, luminanceRange, 1);
+
+    originalSetMaterialParameters(This, Edx, device, A2);
 }
 
 bool ParameterFixer::enabled = false;
@@ -47,4 +62,7 @@ void ParameterFixer::applyPatches()
     // Initialize g_ForceAlphaColor for every object before rendering
     // because the hook above can't always be trusted apparently
     INSTALL_HOOK(RenderMeshes);
+
+    // Initialize mrgLuminanceRange for every material (MTFx)
+    INSTALL_HOOK(SetMaterialParameters);
 }

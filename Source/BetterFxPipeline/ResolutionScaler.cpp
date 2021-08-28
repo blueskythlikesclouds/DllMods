@@ -43,6 +43,19 @@ HOOK(void*, __fastcall, CreateYggTexture4, 0x788590,
     return originalCreateYggTexture4(This, Edx, a2, widthScale, heightScale, a5, a6, a7, a8, a9);
 }
 
+HOOK(void, __fastcall, GraphicsConfigGetResolution, 0xA5C490, void* This, void* Edx, uint32_t& width, uint32_t& height)
+{
+    if (Configuration::enableResolutionScale)
+    {
+        width = Configuration::width;
+        height = Configuration::height;
+    }
+    else
+    {
+        originalGraphicsConfigGetResolution(This, Edx, width, height);
+    }
+}
+
 bool ResolutionScaler::enabled = false;
 bool ResolutionScaler::scaleTo720p = false;
 
@@ -57,4 +70,5 @@ void ResolutionScaler::applyPatches()
     INSTALL_HOOK(CreateYggTexture2);
     INSTALL_HOOK(CreateYggTexture3);
     INSTALL_HOOK(CreateYggTexture4);
+    INSTALL_HOOK(GraphicsConfigGetResolution);
 }

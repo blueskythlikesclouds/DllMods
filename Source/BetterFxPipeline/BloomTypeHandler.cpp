@@ -21,43 +21,82 @@ HOOK(void, __cdecl, CreateBloomStarParams, 0x110E670, Sonic::CParameterGroup* Th
     This->Flush();
 }
 
-Hedgehog::Mirage::SShaderPair s_HfBloom_BrightPassHDRShader;
-Hedgehog::Mirage::SShaderPair s_SWA_Bloom_BrightPassHDRShader;
-Hedgehog::Mirage::SShaderPair s_Bloom_BrightPassHDRShader;
+hh::mr::SShaderPair bbBloom;
+hh::mr::SShaderPair swaBloom;
+hh::mr::SShaderPair legacyBloom;
 
-HOOK(void, __fastcall, CFxBloomGlareInitialize, Sonic::fpCFxBloomGlareInitialize, Sonic::CFxBloomGlare* This)
+void setBloomShaderPair(hh::mr::SShaderPair& shaderPair)
 {
-    originalCFxBloomGlareInitialize(This);
-
-    This->m_pScheduler->GetShader(s_HfBloom_BrightPassHDRShader, "RenderBuffer", "HfBloom_BrightPassHDR");
-    This->m_pScheduler->GetShader(s_SWA_Bloom_BrightPassHDRShader, "RenderBuffer", "SWA_Bloom_BrightPassHDR");
-    This->m_pScheduler->GetShader(s_Bloom_BrightPassHDRShader, "RenderBuffer", "Bloom_BrightPassHDR");
-}
-
-HOOK(void, __fastcall, CFxBloomGlareExecute, Sonic::fpCFxBloomGlareExecute, Sonic::CFxBloomGlare* This)
-{
-    const BloomType bloomType = sceneEffectBloomType > 0 && sceneEffectBloomType <= (uint32_t)BloomType::FxPipeline + 1 ? 
+    const BloomType bloomType = sceneEffectBloomType > 0 && sceneEffectBloomType <= (uint32_t)BloomType::FxPipeline + 1 ?
         (BloomType)(sceneEffectBloomType - 1) : Configuration::bloomType;
 
     switch (bloomType)
     {
     case BloomType::MTFx:
-        This->m_Bloom_BrightPassHDRShader = s_HfBloom_BrightPassHDRShader;
+        shaderPair = bbBloom;
         break;
 
     case BloomType::SWA:
-        This->m_Bloom_BrightPassHDRShader = s_SWA_Bloom_BrightPassHDRShader;
+        shaderPair = swaBloom;
         break;
 
     default:
-        This->m_Bloom_BrightPassHDRShader = s_Bloom_BrightPassHDRShader;
+        shaderPair = legacyBloom;
         break;
     }
+}
 
+//
+// FxPipeline
+//
+
+HOOK(void, __fastcall, CFxBloomGlareInitialize, Sonic::fpCFxBloomGlareInitialize, Sonic::CFxBloomGlare* This)
+{
+    originalCFxBloomGlareInitialize(This);
+
+    This->m_pScheduler->GetShader(bbBloom, "RenderBuffer", "HfBloom_BrightPassHDR");
+    This->m_pScheduler->GetShader(swaBloom, "RenderBuffer", "SWA_Bloom_BrightPassHDR");
+    This->m_pScheduler->GetShader(legacyBloom, "RenderBuffer", "Bloom_BrightPassHDR");
+}
+
+HOOK(void, __fastcall, CFxBloomGlareExecute, Sonic::fpCFxBloomGlareExecute, Sonic::CFxBloomGlare* This)
+{
+    setBloomShaderPair(This->m_Bloom_BrightPassHDRShader);
     originalCFxBloomGlareExecute(This);
 }
 
+//
+// MTFx
+//
+
+hh::mr::SShaderPair* bloomShaderPairRef;
+
+HOOK(void, __fastcall, MTFxInitializeRenderBufferShaders, 0x651320, void* This, void* Edx, hh::db::CDatabase* pDatabase)
+{
+    hh::mr::CMirageDatabaseWrapper wrapper(pDatabase);
+
+    wrapper.GetVertexShaderData(bbBloom.m_spVertexShader, "RenderBuffer", 0);
+    wrapper.GetPixelShaderData(bbBloom.m_spPixelShader, "HfBloom_BrightPassHDR", 0);
+
+    wrapper.GetVertexShaderData(swaBloom.m_spVertexShader, "RenderBuffer", 0);
+    wrapper.GetPixelShaderData(swaBloom.m_spPixelShader, "SWA_Bloom_BrightPassHDR", 0);
+
+    wrapper.GetVertexShaderData(legacyBloom.m_spVertexShader, "RenderBuffer", 0);
+    wrapper.GetPixelShaderData(legacyBloom.m_spPixelShader, "Bloom_BrightPassHDR", 0);
+
+    bloomShaderPairRef = (hh::mr::SShaderPair*)((char*)This + 27 * 16);
+
+    originalMTFxInitializeRenderBufferShaders(This, Edx, pDatabase);
+}
+
 bool BloomTypeHandler::enabled = false;
+
+void BloomTypeHandler::update()
+{
+    if (!enabled || !bloomShaderPairRef) return;
+
+    setBloomShaderPair(*bloomShaderPairRef);
+}
 
 void BloomTypeHandler::applyPatches()
 {
@@ -72,4 +111,6 @@ void BloomTypeHandler::applyPatches()
 
     INSTALL_HOOK(CFxBloomGlareInitialize);
     INSTALL_HOOK(CFxBloomGlareExecute);
+
+    INSTALL_HOOK(MTFxInitializeRenderBufferShaders);
 }

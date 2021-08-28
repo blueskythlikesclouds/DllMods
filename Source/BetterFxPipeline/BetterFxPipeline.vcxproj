@@ -98,7 +98,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Configuration.cpp" />
-    <ClCompile Include="DirectionalShadowFixer.cpp" />
+    <ClCompile Include="ShadowHandler.cpp" />
     <ClCompile Include="BloomScaleFixer.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="DofScaleFixer.cpp" />
@@ -124,7 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configuration.h" />
-    <ClInclude Include="DirectionalShadowFixer.h" />
+    <ClInclude Include="ShadowHandler.h" />
     <ClInclude Include="BloomScaleFixer.h" />
     <ClInclude Include="DofScaleFixer.h" />
     <ClInclude Include="Functions.h" />
