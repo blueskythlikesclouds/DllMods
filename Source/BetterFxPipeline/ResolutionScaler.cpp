@@ -43,17 +43,17 @@ HOOK(void*, __fastcall, CreateYggTexture4, 0x788590,
     return originalCreateYggTexture4(This, Edx, a2, widthScale, heightScale, a5, a6, a7, a8, a9);
 }
 
-HOOK(void, __fastcall, GraphicsConfigGetResolution, 0xA5C490, void* This, void* Edx, uint32_t& width, uint32_t& height)
+HOOK(void, __stdcall, InitializeSurfaceInfo, 0x653A00, void* A1, void* A2, void* A3)
 {
-    if (Configuration::enableResolutionScale)
-    {
-        width = Configuration::width;
-        height = Configuration::height;
-    }
-    else
-    {
-        originalGraphicsConfigGetResolution(This, Edx, width, height);
-    }
+    originalInitializeSurfaceInfo(A1, A2, A3);
+
+    if (!Configuration::enableResolutionScale)
+        return;
+
+    *(uint32_t*)((char*)A2 + 16) = Configuration::width;
+    *(uint32_t*)((char*)A2 + 20) = Configuration::height;
+    *(uint32_t*)((char*)A2 + 24) = Configuration::width;
+    *(uint32_t*)((char*)A2 + 28) = Configuration::height;
 }
 
 bool ResolutionScaler::enabled = false;
@@ -66,9 +66,12 @@ void ResolutionScaler::applyPatches()
 
     enabled = true;
 
+    // FxPipeline
     INSTALL_HOOK(CreateYggTexture1);
     INSTALL_HOOK(CreateYggTexture2);
     INSTALL_HOOK(CreateYggTexture3);
     INSTALL_HOOK(CreateYggTexture4);
-    INSTALL_HOOK(GraphicsConfigGetResolution);
+
+    // MTFx
+    INSTALL_HOOK(InitializeSurfaceInfo);
 }

@@ -62,7 +62,8 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
 extern "C" __declspec(dllexport) void __cdecl PostInit()
 {
-    if (!GetModuleHandle(TEXT("GenerationsPBRShaders.dll"))) return;
+    if (!GetModuleHandle(TEXT("GenerationsPBRShaders.dll"))) 
+        return;
 
     FxPipelineEnabler::applyPatches();
     LoadingScreenFixer::applyPatches();
