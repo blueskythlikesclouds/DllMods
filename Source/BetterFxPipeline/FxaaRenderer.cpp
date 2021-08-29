@@ -13,6 +13,10 @@ const std::array<const char*, 7> FXAA_SHADER_NAMES =
     "FxFXAA_5",
 };
 
+//
+// FxPipeline
+// 
+
 ShaderDataPair fxaaShaderPair;
 boost::shared_ptr<YggTexture> fxaaFrameBuffer;
 
@@ -60,8 +64,61 @@ void FxaaRenderer::applyPatches()
 
     enabled = true;
 
+    // Ignore Devil's Details' FXAA implementation
+    WRITE_NOP(0x64CC19, 2);
+
+    if (Configuration::fxaaIntensity <= FxaaIntensity::DISABLED || 
+        Configuration::fxaaIntensity > FxaaIntensity::INTENSITY_6)
+        return;
+
     IndependentArchiveLoader::applyPatches();
 
+    // FxPipeline
     INSTALL_HOOK(InitializeCrossFade);
     INSTALL_HOOK(ExecuteCrossFade);
+
+    // MTFx
+    {
+        hh::fx::SScreenRenderParam* newScreenRenderParam = (hh::fx::SScreenRenderParam*)operator new(
+            sizeof(hh::fx::SScreenRenderParam));
+        memcpy(newScreenRenderParam, (void*)0x13DF5A8, sizeof(hh::fx::SScreenRenderParam));
+
+        // Replace MSAA PS3 shader with FXAA shader
+        newScreenRenderParam->m_ShaderIndex = 51;
+        WRITE_MEMORY(0x6546C3, char*, FXAA_SHADER_NAMES[(size_t)Configuration::fxaaIntensity - 1]);
+
+        // Insert our own Draw Instance Param to Color Correction
+        hh::fx::SDrawInstanceParam* colorCorrectionParam = (hh::fx::SDrawInstanceParam*)0x13E06A8;
+        hh::fx::SDrawInstanceParam* children = (hh::fx::SDrawInstanceParam*)colorCorrectionParam->m_ChildParams;
+
+        hh::fx::SDrawInstanceParam* newChildren = new hh::fx::SDrawInstanceParam[colorCorrectionParam->
+            m_ChildParamCount + 1];
+
+        // Copy original children & set their render targets to TARGETSURFACE_COLOR1
+        for (size_t i = 0; i < colorCorrectionParam->m_ChildParamCount; i++)
+        {
+            newChildren[i] = children[i];
+            newChildren[i].m_RenderTargetSurface = 12;
+            newChildren[i].m_MsaaRenderTargetSurface = 12;
+        }
+
+        // Initialize FXAA parameters
+        hh::fx::SDrawInstanceParam* newChild =
+            &newChildren[colorCorrectionParam->m_ChildParamCount];
+
+        *newChild = children[0];
+        newChild->m_RenderTargetSurface = 3;
+        newChild->m_MsaaRenderTargetSurface = 3;
+        newChild->m_S0Sampler = 12;
+        newChild->m_S1Sampler = 0;
+        newChild->m_S2Sampler = 0;
+        newChild->m_S3Sampler = 0;
+        newChild->m_ChildParams = newScreenRenderParam;
+        newChild->m_Unk4 = 0;
+        newChild->m_Unk5 = 0;
+
+        // Pass new pointers
+        WRITE_MEMORY(&colorCorrectionParam->m_ChildParams, void*, newChildren);
+        WRITE_MEMORY(&colorCorrectionParam->m_ChildParamCount, uint32_t, colorCorrectionParam->m_ChildParamCount + 1);
+    }
 }

@@ -17,6 +17,8 @@
 #include <Hedgehog/Database/System/hhDatabaseData.h>
 #include <Hedgehog/Database/System/hhDatabaseLoader.h>
 #include <Hedgehog/Database/System/hhRawData.h>
+#include <Hedgehog/FxRenderFramework/hhDrawInstanceParam.h>
+#include <Hedgehog/FxRenderFramework/hhScreenRenderParam.h>
 #include <Hedgehog/MirageCore/Camera/hhCamera.h>
 #include <Hedgehog/MirageCore/Misc/hhDirector.h>
 #include <Hedgehog/MirageCore/Misc/hhLightManager.h>
@@ -54,6 +56,7 @@ namespace Hedgehog
 {
     namespace base = Base;
     namespace db = Database;
+    namespace fx = FxRenderFramework;
     namespace mr = Mirage;
     namespace mot = Motion;
     namespace fnd = Universe;

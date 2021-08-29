@@ -49,9 +49,7 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     BloomTypeHandler::applyPatches();
 
-    if (Configuration::fxaaIntensity > FxaaIntensity::DISABLED &&
-        Configuration::fxaaIntensity <= FxaaIntensity::INTENSITY_6)
-        FxaaRenderer::applyPatches();
+    FxaaRenderer::applyPatches();
 
     ShadowCaster::applyPatches();
 
