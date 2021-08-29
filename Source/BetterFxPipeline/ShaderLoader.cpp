@@ -50,6 +50,9 @@ HOOK(void*, __stdcall, LoadApplicationAndShaders, 0xD6A580, void* This)
     return originalLoadApplicationAndShaders(This);
 }
 
+constexpr size_t SHADER_LIST_BYTE_SIZE = 0x3500;
+constexpr size_t SHADER_LIST_EXTRA_BYTE_SIZE = sizeof(hh::mr::SShaderPair);
+
 namespace
 {
     FUNCTION_PTR(void, __thiscall, loadShader, 0x654480, 
@@ -57,6 +60,8 @@ namespace
 
     HOOK(void, __fastcall, MTFxInitializeRenderBufferShaders, 0x654590, void* This, void* Edx, hh::db::CDatabase* database)
     {
+        memset((char*)This + SHADER_LIST_BYTE_SIZE, 0, SHADER_LIST_EXTRA_BYTE_SIZE);
+
         if (Configuration::fxaaIntensity > FxaaIntensity::DISABLED && Configuration::fxaaIntensity <= FxaaIntensity::INTENSITY_6)
             loadShader(This, 0x350, database, "FxFilterNone", FxaaRenderer::SHADER_NAMES[(size_t)Configuration::fxaaIntensity - 1]);
 
@@ -75,6 +80,6 @@ void ShaderLoader::applyPatches()
 
     INSTALL_HOOK(LoadApplicationAndShaders);
 
-    WRITE_MEMORY(0x6514E3, uint32_t, 0x3500 + sizeof(hh::mr::SShaderPair));
+    WRITE_MEMORY(0x6514E3, uint32_t, SHADER_LIST_BYTE_SIZE + SHADER_LIST_EXTRA_BYTE_SIZE);
     INSTALL_HOOK(MTFxInitializeRenderBufferShaders);
 }
