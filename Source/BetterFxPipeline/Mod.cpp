@@ -12,6 +12,7 @@
 #include "SceneEffectOverrider.h"
 #include "ShadowCaster.h"
 #include "BloomTypeHandler.h"
+#include "ShaderLoader.h"
 #include "TransparentShadowFixer.h"
 
 extern "C" __declspec(dllexport) void __cdecl OnFrame()
@@ -31,6 +32,8 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     if (!Configuration::load(dir + "BetterFxPipeline.ini"))
         MessageBox(NULL, L"Failed to parse BetterFxPipeline.ini", NULL, MB_ICONERROR);
+
+    ShaderLoader::applyPatches();
 
     ShadowHandler::applyPatches();
 

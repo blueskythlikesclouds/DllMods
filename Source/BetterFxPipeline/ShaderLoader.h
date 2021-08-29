@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class IndependentArchiveLoader
+class ShaderLoader
 {
     static bool enabled;
 

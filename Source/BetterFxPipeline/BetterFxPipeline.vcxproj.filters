@@ -42,7 +42,7 @@
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Types.cpp" />
-    <ClCompile Include="IndependentArchiveLoader.cpp">
+    <ClCompile Include="ShaderLoader.cpp">
       <Filter>Other</Filter>
     </ClCompile>
     <ClCompile Include="BloomTypeHandler.cpp">
@@ -91,7 +91,7 @@
     <ClInclude Include="FxaaRenderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="IndependentArchiveLoader.h">
+    <ClInclude Include="ShaderLoader.h">
       <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="BloomTypeHandler.h">

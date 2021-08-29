@@ -1,8 +1,7 @@
 ﻿#include "Configuration.h"
 #include "FxaaRenderer.h"
-#include "IndependentArchiveLoader.h"
 
-const std::array<const char*, 7> FXAA_SHADER_NAMES =
+const std::array<const char*, 7> FxaaRenderer::SHADER_NAMES =
 {
     "FxFXAALite",
     "FxFXAA_0",
@@ -22,7 +21,7 @@ boost::shared_ptr<YggTexture> fxaaFrameBuffer;
 
 HOOK(void*, __fastcall, InitializeCrossFade, 0x10C21A0, YggJob* This)
 {
-    loadShaderDataPair(This->scheduler, fxaaShaderPair, "FxFilterNone", FXAA_SHADER_NAMES[(uint32_t)Configuration::fxaaIntensity - 1]);
+    loadShaderDataPair(This->scheduler, fxaaShaderPair, "FxFilterNone", FxaaRenderer::SHADER_NAMES[(uint32_t)Configuration::fxaaIntensity - 1]);
     createYggTexture(This->scheduler->internal->subInternal, fxaaFrameBuffer, 1, 1, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, NULL);
 
     return originalInitializeCrossFade(This);
@@ -71,8 +70,6 @@ void FxaaRenderer::applyPatches()
         Configuration::fxaaIntensity > FxaaIntensity::INTENSITY_6)
         return;
 
-    IndependentArchiveLoader::applyPatches();
-
     // FxPipeline
     INSTALL_HOOK(InitializeCrossFade);
     INSTALL_HOOK(ExecuteCrossFade);
@@ -83,9 +80,8 @@ void FxaaRenderer::applyPatches()
             sizeof(hh::fx::SScreenRenderParam));
         memcpy(newScreenRenderParam, (void*)0x13DF5A8, sizeof(hh::fx::SScreenRenderParam));
 
-        // Replace MSAA PS3 shader with FXAA shader
-        newScreenRenderParam->m_ShaderIndex = 51;
-        WRITE_MEMORY(0x6546C3, char*, FXAA_SHADER_NAMES[(size_t)Configuration::fxaaIntensity - 1]);
+        // Refer to ShaderLoader.cpp for shader indices
+        newScreenRenderParam->m_ShaderIndex = 0x350;
 
         // Insert our own Draw Instance Param to Color Correction
         hh::fx::SDrawInstanceParam* colorCorrectionParam = (hh::fx::SDrawInstanceParam*)0x13E06A8;

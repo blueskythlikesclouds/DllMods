@@ -103,7 +103,7 @@
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="DofScaleFixer.cpp" />
     <ClCompile Include="FxaaRenderer.cpp" />
-    <ClCompile Include="IndependentArchiveLoader.cpp" />
+    <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="ParameterFixer.cpp" />
     <ClCompile Include="FxPipelineEnabler.cpp" />
     <ClCompile Include="LoadingScreenFixer.cpp" />
@@ -129,7 +129,7 @@
     <ClInclude Include="DofScaleFixer.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="FxaaRenderer.h" />
-    <ClInclude Include="IndependentArchiveLoader.h" />
+    <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="ParameterFixer.h" />
     <ClInclude Include="FxPipelineEnabler.h" />
     <ClInclude Include="Hash.h" />

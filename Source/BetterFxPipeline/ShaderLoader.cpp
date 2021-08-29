@@ -1,4 +1,6 @@
-﻿#include "IndependentArchiveLoader.h"
+﻿#include "ShaderLoader.h"
+#include "FxaaRenderer.h"
+#include "Configuration.h"
 
 const std::array<const char*, 2> ARCHIVE_NAMES =
 {
@@ -48,9 +50,23 @@ HOOK(void*, __stdcall, LoadApplicationAndShaders, 0xD6A580, void* This)
     return originalLoadApplicationAndShaders(This);
 }
 
-bool IndependentArchiveLoader::enabled = false;
+namespace
+{
+    FUNCTION_PTR(void, __thiscall, loadShader, 0x654480, 
+        void* This, int32_t index, hh::db::CDatabase* database, const char* vertexShaderName, const char* pixelShaderName);
 
-void IndependentArchiveLoader::applyPatches()
+    HOOK(void, __fastcall, MTFxInitializeRenderBufferShaders, 0x654590, void* This, void* Edx, hh::db::CDatabase* database)
+    {
+        if (Configuration::fxaaIntensity > FxaaIntensity::DISABLED && Configuration::fxaaIntensity <= FxaaIntensity::INTENSITY_6)
+            loadShader(This, 0x350, database, "FxFilterNone", FxaaRenderer::SHADER_NAMES[(size_t)Configuration::fxaaIntensity - 1]);
+
+        originalMTFxInitializeRenderBufferShaders(This, Edx, database);
+    }
+}
+
+bool ShaderLoader::enabled = false;
+
+void ShaderLoader::applyPatches()
 {
     if (enabled)
         return;
@@ -58,4 +74,7 @@ void IndependentArchiveLoader::applyPatches()
     enabled = true;
 
     INSTALL_HOOK(LoadApplicationAndShaders);
+
+    WRITE_MEMORY(0x6514E3, uint32_t, 0x3500 + sizeof(hh::mr::SShaderPair));
+    INSTALL_HOOK(MTFxInitializeRenderBufferShaders);
 }

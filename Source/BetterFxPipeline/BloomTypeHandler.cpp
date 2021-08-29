@@ -1,6 +1,5 @@
 ﻿#include "BloomTypeHandler.h"
 #include "Configuration.h"
-#include "IndependentArchiveLoader.h"
 
 uint32_t sceneEffectBloomType;
 
@@ -71,22 +70,25 @@ HOOK(void, __fastcall, CFxBloomGlareExecute, Sonic::fpCFxBloomGlareExecute, Soni
 
 hh::mr::SShaderPair* bloomShaderPairRef;
 
-HOOK(void, __fastcall, MTFxInitializeRenderBufferShaders, 0x651320, void* This, void* Edx, hh::db::CDatabase* pDatabase)
+namespace
 {
-    hh::mr::CMirageDatabaseWrapper wrapper(pDatabase);
+    HOOK(void, __fastcall, MTFxInitializeRenderBufferShaders, 0x651320, void* This, void* Edx, hh::db::CDatabase* pDatabase)
+    {
+        hh::mr::CMirageDatabaseWrapper wrapper(pDatabase);
 
-    wrapper.GetVertexShaderData(bbBloom.m_spVertexShader, "RenderBuffer", 0);
-    wrapper.GetPixelShaderData(bbBloom.m_spPixelShader, "HfBloom_BrightPassHDR", 0);
+        wrapper.GetVertexShaderData(bbBloom.m_spVertexShader, "RenderBuffer", 0);
+        wrapper.GetPixelShaderData(bbBloom.m_spPixelShader, "HfBloom_BrightPassHDR", 0);
 
-    wrapper.GetVertexShaderData(swaBloom.m_spVertexShader, "RenderBuffer", 0);
-    wrapper.GetPixelShaderData(swaBloom.m_spPixelShader, "SWA_Bloom_BrightPassHDR", 0);
+        wrapper.GetVertexShaderData(swaBloom.m_spVertexShader, "RenderBuffer", 0);
+        wrapper.GetPixelShaderData(swaBloom.m_spPixelShader, "SWA_Bloom_BrightPassHDR", 0);
 
-    wrapper.GetVertexShaderData(legacyBloom.m_spVertexShader, "RenderBuffer", 0);
-    wrapper.GetPixelShaderData(legacyBloom.m_spPixelShader, "Bloom_BrightPassHDR", 0);
+        wrapper.GetVertexShaderData(legacyBloom.m_spVertexShader, "RenderBuffer", 0);
+        wrapper.GetPixelShaderData(legacyBloom.m_spPixelShader, "Bloom_BrightPassHDR", 0);
 
-    bloomShaderPairRef = (hh::mr::SShaderPair*)((char*)This + 27 * 16);
+        bloomShaderPairRef = (hh::mr::SShaderPair*)((char*)This + 27 * 16);
 
-    originalMTFxInitializeRenderBufferShaders(This, Edx, pDatabase);
+        originalMTFxInitializeRenderBufferShaders(This, Edx, pDatabase);
+    }
 }
 
 bool BloomTypeHandler::enabled = false;
@@ -104,8 +106,6 @@ void BloomTypeHandler::applyPatches()
         return;
 
     enabled = true;
-
-    IndependentArchiveLoader::applyPatches();
 
     INSTALL_HOOK(CreateBloomStarParams);
 
