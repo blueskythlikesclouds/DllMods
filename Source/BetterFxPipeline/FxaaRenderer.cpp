@@ -76,43 +76,43 @@ void FxaaRenderer::applyPatches()
 
     // MTFx
     {
-        hh::fx::SScreenRenderParam* newScreenRenderParam = (hh::fx::SScreenRenderParam*)operator new(
-            sizeof(hh::fx::SScreenRenderParam));
+        hh::fx::SScreenRenderParam* newScreenRenderParam = new hh::fx::SScreenRenderParam();
         memcpy(newScreenRenderParam, (void*)0x13DF5A8, sizeof(hh::fx::SScreenRenderParam));
 
         // Refer to ShaderLoader.cpp for shader indices
         newScreenRenderParam->m_ShaderIndex = 0x350;
 
-        // Insert our own Draw Instance Param to Color Correction
-        hh::fx::SDrawInstanceParam* colorCorrectionParam = (hh::fx::SDrawInstanceParam*)0x13E06A8;
-        hh::fx::SDrawInstanceParam* children = (hh::fx::SDrawInstanceParam*)colorCorrectionParam->m_ChildParams;
+        // Insert our own Draw Instance Param to Render Before Particle 3
+        hh::fx::SDrawInstanceParam* renderBeforeParticle3Param = (hh::fx::SDrawInstanceParam*)0x13DDDC8;
 
-        hh::fx::SDrawInstanceParam* newChildren = new hh::fx::SDrawInstanceParam[colorCorrectionParam->
-            m_ChildParamCount + 1];
-
-        // Copy original children & set their samplers to TARGETSURFACE_COLOR1
-        for (size_t i = 0; i < colorCorrectionParam->m_ChildParamCount; i++)
-        {
-            newChildren[i + 1] = children[i];
-            newChildren[i + 1].m_S0Sampler = 12;
-        }
+        hh::fx::SDrawInstanceParam* newChildren = new hh::fx::SDrawInstanceParam[renderBeforeParticle3Param->m_ChildParamCount + 2];
+        memcpy(newChildren, renderBeforeParticle3Param->m_ChildParams, sizeof(hh::fx::SDrawInstanceParam) * renderBeforeParticle3Param->m_ChildParamCount);
 
         // Initialize FXAA parameters
-        hh::fx::SDrawInstanceParam* newChild = &newChildren[0];
+        hh::fx::SDrawInstanceParam* fxaaParam = &newChildren[renderBeforeParticle3Param->m_ChildParamCount];
+        memset(fxaaParam, 0, sizeof(hh::fx::SDrawInstanceParam));
 
-        *newChild = children[0];
-        newChild->m_RenderTargetSurface = 12;
-        newChild->m_MsaaRenderTargetSurface = 12;
-        newChild->m_S0Sampler = 0x80 | 10;
-        newChild->m_S1Sampler = 0;
-        newChild->m_S2Sampler = 0;
-        newChild->m_S3Sampler = 0;
-        newChild->m_ChildParams = newScreenRenderParam;
-        newChild->m_Unk4 = 0;
-        newChild->m_Unk5 = 0;
+        fxaaParam->m_pCallback = (void*)0x651820;
+        fxaaParam->m_ChildParams = newScreenRenderParam;
+        fxaaParam->m_RenderTargetSurface = 7;
+        fxaaParam->m_MsaaRenderTargetSurface = 7;
+        fxaaParam->m_S0Sampler = 0x80 | 10;
+        fxaaParam->m_Unk0 = 0x3;
+        fxaaParam->m_Unk2 = 0x101;
+
+        hh::fx::SDrawInstanceParam* copyParam = &newChildren[renderBeforeParticle3Param->m_ChildParamCount + 1];
+        memset(copyParam, 0, sizeof(hh::fx::SDrawInstanceParam));
+
+        copyParam->m_pCallback = (void*)0x651820;
+        copyParam->m_ChildParams = (void*)0x13DF5A8;
+        copyParam->m_RenderTargetSurface = 10;
+        copyParam->m_MsaaRenderTargetSurface = 10;
+        copyParam->m_S0Sampler = 7;
+        copyParam->m_Unk0 = 0x3;
+        copyParam->m_Unk2 = 0x101;
 
         // Pass new pointers
-        WRITE_MEMORY(&colorCorrectionParam->m_ChildParams, void*, newChildren);
-        WRITE_MEMORY(&colorCorrectionParam->m_ChildParamCount, uint32_t, colorCorrectionParam->m_ChildParamCount + 1);
+        WRITE_MEMORY(&renderBeforeParticle3Param->m_ChildParams, void*, newChildren);
+        WRITE_MEMORY(&renderBeforeParticle3Param->m_ChildParamCount, uint32_t, renderBeforeParticle3Param->m_ChildParamCount + 2);
     }
 }
