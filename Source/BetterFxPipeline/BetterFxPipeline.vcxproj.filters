@@ -111,5 +111,16 @@
     <Filter Include="Other">
       <UniqueIdentifier>{5c83a44c-a1ac-407b-8c9f-20213ea29c1a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{72c181d6-49ba-4f3e-b825-4d3125c78921}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="CopyTexture.wvu.hlsl">
+      <Filter>Resources</Filter>
+    </FxCompile>
+    <FxCompile Include="CopyTexture.wpu.hlsl">
+      <Filter>Resources</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

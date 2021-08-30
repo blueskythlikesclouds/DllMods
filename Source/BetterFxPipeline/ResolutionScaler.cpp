@@ -1,6 +1,10 @@
 ﻿#include "Configuration.h"
 #include "ResolutionScaler.h"
 
+// Shaders
+#include "CopyTexture.wpu.h"
+#include "CopyTexture.wvu.h"
+
 void setScales(YggSchedulerSubInternal* subInternal, float& widthScale, float& heightScale)
 {
     if (ResolutionScaler::scaleTo720p)
@@ -74,4 +78,13 @@ void ResolutionScaler::applyPatches()
 
     // MTFx
     INSTALL_HOOK(InitializeSurfaceInfo);
+
+    // Replace Devil's Details' shaders
+    WRITE_MEMORY(0x64C88D, uint32_t, _countof(g_ps30_main));
+    WRITE_MEMORY(0x64C897, void*, g_ps30_main);
+
+    WRITE_MEMORY(0x64C855, uint32_t, _countof(g_vs30_main));
+    WRITE_MEMORY(0x64C85F, void*, g_vs30_main);
+
+    WRITE_MEMORY(0x64CBF7, uint32_t, 440); // SetPixelShaderConstantF
 }

@@ -63,7 +63,7 @@ void FxaaRenderer::applyPatches()
 
     enabled = true;
 
-    // Ignore Devil's Details' FXAA implementation
+    // Ignore Devil's Details' FXAA shader
     WRITE_NOP(0x64CC19, 2);
 
     if (Configuration::fxaaIntensity <= FxaaIntensity::DISABLED || 
