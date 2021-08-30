@@ -90,22 +90,20 @@ void FxaaRenderer::applyPatches()
         hh::fx::SDrawInstanceParam* newChildren = new hh::fx::SDrawInstanceParam[colorCorrectionParam->
             m_ChildParamCount + 1];
 
-        // Copy original children & set their render targets to TARGETSURFACE_COLOR1
+        // Copy original children & set their samplers to TARGETSURFACE_COLOR1
         for (size_t i = 0; i < colorCorrectionParam->m_ChildParamCount; i++)
         {
-            newChildren[i] = children[i];
-            newChildren[i].m_RenderTargetSurface = 12;
-            newChildren[i].m_MsaaRenderTargetSurface = 12;
+            newChildren[i + 1] = children[i];
+            newChildren[i + 1].m_S0Sampler = 12;
         }
 
         // Initialize FXAA parameters
-        hh::fx::SDrawInstanceParam* newChild =
-            &newChildren[colorCorrectionParam->m_ChildParamCount];
+        hh::fx::SDrawInstanceParam* newChild = &newChildren[0];
 
         *newChild = children[0];
-        newChild->m_RenderTargetSurface = 3;
-        newChild->m_MsaaRenderTargetSurface = 3;
-        newChild->m_S0Sampler = 12;
+        newChild->m_RenderTargetSurface = 12;
+        newChild->m_MsaaRenderTargetSurface = 12;
+        newChild->m_S0Sampler = 0x80 | 10;
         newChild->m_S1Sampler = 0;
         newChild->m_S2Sampler = 0;
         newChild->m_S3Sampler = 0;
