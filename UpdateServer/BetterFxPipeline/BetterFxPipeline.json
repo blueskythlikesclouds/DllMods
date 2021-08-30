@@ -5,28 +5,6 @@
          "DisplayName":"Renderer",
          "Elements":[
             {
-               "Name":"FixBloomScale",
-               "Description":[
-                  "Scales bloom correctly at all resolutions."
-               ],
-               "DisplayName":"Fix bloom scale",
-               "Type":"bool",
-               "MinValue":null,
-               "MaxValue":null,
-               "DefaultValue":true
-            },
-            {
-               "Name":"FixDOFScale",
-               "Description":[
-                  "Scales depth of field correctly at all resolutions."
-               ],
-               "DisplayName":"Fix depth of field scale",
-               "Type":"bool",
-               "MinValue":null,
-               "MaxValue":null,
-               "DefaultValue":true
-            },
-            {
                "Name":"ForceIgnoreFinalLightColorAdjustment",
                "Description":[
                   "Forces final light color adjustment to get ignored like Sonic Unleashed."
