@@ -300,7 +300,7 @@ hh::fx::SDrawInstanceParam lightShaftDrawInstanceParam =
     0
 };
 
-uint32_t* FINAL_POST_PROCESS_PARAM_CHILD_COUNT = (uint32_t*)0x13DD6D0;
+uint32_t* FINAL_POST_PROCESS_PARAM_CHILD_COUNT = (uint32_t*)0x13DF430;
 bool* IS_LIGHT_SHAFT_ENABLE = (bool*)0x1E5E333;
 
 bool LightShaftRenderer::enabled = false;
@@ -310,7 +310,7 @@ void LightShaftRenderer::update()
     if (!enabled)
         return;
 
-    *FINAL_POST_PROCESS_PARAM_CHILD_COUNT = *IS_LIGHT_SHAFT_ENABLE ? 2 : 1;
+    *FINAL_POST_PROCESS_PARAM_CHILD_COUNT = *IS_LIGHT_SHAFT_ENABLE ? 3 : 2;
 }
 
 void LightShaftRenderer::applyPatches()
@@ -320,7 +320,7 @@ void LightShaftRenderer::applyPatches()
 
     enabled = true;
 
-    hh::fx::SDrawInstanceParam* finalPostProcessParam = (hh::fx::SDrawInstanceParam*)0x13DD6B8;
+    hh::fx::SDrawInstanceParam* finalPostProcessParam = (hh::fx::SDrawInstanceParam*)0x13DF418;
 
     hh::fx::SDrawInstanceParam* childParams = (hh::fx::SDrawInstanceParam*)finalPostProcessParam->m_ChildParams;
     hh::fx::SDrawInstanceParam* newChildParams = new hh::fx::SDrawInstanceParam[finalPostProcessParam->m_ChildParamCount + 1];
