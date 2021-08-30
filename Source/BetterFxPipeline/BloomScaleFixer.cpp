@@ -26,7 +26,21 @@ void __declspec(naked) initializeTargetSurfaceColorD4LastMidAsmHook()
 {
     __asm
     {
+        // 3D mode
+        push eax
+        mov eax, dword ptr[esp + 0x37C + 0x4 + 0x4]
+        mov eax, dword ptr[eax + 0x74]
+        test eax, eax
+        pop eax
+        jnz half
+
         mov dword ptr [esp + 0x37C - 0x1D0], 1280
+        jmp end
+
+    half:
+        mov dword ptr[esp + 0x37C - 0x1D0], 640
+
+    end:
         mov dword ptr [esp + 0x37C - 0x1CC], 720
         jmp[initializeTargetSurfaceColorD4LastMidAsmHookReturnAddress]
     }
@@ -38,7 +52,20 @@ void __declspec(naked) initializeTargetSurfaceColorD8LastMidAsmHook()
 {
     __asm
     {
+        push eax
+        mov eax, dword ptr[esp + 0x37C + 0x4 + 0x4]
+        mov eax, dword ptr[eax + 0x74]
+        test eax, eax
+        pop eax
+        jnz half
+
         mov dword ptr [esp + 0x37C - 0x1B4], 1280
+        jmp end
+
+    half:
+        mov dword ptr[esp + 0x37C - 0x1B4], 640
+
+    end:
         mov dword ptr [esp + 0x37C - 0x1B0], 720
         jmp[initializeTargetSurfaceColorD8LastMidAsmHookReturnAddress]
     }
@@ -50,7 +77,20 @@ void __declspec(naked) initializeTargetSurfaceBloomLastMidAsmHook()
 {
     __asm
     {
+        push eax
+        mov eax, dword ptr[esp + 0x37C + 0x4 + 0x4]
+        mov eax, dword ptr[eax + 0x74]
+        test eax, eax
+        pop eax
+        jnz half
+
         mov dword ptr[esp + 0x37C - 0xD4], 1280
+        jmp end
+
+    half:
+        mov dword ptr[esp + 0x37C - 0xD4], 640
+
+    end:
         mov dword ptr[esp + 0x37C - 0xD0], 720
         jmp[initializeTargetSurfaceBloomLastMidAsmHookReturnAddress]
     }
