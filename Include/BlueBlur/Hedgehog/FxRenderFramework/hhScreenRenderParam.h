@@ -10,8 +10,8 @@ namespace Hedgehog::FxRenderFramework
     {
         const char* m_pName;
         void* m_pCallback; // SceneTraverse or SceneRender
-        uint8_t m_ShaderIndex;
-        INSERT_PADDING(0x1B);
+        int32_t m_ShaderIndex;
+        INSERT_PADDING(0x18);
     };
 
     ASSERT_SIZEOF(SScreenRenderParam, 0x24);
