@@ -43,11 +43,9 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     TransparentShadowFixer::applyPatches();
 
-    if (Configuration::fixBloomScale)
-        BloomScaleFixer::applyPatches();
+    BloomScaleFixer::applyPatches();
 
-    if (Configuration::fixDofScale)
-        DofScaleFixer::applyPatches();
+    DofScaleFixer::applyPatches();
 
     if (Configuration::postProcessingOnParticles)
         ParticlePostProcessor::applyPatches();
@@ -66,6 +64,7 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
 extern "C" __declspec(dllexport) void __cdecl PostInit()
 {
+    // Enable FxPipeline if PBR Shaders mod is enabled
     if (!GetModuleHandle(TEXT("GenerationsPBRShaders.dll"))) 
         return;
 

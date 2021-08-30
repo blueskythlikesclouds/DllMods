@@ -29,8 +29,6 @@ enum class BloomType : uint32_t
 class Configuration
 {
 public:
-    static bool fixBloomScale;
-    static bool fixDofScale;
     static bool forceIgnoreFinalLightColorAdjustment;
     static FxaaIntensity fxaaIntensity;
     static bool postProcessingOnParticles;

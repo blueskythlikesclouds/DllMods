@@ -1,7 +1,5 @@
 ﻿#include "Configuration.h"
 
-bool Configuration::fixBloomScale = true;
-bool Configuration::fixDofScale = true;
 bool Configuration::forceIgnoreFinalLightColorAdjustment = false;
 bool Configuration::postProcessingOnParticles = true;
 BloomType Configuration::bloomType = BloomType::MTFx;
@@ -26,8 +24,6 @@ bool Configuration::load(const std::string& filePath)
     if (reader.ParseError() != 0)
         return false;
 
-    fixBloomScale = reader.GetBoolean("Renderer", "FixBloomScale", true);
-    fixDofScale = reader.GetBoolean("Renderer", "FixDOFScale", true);
     forceIgnoreFinalLightColorAdjustment = reader.GetBoolean("Renderer", "ForceIgnoreFinalLightColorAdjustment", false);
     fxaaIntensity = (FxaaIntensity)reader.GetInteger("Renderer", "FxaaIntensity", (uint32_t)FxaaIntensity::DISABLED);
     postProcessingOnParticles = reader.GetBoolean("Renderer", "PostProcessingOnParticles", true);
