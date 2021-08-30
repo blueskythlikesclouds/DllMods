@@ -12,6 +12,7 @@
 #include "SceneEffectOverrider.h"
 #include "ShadowCaster.h"
 #include "BloomTypeHandler.h"
+#include "LightShaftRenderer.h"
 #include "ShaderLoader.h"
 #include "TransparentShadowFixer.h"
 
@@ -20,6 +21,7 @@ extern "C" __declspec(dllexport) void __cdecl OnFrame()
     BloomTypeHandler::update();
     SceneEffectOverrider::update();
     ShadowHandler::update();
+    LightShaftRenderer::update();
 }
 
 extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
@@ -58,6 +60,8 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     if (Configuration::enableResolutionScale)
         ResolutionScaler::applyPatches();
+
+    LightShaftRenderer::applyPatches();
 }
 
 extern "C" __declspec(dllexport) void __cdecl PostInit()

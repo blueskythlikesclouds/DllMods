@@ -51,7 +51,7 @@ HOOK(void*, __stdcall, LoadApplicationAndShaders, 0xD6A580, void* This)
 }
 
 constexpr size_t SHADER_LIST_BYTE_SIZE = 0x3500;
-constexpr size_t SHADER_LIST_EXTRA_BYTE_SIZE = sizeof(hh::mr::SShaderPair);
+constexpr size_t SHADER_LIST_EXTRA_BYTE_SIZE = 3 * sizeof(hh::mr::SShaderPair);
 
 namespace
 {
@@ -64,6 +64,9 @@ namespace
 
         if (Configuration::fxaaIntensity > FxaaIntensity::DISABLED && Configuration::fxaaIntensity <= FxaaIntensity::INTENSITY_6)
             loadShader(This, 0x350, database, "FxFilterNone", FxaaRenderer::SHADER_NAMES[(size_t)Configuration::fxaaIntensity - 1]);
+
+        loadShader(This, 0x351, database, "FxFilterT", "LightShaftMask");
+        loadShader(This, 0x352, database, "FxFilterT", "LightShaftFilter");
 
         originalMTFxInitializeRenderBufferShaders(This, Edx, database);
     }

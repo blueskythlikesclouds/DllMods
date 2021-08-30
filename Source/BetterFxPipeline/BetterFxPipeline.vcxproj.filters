@@ -48,6 +48,9 @@
     <ClCompile Include="BloomTypeHandler.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="LightShaftRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -95,6 +98,9 @@
       <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="BloomTypeHandler.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="LightShaftRenderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
