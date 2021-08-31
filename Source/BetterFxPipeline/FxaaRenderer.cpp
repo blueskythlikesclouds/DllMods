@@ -85,7 +85,7 @@ void FxaaRenderer::applyPatches()
         // Insert our own Draw Instance Param to Render Before Particle 3
         hh::fx::SDrawInstanceParam* renderBeforeParticle3Param = (hh::fx::SDrawInstanceParam*)0x13DDDC8;
 
-        hh::fx::SDrawInstanceParam* newChildren = new hh::fx::SDrawInstanceParam[renderBeforeParticle3Param->m_ChildParamCount + 2];
+        hh::fx::SDrawInstanceParam* newChildren = new hh::fx::SDrawInstanceParam[renderBeforeParticle3Param->m_ChildParamCount + 1];
         memcpy(newChildren, renderBeforeParticle3Param->m_ChildParams, sizeof(hh::fx::SDrawInstanceParam) * renderBeforeParticle3Param->m_ChildParamCount);
 
         // Initialize FXAA parameters
@@ -94,25 +94,14 @@ void FxaaRenderer::applyPatches()
 
         fxaaParam->m_pCallback = (void*)0x651820;
         fxaaParam->m_ChildParams = newScreenRenderParam;
-        fxaaParam->m_RenderTargetSurface = 7;
-        fxaaParam->m_MsaaRenderTargetSurface = 7;
+        fxaaParam->m_RenderTargetSurface = 10;
+        fxaaParam->m_TemporaryRenderTargetSurface = 7;
         fxaaParam->m_S0Sampler = 0x80 | 10;
         fxaaParam->m_Unk0 = 0x3;
         fxaaParam->m_Unk2 = 0x101;
 
-        hh::fx::SDrawInstanceParam* copyParam = &newChildren[renderBeforeParticle3Param->m_ChildParamCount + 1];
-        memset(copyParam, 0, sizeof(hh::fx::SDrawInstanceParam));
-
-        copyParam->m_pCallback = (void*)0x651820;
-        copyParam->m_ChildParams = (void*)0x13DF5A8;
-        copyParam->m_RenderTargetSurface = 10;
-        copyParam->m_MsaaRenderTargetSurface = 10;
-        copyParam->m_S0Sampler = 7;
-        copyParam->m_Unk0 = 0x3;
-        copyParam->m_Unk2 = 0x101;
-
         // Pass new pointers
         WRITE_MEMORY(&renderBeforeParticle3Param->m_ChildParams, void*, newChildren);
-        WRITE_MEMORY(&renderBeforeParticle3Param->m_ChildParamCount, uint32_t, renderBeforeParticle3Param->m_ChildParamCount + 2);
+        WRITE_MEMORY(&renderBeforeParticle3Param->m_ChildParamCount, uint32_t, renderBeforeParticle3Param->m_ChildParamCount + 1);
     }
 }

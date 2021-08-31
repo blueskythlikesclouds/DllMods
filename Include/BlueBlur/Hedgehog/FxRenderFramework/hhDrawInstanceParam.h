@@ -22,8 +22,8 @@ namespace Hedgehog::FxRenderFramework
         uint8_t m_DepthStencilSurface;
         uint8_t m_RenderTargetSurface;
 
-        uint8_t m_MsaaDepthStencilSurface;
-        uint8_t m_MsaaRenderTargetSurface;
+        uint8_t m_TemporaryDepthStencilSurface;
+        uint8_t m_TemporaryRenderTargetSurface;
 
         union
         {
