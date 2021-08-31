@@ -65,4 +65,7 @@ void ParameterFixer::applyPatches()
 
     // Initialize mrgLuminanceRange for every material (MTFx)
     INSTALL_HOOK(SetMaterialParameters);
+
+    // Fix title screen not rendering at native aspect ratio
+    *(float*)0x18037A0 = 1.0f;
 }
