@@ -47,17 +47,21 @@ HOOK(void*, __fastcall, CreateYggTexture4, 0x788590,
     return originalCreateYggTexture4(This, Edx, a2, widthScale, heightScale, a5, a6, a7, a8, a9);
 }
 
-HOOK(void, __stdcall, InitializeSurfaceInfo, 0x653A00, void* A1, void* A2, void* A3)
+HOOK(void, __stdcall, InitializeSurfaceInfo, 0x653A00, void* A1, uint32_t* A2, void* A3)
 {
     originalInitializeSurfaceInfo(A1, A2, A3);
 
-    if (!Configuration::enableResolutionScale)
-        return;
+    // Planar reflection
+    A2[2] = (uint32_t)((double)Configuration::width * ((double)A2[2] / (double)*(uint32_t*)0x1DFDDDC));
+    A2[3] = (uint32_t)((double)Configuration::height * ((double)A2[3] / (double)*(uint32_t*)0x1DFDDE0));
 
-    *(uint32_t*)((char*)A2 + 16) = Configuration::width;
-    *(uint32_t*)((char*)A2 + 20) = Configuration::height;
-    *(uint32_t*)((char*)A2 + 24) = Configuration::width;
-    *(uint32_t*)((char*)A2 + 28) = Configuration::height;
+    // Framebuffer resolution
+    A2[4] = Configuration::width;
+    A2[5] = Configuration::height;
+
+    // Viewport
+    A2[6] = Configuration::width;
+    A2[7] = Configuration::height;
 }
 
 bool ResolutionScaler::enabled = false;
@@ -77,7 +81,8 @@ void ResolutionScaler::applyPatches()
     INSTALL_HOOK(CreateYggTexture4);
 
     // MTFx
-    INSTALL_HOOK(InitializeSurfaceInfo);
+    if (Configuration::enableResolutionScale)
+        INSTALL_HOOK(InitializeSurfaceInfo);
 
     // Replace Devil's Details' shaders
     WRITE_MEMORY(0x64C88D, uint32_t, _countof(g_ps30_main));
