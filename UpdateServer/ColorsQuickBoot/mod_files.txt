@@ -1,0 +1,4 @@
+add ColorsQuickBoot.dll
+add ColorsQuickBoot.ini
+add ColorsQuickBoot.json
+add mod.ini

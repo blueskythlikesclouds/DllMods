@@ -1,0 +1,139 @@
+{
+  "Groups": [
+    {
+      "Name": "QuickBoot",
+      "DisplayName": "QuickBoot",
+      "Elements": [
+        {
+          "Name": "Type",
+          "DisplayName": "Boot type",
+          "Type": "Type",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "3"
+        },
+        {
+          "Name": "ZoneIndex",
+          "DisplayName": "Zone",
+          "Type": "ZoneIndex",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "0"
+        },
+        {
+          "Name": "ActIndex",
+          "DisplayName": "Act",
+          "Type": "ActIndex",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "0"
+        },
+      ]
+    }
+  ],
+  "Enums": {
+    "Type": [
+	  {
+        "DisplayName": "Normal",
+        "Value": "0",
+      },
+      {
+        "DisplayName": "Title",
+        "Value": "1",
+      },
+      {
+        "DisplayName": "World Map",
+        "Value": "2",
+      },
+      {
+        "DisplayName": "Stage",
+        "Value": "3",
+      }
+    ],
+	"ZoneIndex": [
+      {
+        "DisplayName": "Tropical Resort",
+        "Value": "0"
+      },      
+	  {
+        "DisplayName": "Sweet Mountain",
+        "Value": "1"
+      },      
+	  {
+        "DisplayName": "Starlight Carnival",
+        "Value": "2"
+      },      
+	  {
+        "DisplayName": "Planet Wisp",
+        "Value": "3"
+      },      
+	  {
+        "DisplayName": "Aquarium Park",
+        "Value": "4"
+      },      
+	  {
+        "DisplayName": "Asteroid Coaster",
+        "Value": "5"
+      },      
+	  {
+        "DisplayName": "Terminal Velocity",
+        "Value": "6"
+      },      
+	  {
+        "DisplayName": "Game Land 1",
+        "Value": "7"
+      },      
+	  {
+        "DisplayName": "Game Land 2",
+        "Value": "8"
+      },      
+	  {
+        "DisplayName": "Game Land 3",
+        "Value": "9"
+      },      
+	  {
+        "DisplayName": "Game Land 4",
+        "Value": "10"
+      },      
+	  {
+        "DisplayName": "Game Land 5",
+        "Value": "11"
+      },      
+	  {
+        "DisplayName": "Game Land 6",
+        "Value": "12"
+      },      
+	  {
+        "DisplayName": "Game Land 7",
+        "Value": "13"
+      },
+    ],
+	"ActIndex": [
+      {
+        "DisplayName": "Act 1",
+        "Value": "0"
+      },      
+	  {
+        "DisplayName": "Act 2",
+        "Value": "1"
+      },      
+	  {
+        "DisplayName": "Act 3",
+        "Value": "2"
+      },      
+	  {
+        "DisplayName": "Act 4",
+        "Value": "3"
+      },      
+	  {
+        "DisplayName": "Act 5",
+        "Value": "4"
+      },      
+	  {
+        "DisplayName": "Act 6",
+        "Value": "5"
+      }
+    ]
+  },
+  "IniFile": "ColorsQuickBoot.ini"
+}
