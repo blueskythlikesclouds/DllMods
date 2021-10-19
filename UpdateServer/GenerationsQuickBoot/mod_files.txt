@@ -1,0 +1,3 @@
+add GenerationsQuickBoot.dll
+add GenerationsQuickBoot.json
+add mod.ini
