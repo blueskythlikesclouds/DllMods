@@ -70,6 +70,56 @@
          "DisplayName":"Shadows",
          "Elements":[
             {
+               "Name":"ShadowResolution",
+               "Description":[
+                  "Controls the quality of real-time shadows."
+               ],
+               "DisplayName":"Shadow quality",
+               "Type":"ShadowQuality",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"4096"
+            },
+            {
+               "Name":"ShadowType",
+               "Description":[
+                  "Controls the type of real-time shadows."
+               ],
+               "DisplayName":"Shadow type",
+               "Type":"ShadowType",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"1"
+            },
+            {
+               "Name":"LambertShadowObject",
+               "Description":[
+                  "Controls the falloff-like effect on directional shadows.",
+                  "",
+                  "Sonic Generations has this effect on for vertical shadows",
+                  "meanwhile Sonic Unleashed makes no use of it."
+               ],
+               "DisplayName":"Lambert shadow mode of objects",
+               "Type":"LambertShadowMode",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+            {
+               "Name":"LambertShadowTerrain",
+               "Description":[
+                  "Controls the falloff-like effect on directional shadows.",
+                  "",
+                  "Sonic Generations has this effect on for vertical shadows",
+                  "meanwhile Sonic Unleashed makes no use of it."
+               ],
+               "DisplayName":"Lambert shadow mode of terrain",
+               "Type":"LambertShadowMode",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":"0"
+            },
+            {
                "Name":"AmbientShadowBiasObject",
                "Description":[
                   "Controls how much shadows blend while they are on top of each other.",
@@ -132,45 +182,6 @@
                "MinValue":null,
                "MaxValue":null,
                "DefaultValue":false
-            },
-            {
-               "Name":"ForceDirectionalShadow",
-               "Description":[
-                  "Forces all stages to use directional shadows."
-               ],
-               "DisplayName":"Force directional shadows",
-               "Type":"bool",
-               "MinValue":null,
-               "MaxValue":null,
-               "DefaultValue":true
-            },
-            {
-               "Name":"LambertShadowObject",
-               "Description":[
-                  "Controls the falloff-like effect on directional shadows.",
-                  "",
-                  "Sonic Generations has this effect on for vertical shadows",
-                  "meanwhile Sonic Unleashed makes no use of it."
-               ],
-               "DisplayName":"Lambert shadow mode of objects",
-               "Type":"LambertShadowMode",
-               "MinValue":null,
-               "MaxValue":null,
-               "DefaultValue":"0"
-            },
-            {
-               "Name":"LambertShadowTerrain",
-               "Description":[
-                  "Controls the falloff-like effect on directional shadows.",
-                  "",
-                  "Sonic Generations has this effect on for vertical shadows",
-                  "meanwhile Sonic Unleashed makes no use of it."
-               ],
-               "DisplayName":"Lambert shadow mode of terrain",
-               "Type":"LambertShadowMode",
-               "MinValue":null,
-               "MaxValue":null,
-               "DefaultValue":"0"
             }
          ]
       },
@@ -234,7 +245,7 @@
    "Enums":{
       "LambertShadowMode":[
          {
-            "DisplayName":"Enable (controlled by stage)",
+            "DisplayName":"Controlled by stage",
             "Value":"0"
          },
          {
@@ -293,7 +304,43 @@
             "DisplayName":"FxPipeline Renderer (Legacy)",
             "Value":"2"
          }
-      ]
+      ],
+	  "ShadowQuality":[
+		 {
+			"DisplayName":"Very Low (512x)",
+			"Value":"512"
+		 },
+		 {
+			"DisplayName":"Low (1024x)",
+			"Value":"1024"
+		 },
+		 {
+			"DisplayName":"Medium (2048x)",
+			"Value":"2048"
+		 },
+		 {
+			"DisplayName":"High (4096x)",
+			"Value":"4096"
+		 },
+		 {
+			"DisplayName":"Very High (8192x)",
+			"Value":"8192"
+		 }
+	  ],
+	  "ShadowType":[
+		 {
+			"DisplayName":"Controlled by stage",
+			"Value":"0"
+		 },
+		 {
+			"DisplayName":"Directional",
+			"Value":"1"
+		 },
+		 {
+			"DisplayName":"Vertical",
+			"Value":"2"
+		 }
+	  ]
    },
    "IniFile":"BetterFxPipeline.ini"
 }
