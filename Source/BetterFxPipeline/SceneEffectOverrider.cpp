@@ -12,8 +12,8 @@ void SceneEffectOverrider::update()
     if (Configuration::ambientShadowBiasTerrain >= 0)
         *(float*)0x1E5E328 = Configuration::ambientShadowBiasTerrain;
 
-    if (Configuration::forceDirectionalShadow)
-        *(bool*)0x1A43588 = false;
+    if (Configuration::shadowType != ShadowType::Default)
+        *(bool*)0x1A43588 = Configuration::shadowType == ShadowType::Vertical;
 
     if (Configuration::lambertShadowObject != LambertShadowMode::ENABLE)
         *(bool*)0x1A4358A = Configuration::lambertShadowObject == LambertShadowMode::FORCE_ENABLE;

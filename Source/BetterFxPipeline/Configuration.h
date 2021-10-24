@@ -26,6 +26,13 @@ enum class BloomType : uint32_t
     FxPipeline = 2
 };
 
+enum class ShadowType : uint32_t
+{
+    Default = 0,
+    Directional = 1,
+    Vertical = 2
+};
+
 class Configuration
 {
 public:
@@ -34,11 +41,12 @@ public:
     static bool postProcessingOnParticles;
     static BloomType bloomType;
 
+    static uint32_t shadowResolution;
     static float ambientShadowBiasObject;
     static float ambientShadowBiasTerrain;
     static bool enableTerrainShadowCast;
     static bool forceCastShadow;
-    static bool forceDirectionalShadow;
+    static ShadowType shadowType;
     static LambertShadowMode lambertShadowObject;
     static LambertShadowMode lambertShadowTerrain;
 

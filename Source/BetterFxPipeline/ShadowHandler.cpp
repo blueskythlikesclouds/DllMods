@@ -1,4 +1,5 @@
 ﻿#include "ShadowHandler.h"
+#include "Configuration.h"
 
 //
 // FxPipeline
@@ -146,9 +147,8 @@ HOOK(void, __stdcall, MTFxSetTargetSurfaceResolutions, 0x653A00, void* A1, void*
 {
     originalMTFxSetTargetSurfaceResolutions(A1, A2, A3);
 
-    const uint32_t shadowMapSize = *(uint32_t*)0x10C6039; // Set by HMM codes
-    *(uint32_t*)((char*)A2 + 32) = shadowMapSize;
-    *(uint32_t*)((char*)A2 + 36) = shadowMapSize;
+    *(uint32_t*)((char*)A2 + 32) = Configuration::shadowResolution;
+    *(uint32_t*)((char*)A2 + 36) = Configuration::shadowResolution;
 }
 
 bool ShadowHandler::enabled = false;
@@ -169,6 +169,7 @@ void ShadowHandler::applyPatches()
 
     // FxPipeline
     WRITE_JUMP(0x10C7E35, renderGameSceneMidAsmHook);
+    WRITE_MEMORY(0x10C6039, uint32_t, Configuration::shadowResolution);
 
     // MTFx
     WRITE_JUMP(0x650F31, setVerticalLightViewProjectionMidAsmHook);

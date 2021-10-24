@@ -6,11 +6,12 @@ BloomType Configuration::bloomType = BloomType::MTFx;
 
 FxaaIntensity Configuration::fxaaIntensity = FxaaIntensity::DISABLED;
 
+uint32_t Configuration::shadowResolution = 4096;
 float Configuration::ambientShadowBiasObject = -1;
 float Configuration::ambientShadowBiasTerrain = -1;
 bool Configuration::enableTerrainShadowCast = false;
 bool Configuration::forceCastShadow = false;
-bool Configuration::forceDirectionalShadow = true;
+ShadowType Configuration::shadowType = ShadowType::Directional;
 LambertShadowMode Configuration::lambertShadowObject = LambertShadowMode::ENABLE;
 LambertShadowMode Configuration::lambertShadowTerrain = LambertShadowMode::ENABLE;
 
@@ -29,11 +30,12 @@ bool Configuration::load(const std::string& filePath)
     postProcessingOnParticles = reader.GetBoolean("Renderer", "PostProcessingOnParticles", true);
     bloomType = (BloomType)reader.GetInteger("Renderer", "BloomType", 0);
 
+    shadowResolution = (uint32_t)max(1, reader.GetInteger("Shadows", "ShadowResolution", 4096));
     ambientShadowBiasObject = reader.GetFloat("Shadows", "AmbientShadowBiasObject", -1);
     ambientShadowBiasTerrain = reader.GetFloat("Shadows", "AmbientShadowBiasTerrain", -1);
     enableTerrainShadowCast = reader.GetBoolean("Shadows", "EnableTerrainShadowCast", false);
     forceCastShadow = reader.GetBoolean("Shadows", "ForceCastShadow", false);
-    forceDirectionalShadow = reader.GetBoolean("Shadows", "ForceDirectionalShadow", true);
+    shadowType = (ShadowType)reader.GetInteger("Shadows", "ShadowType", (long)ShadowType::Directional);
     lambertShadowObject = (LambertShadowMode)reader.GetInteger("Shadows", "LambertShadowObject", (uint32_t)LambertShadowMode::ENABLE);
     lambertShadowTerrain = (LambertShadowMode)reader.GetInteger("Shadows", "LambertShadowTerrain", (uint32_t)LambertShadowMode::ENABLE);
 
