@@ -15,6 +15,7 @@
 #include "LightShaftRenderer.h"
 #include "ReflectionFixer.h"
 #include "ShaderLoader.h"
+#include "StereoShaderReplacer.h"
 #include "TransparentShadowFixer.h"
 
 extern "C" __declspec(dllexport) void __cdecl OnFrame()
@@ -63,6 +64,8 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
     LightShaftRenderer::applyPatches();
 
     ReflectionFixer::applyPatches();
+
+    StereoShaderReplacer::applyPatches();
 }
 
 extern "C" __declspec(dllexport) void __cdecl PostInit()

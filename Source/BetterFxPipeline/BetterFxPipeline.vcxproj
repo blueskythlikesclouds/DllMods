@@ -121,6 +121,7 @@
     <ClCompile Include="ResolutionScaler.cpp" />
     <ClCompile Include="SceneEffectOverrider.cpp" />
     <ClCompile Include="BloomTypeHandler.cpp" />
+    <ClCompile Include="StereoShaderReplacer.cpp" />
     <ClCompile Include="TransparentShadowFixer.cpp" />
     <ClCompile Include="Types.cpp" />
   </ItemGroup>
@@ -144,6 +145,7 @@
     <ClInclude Include="ResolutionScaler.h" />
     <ClInclude Include="SceneEffectOverrider.h" />
     <ClInclude Include="BloomTypeHandler.h" />
+    <ClInclude Include="StereoShaderReplacer.h" />
     <ClInclude Include="TransparentShadowFixer.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>

@@ -54,6 +54,9 @@
     <ClCompile Include="ReflectionFixer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="StereoShaderReplacer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -107,6 +110,9 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ReflectionFixer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="StereoShaderReplacer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>
