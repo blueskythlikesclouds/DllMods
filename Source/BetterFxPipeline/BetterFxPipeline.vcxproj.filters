@@ -51,6 +51,9 @@
     <ClCompile Include="LightShaftRenderer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="ReflectionFixer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -101,6 +104,9 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="LightShaftRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ReflectionFixer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>

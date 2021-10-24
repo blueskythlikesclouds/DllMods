@@ -99,6 +99,7 @@
   <ItemGroup>
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="LightShaftRenderer.cpp" />
+    <ClCompile Include="ReflectionFixer.cpp" />
     <ClCompile Include="ShadowHandler.cpp" />
     <ClCompile Include="BloomScaleFixer.cpp" />
     <ClCompile Include="DllMain.cpp" />
@@ -126,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="LightShaftRenderer.h" />
+    <ClInclude Include="ReflectionFixer.h" />
     <ClInclude Include="ShadowHandler.h" />
     <ClInclude Include="BloomScaleFixer.h" />
     <ClInclude Include="DofScaleFixer.h" />

@@ -13,6 +13,7 @@
 #include "ShadowCaster.h"
 #include "BloomTypeHandler.h"
 #include "LightShaftRenderer.h"
+#include "ReflectionFixer.h"
 #include "ShaderLoader.h"
 #include "TransparentShadowFixer.h"
 
@@ -60,6 +61,8 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
         ResolutionScaler::applyPatches();
 
     LightShaftRenderer::applyPatches();
+
+    ReflectionFixer::applyPatches();
 }
 
 extern "C" __declspec(dllexport) void __cdecl PostInit()
