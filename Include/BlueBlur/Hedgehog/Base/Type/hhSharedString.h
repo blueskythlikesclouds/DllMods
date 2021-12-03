@@ -8,7 +8,7 @@ namespace Hedgehog::Base
     class CSharedString
     {
     private:
-        CCowData<char, 1> m_data;
+        CCowData<char> m_data;
 
     public:
         CSharedString(const char* data)

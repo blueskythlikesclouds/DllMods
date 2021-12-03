@@ -4,15 +4,14 @@
 
 namespace Hedgehog::Base
 {
-	template<typename T, size_t TFooter = 0>
+	template<typename T>
 	class CCowData
 	{
 	protected:
 		class CData
 		{
 		public:
-			uint16_t m_RefCount;
-			uint16_t m_Length;
+			size_t m_RefCountAndLength;
 			T m_Data[1];
 		};
 
@@ -43,7 +42,7 @@ namespace Hedgehog::Base
 
 		void Unset()
 		{
-			if (!IsMemStatic() && InterlockedDecrement16((short*)&GetData()->m_RefCount) == 0)
+			if (!IsMemStatic() && (uint16_t)InterlockedDecrement(&GetData()->m_RefCountAndLength) == 0)
 				__HH_FREE(GetData());
 
 			m_ptr = ms_memStatic;
@@ -54,7 +53,7 @@ namespace Hedgehog::Base
 			m_ptr = other.m_ptr;
 
 			if (!IsMemStatic())
-				InterlockedIncrement16((short*)&GetData()->m_RefCount);
+				InterlockedIncrement(&GetData()->m_RefCountAndLength);
 		}
 
 		void Set(const T* pPtr, const size_t length)
@@ -64,14 +63,16 @@ namespace Hedgehog::Base
 			if (!length) 
 				return;
 
-			CData* pData = (CData*)__HH_ALLOC(offsetof(CData, m_Data) + (length + TFooter) * sizeof(T));
-			pData->m_RefCount = 1;
-			pData->m_Length = (uint16_t)length;
+			const size_t memSize = offsetof(CData, m_Data) + length * sizeof(T);
+			const size_t memSizeAligned = (memSize + 0x10) & 0xFFFFFFF0;
+
+			CData* pData = (CData*)__HH_ALLOC(memSizeAligned);
+			pData->m_RefCountAndLength = (length << 16) | 1;
 
 			if (pPtr)
 			{
 				memcpy(pData->m_Data, pPtr, length * sizeof(T));
-				memset(&pData->m_Data[length], 0, TFooter * sizeof(T));
+				memset(&pData->m_Data[length], 0, memSizeAligned - memSize);
 			}
 
 			SetData(pData);
