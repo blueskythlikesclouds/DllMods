@@ -5,13 +5,18 @@
 
 namespace Hedgehog::Universe
 {
-    class CUpdateUnit : public IParallelJob
+    class CUpdateUnit : public Base::CObject, public IParallelJob
     {
     public:
         INSERT_PADDING(0x24);
 
-        virtual void _8() = 0;
-        virtual void _C() = 0;
+        virtual void ExecuteParallelJob(const SUpdateInfo& updateInfo) override
+        {
+            UpdateParallel(updateInfo);
+        }
+
+        virtual void UpdateParallel(const SUpdateInfo& updateInfo) {}
+        virtual void _CUpdateUnitVTable0C() {}
     };
 
     ASSERT_SIZEOF(CUpdateUnit, 0x28);

@@ -18,6 +18,8 @@ namespace Sonic
         Hedgehog::Base::CSharedString m_Description;
         Hedgehog::vector<boost::shared_ptr<CAbstractParameter>> m_Children;
         INSERT_PADDING(0x14);
+
+        virtual ~CAbstractParameter() = default;
     };
 
     ASSERT_OFFSETOF(CAbstractParameter, m_pEditParam, 0x4);

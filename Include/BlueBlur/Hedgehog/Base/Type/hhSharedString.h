@@ -1,30 +1,26 @@
 #pragma once
 
 #include <BlueBlur.h>
+#include <Hedgehog/Base/Type/hhCowData.h>
 
 namespace Hedgehog::Base
 {
-    class CSharedString;
-
-    static FUNCTION_PTR(CSharedString*, __thiscall, fpCSharedStringCtor, 0x6621A0, CSharedString* This, const char* pValue);
-    static FUNCTION_PTR(void, __thiscall, fpCSharedStringDtor, 0x661550, CSharedString* This);
-
     class CSharedString
     {
-    public:
-        const char* m_pStr;
+    private:
+        CCowData<char, 1> m_data;
 
-        CSharedString(const char* pValue)
+    public:
+        CSharedString(const char* data)
         {
-            fpCSharedStringCtor(this, pValue);
+            m_data.Set(data, data ? strlen(data) : 0);
         }
 
-        ~CSharedString()
+        const char* c_str() const
         {
-            fpCSharedStringDtor(this);
+            return m_data.Get();
         }
     };
 
-    ASSERT_OFFSETOF(CSharedString, m_pStr, 0x0);
     ASSERT_SIZEOF(CSharedString, 0x4);
 }

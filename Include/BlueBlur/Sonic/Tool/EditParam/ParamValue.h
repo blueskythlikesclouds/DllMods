@@ -37,8 +37,10 @@ namespace Sonic
         ASSERT_SIZEOF(CParamValue, 0x1C);
     };
 
+#if 0
     void* const CParamValue<float>::ms_pVfTable = (void*)0x16E5CDC;
     void* const CParamValue<int>::ms_pVfTable = (void*)0x16E5E14;
     void* const CParamValue<long>::ms_pVfTable = (void*)0x16E5DAC;
     void* const CParamValue<unsigned long>::ms_pVfTable = (void*)0x16E5D44;
+#endif
 }

@@ -16,52 +16,52 @@ namespace Hedgehog::Mirage
 
 namespace Hedgehog::Yggdrasill
 {
-    enum ERenderType : uint32_t
+    enum ERenderCategory : uint32_t
     {
-        eRenderType_Terrain            = 0x2,
-        eRenderType_Object             = 0x4,
-        eRenderType_ObjectXlu          = 0x8,
-        eRenderType_ObjectPreZPass     = 0x10,
-        eRenderType_ObjectZPass        = 0x20,
-        eRenderType_ObjectZPassConst   = 0x200000,
-        eRenderType_ObjectOverlayZPass = 0x40,
-        eRenderType_ObjectOverlay      = 0x80,
-        eRenderType_ObjectIcon         = 0x100,
-        eRenderType_Player             = 0x1,
-        eRenderType_SparkleFramebuffer = 0x80000,
-        eRenderType_SparkleObject      = 0x40000,
-        eRenderType_SparkleStencil     = 0x100000,
-        eRenderType_Effect             = 0x400,
-        eRenderType_ShadowMapObject    = 0x4000,
-        eRenderType_ShadowMapTerrain   = 0x8000,
-        eRenderType_MotionBlurPlayer   = 0x10000,
-        eRenderType_MotionBlurObject   = 0x20000,
-        eRenderType_Debug              = 0x800,
-        eRenderType_HUD                = 0x1000,
-        eRenderType_SystemHUD          = 0x2000,
-        eRenderType_Sky                = 0x200
+        eRenderCategory_Terrain            = 0x2,
+        eRenderCategory_Object             = 0x4,
+        eRenderCategory_ObjectXlu          = 0x8,
+        eRenderCategory_ObjectPreZPass     = 0x10,
+        eRenderCategory_ObjectZPass        = 0x20,
+        eRenderCategory_ObjectZPassConst   = 0x200000,
+        eRenderCategory_ObjectOverlayZPass = 0x40,
+        eRenderCategory_ObjectOverlay      = 0x80,
+        eRenderCategory_ObjectIcon         = 0x100,
+        eRenderCategory_Player             = 0x1,
+        eRenderCategory_SparkleFramebuffer = 0x80000,
+        eRenderCategory_SparkleObject      = 0x40000,
+        eRenderCategory_SparkleStencil     = 0x100000,
+        eRenderCategory_Effect             = 0x400,
+        eRenderCategory_ShadowMapObject    = 0x4000,
+        eRenderCategory_ShadowMapTerrain   = 0x8000,
+        eRenderCategory_MotionBlurPlayer   = 0x10000,
+        eRenderCategory_MotionBlurObject   = 0x20000,
+        eRenderCategory_Debug              = 0x800,
+        eRenderCategory_HUD                = 0x1000,
+        eRenderCategory_SystemHUD          = 0x2000,
+        eRenderCategory_Sky                = 0x200
     };
 
-    enum ERenderSlot : uint32_t
+    enum ERenderLevel : uint32_t
     {
-        eRenderSlot_Opaque       = 0x1,
-        eRenderSlot_PunchThrough = 0x2,
-        eRenderSlot_Transparent  = 0x4,
-        eRenderSlot_Water        = 0x8,
-        eRenderSlot_Special1     = 0x10,
-        eRenderSlot_Special2     = 0x20,
-        eRenderSlot_Main         = 0x40,
-        eRenderSlot_Debug        = 0x80,
-        eRenderSlot_Primitive    = 0x100,
-        eRenderSlot_Resident     = 0x200
+        eRenderLevel_Opaque       = 0x1,
+        eRenderLevel_PunchThrough = 0x2,
+        eRenderLevel_Transparent  = 0x4,
+        eRenderLevel_Water        = 0x8,
+        eRenderLevel_Special1     = 0x10,
+        eRenderLevel_Special2     = 0x20,
+        eRenderLevel_Main         = 0x40,
+        eRenderLevel_Debug        = 0x80,
+        eRenderLevel_Primitive    = 0x100,
+        eRenderLevel_Resident     = 0x200
     };
 
     class CYggSceneRenderer;
     class CYggScheduler;
 
-    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererRender, 0x789890, CYggSceneRenderer* This, ERenderType type, ERenderSlot slot);
+    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererRender, 0x789890, CYggSceneRenderer* This, ERenderCategory type, ERenderLevel slot);
     static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererResetMaterialColor, 0x10D4EB0, CYggSceneRenderer* This);
-    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererSetLightViewProjection, 0x789360, CYggSceneRenderer* This, const Eigen::Matrix4f& view, const Eigen::Matrix4f& projection);
+    static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererSetLightViewProjection, 0x789360, CYggSceneRenderer* This, const Math::CMatrix& view, const Math::CMatrix44& projection);
     static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererLockShader, 0x789BE0, CYggSceneRenderer* This, const Hedgehog::Mirage::SShaderPair& shaderPair, size_t flags);
     static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererUnlockShader, 0x789860, CYggSceneRenderer* This);
     static FUNCTION_PTR(void, __thiscall, fpCYggSceneRendererSetCamera, 0x7890F0, CYggSceneRenderer* This, Hedgehog::Mirage::CCamera* pCamera, size_t flags);
@@ -81,17 +81,18 @@ namespace Hedgehog::Yggdrasill
         
         INSERT_PADDING(0x7C);
 
+        virtual ~CYggSceneRenderer() = default;
         virtual void _4() = 0;
         virtual void _8() = 0;
 
-        void Render(ERenderType type, ERenderSlot slot)
+        void Render(ERenderCategory type, ERenderLevel slot)
         {
             fpCYggSceneRendererRender(this, type, slot);
         }
 
         void Render(uint32_t type, uint32_t slot)
         {
-            fpCYggSceneRendererRender(this, (ERenderType)type, (ERenderSlot)slot);
+            fpCYggSceneRendererRender(this, (ERenderCategory)type, (ERenderLevel)slot);
         }
 
         void ResetMaterialColor()
@@ -99,7 +100,7 @@ namespace Hedgehog::Yggdrasill
             fpCYggSceneRendererResetMaterialColor(this);
         }
 
-        void SetLightViewProjection(const Eigen::Matrix4f& view, const Eigen::Matrix4f& projection)
+        void SetLightViewProjection(const Math::CMatrix& view, const Math::CMatrix44& projection)
         {
             fpCYggSceneRendererSetLightViewProjection(this, view, projection);
         }

@@ -1,17 +1,10 @@
 #pragma once
 
-#include <BlueBlur.h>
-#include <Hedgehog/Universe/Engine/hhParallelJob.h>
-
 namespace Hedgehog::Universe
 {
-    class Message;
-
-    class IMessageProcess : public IParallelJob
+    class IMessageProcess
     {
-    public:
-        virtual void ProcessMessage(const Message& message, bool process) = 0;
+        // Can't replicate RTTI if I add any virtual functions (and an extra vtable gets added),
+        // so this is going to stay empty.
     };
-
-    ASSERT_SIZEOF(IMessageProcess, 0x4);
 }

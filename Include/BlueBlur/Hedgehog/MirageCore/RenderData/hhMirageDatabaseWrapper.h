@@ -44,6 +44,8 @@ namespace Hedgehog::Mirage
             fpCMirageDatabaseWrapperCtor(this, pDatabase);
         }
 
+        virtual ~CMirageDatabaseWrapper() = default;
+
         void GetPictureData(boost::shared_ptr<CPictureData>& spPictureData, const Base::CSharedString& name, uint32_t unknown)
         {
             fpCDatabaseGetPictureData(this, spPictureData, name, unknown);

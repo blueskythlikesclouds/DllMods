@@ -8,19 +8,16 @@ namespace Hedgehog::Mirage
     enum ELightType : uint32_t
     {
         eLightType_Directional = 0,
-        eLightType_Omni = 1
+        eLightType_Point = 1
     };
 
     class CLightData : public Hedgehog::Database::CDatabaseData
     {
     public:
-        INSERT_PADDING(0x4);
-        Eigen::Vector3f m_Position;
-        INSERT_PADDING(0x4);
-        Eigen::Vector4f m_Color;
-        Eigen::Vector4f m_Range;
-        Eigen::Vector3f m_Direction;
-        INSERT_PADDING(0x4);
+        Math::CVector m_Position;
+        Math::CVector4 m_Color;
+        Math::CVector4 m_Range;
+        Math::CVector m_Direction;
         ELightType m_Type;
         uint32_t m_Attribute;
         INSERT_PADDING(0x8);

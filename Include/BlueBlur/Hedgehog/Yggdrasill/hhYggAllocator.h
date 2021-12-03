@@ -9,6 +9,8 @@ namespace Hedgehog::Yggdrasill
     {
     public:
         INSERT_PADDING(0x1C);
+
+        virtual ~CYggAllocator() = default;
     };
 
     ASSERT_SIZEOF(CYggAllocator, 0x20);

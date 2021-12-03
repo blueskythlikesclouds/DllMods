@@ -21,6 +21,8 @@ namespace Hedgehog::Database
     public:
         INSERT_PADDING(0xEC);
 
+        virtual ~CDatabase() = default;
+
         void GetRawData(boost::shared_ptr<CRawData>& spRawData, const Base::CSharedString& name, uint32_t unknown)
         {
             fpCDatabaseGetRawData(this, spRawData, name, unknown);

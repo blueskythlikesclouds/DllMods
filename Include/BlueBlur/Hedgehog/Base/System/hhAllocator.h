@@ -2,8 +2,6 @@
 
 #include <BlueBlur.h>
 
-namespace Hedgehog::Base
-{
-    static inline FUNCTION_PTR(void*, __cdecl, fpOperatorNew, 0x4011D0, const size_t size);
-    static inline FUNCTION_PTR(void, __cdecl, fpOperatorDelete, 0x4011E0, void* pData);
-}
+static inline FUNCTION_PTR(void*, __cdecl, __HH_ALLOC, 0x65FC60, const size_t size);
+static inline FUNCTION_PTR(void*, __cdecl, __HH_ALLOCALIGN, 0x65FCE0, const size_t size, const size_t align);
+static inline FUNCTION_PTR(void, __cdecl, __HH_FREE, 0x65FD70, void* pData);

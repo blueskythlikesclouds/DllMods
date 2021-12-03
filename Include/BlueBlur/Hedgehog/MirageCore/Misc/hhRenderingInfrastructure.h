@@ -10,6 +10,8 @@ namespace Hedgehog::Mirage
     class CRenderingInfrastructure : public Hedgehog::Base::CObject
     {
     public:
+        virtual ~CRenderingInfrastructure() = default;
+
         INSERT_PADDING(0x5C);
         CRenderingDevice m_RenderingDevice;
     };

@@ -30,6 +30,7 @@ namespace Hedgehog::Yggdrasill
         CYggScheduler* m_pScheduler;
         INSERT_PADDING(0x30);
 
+        virtual ~CYggJob() = default;
         virtual void Initialize() = 0;
         virtual void Execute() = 0;
 

@@ -17,7 +17,7 @@ namespace Sonic
     class CLightManager;
     class CRenderDirector;
 
-    class CGameDocument : public Hedgehog::Base::CObject, public Hedgehog::Base::CSynchronizedObject
+    class CGameDocument : public Hedgehog::Base::CSynchronizedObject
     {
     public:
         class CMember
@@ -35,9 +35,15 @@ namespace Sonic
 
         static constexpr CGameDocument** ms_pInstance = (CGameDocument**)0x1E0BE5C;
 
+        static CGameDocument* GetInstance()
+        {
+            return *ms_pInstance;
+        }
+
         CMember* m_pMember;
         INSERT_PADDING(0x14);
 
+        virtual ~CGameDocument() = default;
         virtual void _4() = 0;
         virtual void _8() = 0;
         virtual void _C() = 0;

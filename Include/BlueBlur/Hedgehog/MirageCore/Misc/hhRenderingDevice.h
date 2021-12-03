@@ -33,7 +33,7 @@ namespace Hedgehog::Mirage
         CRenderingDevice* This, const Hedgehog::Base::CStringSymbol& symbol, const float* data, uint32_t count, uint32_t offset, const boost::shared_ptr<CPixelShaderData>& spPixelShaderData);
 
     static FUNCTION_PTR(void, __thiscall, fpCRenderingDeviceSetViewMatrix, 0x6FA760,
-        CRenderingDevice* This, const Eigen::Matrix4f& viewMatrix);
+        CRenderingDevice* This, const Math::CMatrix& viewMatrix);
 
     static FUNCTION_PTR(void, __thiscall, fpCRenderingDeviceSetAtlasParameterData, 0x6FA080,
         CRenderingDevice* This, float* const pData);
@@ -81,7 +81,7 @@ namespace Hedgehog::Mirage
             fpCRenderingDeviceSetPixelShaderParameterF(this, symbol, data, count, offset, spPixelShaderData);
         }
 
-        void SetViewMatrix(const Eigen::Matrix4f& viewMatrix)
+        void SetViewMatrix(const Math::CMatrix& viewMatrix)
         {
             fpCRenderingDeviceSetViewMatrix(this, viewMatrix);
         }

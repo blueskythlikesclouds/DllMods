@@ -9,17 +9,42 @@ namespace Hedgehog::Database
 {
     class CDatabaseData;
 
-    static inline FUNCTION_PTR(bool, __thiscall, fpCDatabaseDataValidate, 0x6993E0, CDatabaseData* This);
+    static inline FUNCTION_PTR(bool, __thiscall, fpCDatabaseDataIsMadeAllInternal, 0x6993E0, CDatabaseData* This);
+
+    enum EDatabaseDataFlags : uint8_t
+    {
+        eDatabaseDataFlags_IsMadeOne = 0x1,
+        eDatabaseDataFlags_IsMadeAll = 0x2,
+        eDatabaseDataFlags_CreatedFromArchive = 0x4,
+        eDatabaseDataFlags_IsMadeMakingOne = 0x8
+    };
 
     class CDatabaseData : public Base::CObject
     {
     public:
-        uint8_t m_Flags;
+        uint8_t m_Flags; // see EDatabaseDataFlags
         Base::CSharedString m_TypeAndName;
 
-        void Validate()
+        virtual ~CDatabaseData() = default;
+
+        virtual bool CheckMadeAll()
         {
-            fpCDatabaseDataValidate(this);
+            return true;
+        }
+
+        bool IsMadeAllInternal()
+        {
+            // Alternatively can call fpCDatabaseDataIsMadeAllInternal
+            if ((m_Flags & eDatabaseDataFlags_IsMadeOne) == 0 || !CheckMadeAll())
+                return false;
+
+            m_Flags |= eDatabaseDataFlags_IsMadeAll;
+            return true;
+        }
+
+        bool IsMadeAll()
+        {
+            return (m_Flags & eDatabaseDataFlags_IsMadeAll) != 0 || IsMadeAllInternal();
         }
     };
 

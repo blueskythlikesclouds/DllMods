@@ -19,6 +19,8 @@ namespace Hedgehog::Database
     public:
         INSERT_PADDING(0x70);
 
+        virtual ~CDatabaseLoader() = default;
+
         virtual void Load(const boost::shared_ptr<CDatabase>& spDatabase, boost::shared_ptr<uint8_t[]> spData, uint32_t dataSize, uint32_t _dataSize, void* pFileReader) = 0;
 
         void LoadData(const boost::shared_ptr<CDatabase>& spDatabase, const Base::CSharedString& name,

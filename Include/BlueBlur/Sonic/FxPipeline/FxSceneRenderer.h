@@ -11,10 +11,10 @@ namespace Sonic
         INSERT_PADDING(0xC);
         uint8_t m_BackgroundColor[4];
         INSERT_PADDING(0x40);
-        Eigen::Matrix4f m_LightView;
-        Eigen::Matrix4f m_VerticalLightView;
-        Eigen::Matrix4f m_LightProjection;
-        Eigen::Matrix4f m_VerticalLightProjection;
+        Hedgehog::Math::CMatrix m_LightView;
+        Hedgehog::Math::CMatrix m_VerticalLightView;
+        Hedgehog::Math::CMatrix44 m_LightProjection;
+        Hedgehog::Math::CMatrix44 m_VerticalLightProjection;
         INSERT_PADDING(0x10);
     };
 

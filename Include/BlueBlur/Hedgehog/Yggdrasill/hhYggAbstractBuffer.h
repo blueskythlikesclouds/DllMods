@@ -19,6 +19,7 @@ namespace Hedgehog::Yggdrasill
         bool m_AutoReset;
         INSERT_PADDING(0x6);
 
+        virtual ~CYggAbstractBuffer() = default;
         virtual void _4() = 0;
         virtual void _8() = 0;
         virtual void _C() = 0;

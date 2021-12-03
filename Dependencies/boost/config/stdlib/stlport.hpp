@@ -10,10 +10,20 @@
 //  STLPort standard library config:
 
 #if !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)
-#  include <utility>
+#  include <cstddef>
 #  if !defined(__SGI_STL_PORT) && !defined(_STLPORT_VERSION)
 #      error "This is not STLPort!"
 #  endif
+#endif
+
+// Apple doesn't seem to reliably defined a *unix* macro
+#if !defined(CYGWIN) && (  defined(__unix__)  \
+                        || defined(__unix)    \
+                        || defined(unix)      \
+                        || defined(__APPLE__) \
+                        || defined(__APPLE)   \
+                        || defined(APPLE))
+#  include <unistd.h>
 #endif
 
 //
@@ -52,15 +62,19 @@
 // then the io stream facets are not available in namespace std::
 //
 #ifdef _STLPORT_VERSION
-#  if !defined(_STLP_OWN_IOSTREAMS) && defined(_STLP_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && !defined(__BORLANDC__)
+#  if !(_STLPORT_VERSION >= 0x500) && !defined(_STLP_OWN_IOSTREAMS) && defined(_STLP_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && !defined(BOOST_BORLANDC)
 #     define BOOST_NO_STD_LOCALE
 #  endif
 #else
-#  if !defined(__SGI_STL_OWN_IOSTREAMS) && defined(__STL_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && !defined(__BORLANDC__)
+#  if !defined(__SGI_STL_OWN_IOSTREAMS) && defined(__STL_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && !defined(BOOST_BORLANDC)
 #     define BOOST_NO_STD_LOCALE
 #  endif
 #endif
 
+#if defined(_STLPORT_VERSION) && (_STLPORT_VERSION >= 0x520)
+#  define BOOST_HAS_TR1_UNORDERED_SET
+#  define BOOST_HAS_TR1_UNORDERED_MAP
+#endif
 //
 // Without member template support enabled, their are no template
 // iterate constructors, and no std::allocator:
@@ -74,7 +88,7 @@
 //
 #define BOOST_HAS_PARTIAL_STD_ALLOCATOR
 
-#if !defined(_STLP_MEMBER_TEMPLATE_CLASSES)
+#if !defined(_STLP_MEMBER_TEMPLATE_CLASSES) || defined(_STLP_DONT_SUPPORT_REBIND_MEMBER_TEMPLATE)
 #  define BOOST_NO_STD_ALLOCATOR
 #endif
 
@@ -98,8 +112,10 @@
 //
 // We always have SGI style hash_set, hash_map, and slist:
 //
+#ifndef _STLP_NO_EXTENSIONS
 #define BOOST_HAS_HASH
 #define BOOST_HAS_SLIST
+#endif
 
 //
 // STLport does a good job of importing names into namespace std::,
@@ -112,7 +128,7 @@
 // BCB6 does cause problems. If we detect C++ Builder, then don't define 
 // BOOST_NO_STDC_NAMESPACE
 //
-#if !defined(__BORLANDC__) && !defined(__DMC__)
+#if !defined(BOOST_BORLANDC) && !defined(__DMC__)
 //
 // If STLport is using it's own namespace, and the real names are in
 // the global namespace, then we duplicate STLport's using declarations
@@ -127,7 +143,7 @@
 #     define BOOST_NO_STDC_NAMESPACE
 #     define BOOST_NO_EXCEPTION_STD_NAMESPACE
 #  endif
-#elif defined(__BORLANDC__) && __BORLANDC__ < 0x560
+#elif defined(BOOST_BORLANDC) && BOOST_BORLANDC < 0x560
 // STLport doesn't import std::abs correctly:
 #include <stdlib.h>
 namespace std { using ::abs; }
@@ -176,7 +192,7 @@ namespace std{ using _STLP_VENDOR_CSTD::strcmp; using _STLP_VENDOR_CSTD::strcpy;
 // Borland ships a version of STLport with C++ Builder 6 that lacks
 // hashtables and the like:
 //
-#if defined(__BORLANDC__) && (__BORLANDC__ == 0x560)
+#if defined(BOOST_BORLANDC) && (BOOST_BORLANDC == 0x560)
 #  undef BOOST_HAS_HASH
 #endif
 
@@ -190,12 +206,53 @@ namespace std{ using _STLP_VENDOR_CSTD::strcmp; using _STLP_VENDOR_CSTD::strcpy;
 namespace boost { using std::min; using std::max; }
 #endif
 
+//  C++0x headers not yet implemented
+//
+#  define BOOST_NO_CXX11_HDR_ARRAY
+#  define BOOST_NO_CXX11_HDR_CHRONO
+#  define BOOST_NO_CXX11_HDR_CODECVT
+#  define BOOST_NO_CXX11_HDR_CONDITION_VARIABLE
+#  define BOOST_NO_CXX11_HDR_FORWARD_LIST
+#  define BOOST_NO_CXX11_HDR_FUTURE
+#  define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#  define BOOST_NO_CXX11_HDR_MUTEX
+#  define BOOST_NO_CXX11_HDR_RANDOM
+#  define BOOST_NO_CXX11_HDR_RATIO
+#  define BOOST_NO_CXX11_HDR_REGEX
+#  define BOOST_NO_CXX11_HDR_SYSTEM_ERROR
+#  define BOOST_NO_CXX11_HDR_THREAD
+#  define BOOST_NO_CXX11_HDR_TUPLE
+#  define BOOST_NO_CXX11_HDR_TYPE_TRAITS
+#  define BOOST_NO_CXX11_HDR_TYPEINDEX
+#  define BOOST_NO_CXX11_HDR_UNORDERED_MAP
+#  define BOOST_NO_CXX11_HDR_UNORDERED_SET
+#  define BOOST_NO_CXX11_NUMERIC_LIMITS
+#  define BOOST_NO_CXX11_ALLOCATOR
+#  define BOOST_NO_CXX11_POINTER_TRAITS
+#  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
+#  define BOOST_NO_CXX11_SMART_PTR
+#  define BOOST_NO_CXX11_HDR_FUNCTIONAL
+#  define BOOST_NO_CXX11_HDR_ATOMIC
+#  define BOOST_NO_CXX11_STD_ALIGN
+#  define BOOST_NO_CXX11_ADDRESSOF
+#  define BOOST_NO_CXX11_HDR_EXCEPTION
+
+#if defined(__has_include)
+#if !__has_include(<shared_mutex>)
+#  define BOOST_NO_CXX14_HDR_SHARED_MUTEX
+#elif __cplusplus < 201402
+#  define BOOST_NO_CXX14_HDR_SHARED_MUTEX
+#endif
+#else
+#  define BOOST_NO_CXX14_HDR_SHARED_MUTEX
+#endif
+
+// C++14 features
+#  define BOOST_NO_CXX14_STD_EXCHANGE
+
+// C++17 features
+#  define BOOST_NO_CXX17_STD_APPLY
+#  define BOOST_NO_CXX17_STD_INVOKE
+#  define BOOST_NO_CXX17_ITERATOR_TRAITS
+
 #define BOOST_STDLIB "STLPort standard library version " BOOST_STRINGIZE(__SGI_STL_PORT)
-
-
-
-
-
-
-
-

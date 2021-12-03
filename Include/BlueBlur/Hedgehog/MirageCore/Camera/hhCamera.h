@@ -8,17 +8,15 @@ namespace Hedgehog::Mirage
     class CCamera : public Base::CObject
     {
     public:
-        INSERT_PADDING(0xC);
-        Eigen::Matrix4f m_View;
-        Eigen::Matrix4f m_Projection;
-        Eigen::Vector3f m_Position;
-        INSERT_PADDING(0x4);
-        Eigen::Vector3f m_Direction;
-        INSERT_PADDING(0x4);
+        virtual ~CCamera() = default;
+
+        Math::CMatrix m_View;
+        Math::CMatrix44 m_Projection;
+        Math::CVector m_Position;
+        Math::CVector m_Direction;
         float m_AspectRatio;
         float m_Near;
         float m_Far;
-        INSERT_PADDING(0x4);
     };
 
     ASSERT_OFFSETOF(CCamera, m_View, 0x10);

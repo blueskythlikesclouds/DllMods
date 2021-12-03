@@ -38,7 +38,7 @@ namespace Hedgehog::Yggdrasill
     static FUNCTION_PTR(void, __thiscall, fpCYggDeviceCreateTexture1, 0x788450, 
         CYggDevice* This, boost::shared_ptr<CYggTexture>& spTexture, uint32_t width, uint32_t height, uint32_t levels, uint32_t usage, D3DFORMAT format, D3DPOOL pool, HANDLE* pSharedHandle);
 
-    static FUNCTION_PTR(void, __thiscall, fpCYggDeviceRenderQuad, 0x786620, 
+    static FUNCTION_PTR(void, __thiscall, fpCYggDeviceDrawQuad2D, 0x786620, 
         CYggDevice* This, float* bounds, float x, float y);
 
     static FUNCTION_PTR(void, __thiscall, fpCYggDeviceUnsetSampler, 0x412120, 
@@ -56,7 +56,7 @@ namespace Hedgehog::Yggdrasill
     static FUNCTION_PTR(void, __thiscall, fpCYggDeviceSetSamplerAddressMode, 0x411CA0, 
         CYggDevice* This, uint32_t index, uint32_t value);
 
-    static FUNCTION_PTR(void, __thiscall, fpCYggDeviceSetSampler, 0x7865A0, 
+    static FUNCTION_PTR(void, __thiscall, fpCYggDeviceSetTexture, 0x7865A0, 
         CYggDevice* This, uint32_t index, const boost::shared_ptr<CYggTexture>& spTexture);
 
     static FUNCTION_PTR(void, __thiscall, fpCYggDeviceClear0, 0x785EE0, 
@@ -107,9 +107,9 @@ namespace Hedgehog::Yggdrasill
             fpCYggDeviceCreateTexture1(this, spTexture, width, height, levels, usage, format, pool, pSharedHandle);
         }
 
-        void RenderQuad(float* bounds, float x, float y)
+        void DrawQuad2D(float* bounds, float x, float y)
         {
-            fpCYggDeviceRenderQuad(this, bounds, x, y);
+            fpCYggDeviceDrawQuad2D(this, bounds, x, y);
         }
 
         void UnsetSampler(uint32_t index)
@@ -147,9 +147,9 @@ namespace Hedgehog::Yggdrasill
             fpCYggDeviceSetSamplerAddressMode(this, index, value);
         }
 
-        void SetSampler(uint32_t index, const boost::shared_ptr<CYggTexture>& spTexture)
+        void SetTexture(uint32_t index, const boost::shared_ptr<CYggTexture>& spTexture)
         {
-            fpCYggDeviceSetSampler(this, index, spTexture);
+            fpCYggDeviceSetTexture(this, index, spTexture);
         }
 
         void Clear(const SYggClearParams& params)

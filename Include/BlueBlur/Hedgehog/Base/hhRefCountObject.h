@@ -10,10 +10,12 @@ namespace Hedgehog::Base
     static inline FUNCTION_PTR(LONG, __thiscall, fpCRefCountObjectAddRef, 0x660180, CRefCountObject* This);
     static inline FUNCTION_PTR(LONG, __thiscall, fpCRefCountObjectRelease, 0x660190, CRefCountObject* This);
 
-    class CRefCountObject : public CObject
+    class CRefCountObject
     {
     public:
         uint32_t m_RefCount;
+
+        virtual ~CRefCountObject() = default;
 
         LONG AddRef()
         {

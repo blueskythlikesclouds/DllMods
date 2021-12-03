@@ -10,13 +10,13 @@ namespace Hedgehog::Mirage
     class CLightManager : public Base::CObject
     {
     public:
-        INSERT_PADDING(0xBC);
-        Eigen::Vector3f m_GlobalLightDiffuse;
-        INSERT_PADDING(0x4);
-        Eigen::Vector3f m_GlobalLightSpecular;
-        INSERT_PADDING(0x4);
-        Eigen::Vector3f m_GlobalLightDirection;
-        INSERT_PADDING(0x58);
+        virtual ~CLightManager() = default;
+
+        INSERT_PADDING(0xB0);
+        Math::CVector m_GlobalLightDiffuse;
+        Math::CVector m_GlobalLightSpecular;
+        Math::CVector m_GlobalLightDirection;
+        INSERT_PADDING(0x54);
         CStaticLightContext* m_pStaticLightContext;
         INSERT_PADDING(0x28);
     };

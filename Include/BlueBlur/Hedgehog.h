@@ -57,6 +57,7 @@ namespace Hedgehog
     namespace base = Base;
     namespace db = Database;
     namespace fx = FxRenderFramework;
+    namespace math = Math;
     namespace mr = Mirage;
     namespace mot = Motion;
     namespace fnd = Universe;

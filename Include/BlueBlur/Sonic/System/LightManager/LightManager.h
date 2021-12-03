@@ -9,7 +9,7 @@ namespace Sonic
 {
     class CLocalLightContext;
 
-    class CLightManager : public CGameObject, InsertPadding<8>, public Hedgehog::Mirage::CLightManager
+    class CLightManager : public CGameObject, public Hedgehog::Mirage::CLightManager
     {
     public:
         CLocalLightContext* m_pLocalLightContext;

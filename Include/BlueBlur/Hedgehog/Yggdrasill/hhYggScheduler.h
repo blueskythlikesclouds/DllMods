@@ -34,6 +34,7 @@ namespace Hedgehog::Yggdrasill
         CYggMisc* m_pMisc;
         INSERT_PADDING(0x4);
 
+        virtual ~CYggScheduler() = default;
         virtual void _4() = 0;
         virtual void _8() = 0;
         virtual void _C() = 0;

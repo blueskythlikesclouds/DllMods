@@ -72,7 +72,7 @@ namespace Sonic
 
         static CParamTypeList* Create(uint32_t* pValue, const Hedgehog::Base::CSharedString& description)
         {
-            CParamTypeList* pParamTypeList = (CParamTypeList*)Hedgehog::Base::fpOperatorNew(sizeof(CParamTypeList));
+            CParamTypeList* pParamTypeList = (CParamTypeList*)__HH_ALLOC(sizeof(CParamTypeList));
             fCParamTypeListConstructor(pParamTypeList, &description, pValue, 0);
 
             pParamTypeList->AddRef();
