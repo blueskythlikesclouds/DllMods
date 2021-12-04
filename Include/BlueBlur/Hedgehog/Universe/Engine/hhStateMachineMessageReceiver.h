@@ -4,10 +4,12 @@
 
 namespace Hedgehog::Universe
 {
+    class Message;
+
     class IStateMachineMessageReceiver
     {
     public:
-        virtual void _0() = 0;
+        virtual bool ReceiveMessage(const Message& message, bool flag) = 0;
     };
 
     ASSERT_SIZEOF(IStateMachineMessageReceiver, 4);

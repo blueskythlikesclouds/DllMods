@@ -11,6 +11,11 @@ namespace Hedgehog::Base
         CCowData<char> m_data;
 
     public:
+        CSharedString()
+        {
+
+        }
+
         CSharedString(const char* data)
         {
             m_data.Set(data, data ? strlen(data) : 0);

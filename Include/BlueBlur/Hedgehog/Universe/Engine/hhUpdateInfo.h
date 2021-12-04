@@ -1,6 +1,7 @@
 #pragma once
 
 #include <BlueBlur.h>
+#include <Hedgehog/Base/Type/hhSharedString.h>
 
 namespace Hedgehog::Universe
 {
@@ -8,7 +9,7 @@ namespace Hedgehog::Universe
     {
         float ElapsedTime;
         uint32_t Frame;
-        const char* Category;
+        Base::CSharedString Category;
     };
 
     ASSERT_OFFSETOF(SUpdateInfo, ElapsedTime, 0x0);
