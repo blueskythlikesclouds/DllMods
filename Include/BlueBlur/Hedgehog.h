@@ -11,6 +11,7 @@
 #include <Hedgehog/Base/System/hhSymbol.h>
 #include <Hedgehog/Base/Thread/hhHolderBase.h>
 #include <Hedgehog/Base/Thread/hhSynchronizedObject.h>
+#include <Hedgehog/Base/Type/hhCowData.h>
 #include <Hedgehog/Base/Type/hhSharedString.h>
 #include <Hedgehog/Database/System/hhArchiveDatabaseLoader.h>
 #include <Hedgehog/Database/System/hhDatabase.h>
@@ -37,7 +38,10 @@
 #include <Hedgehog/Universe/Engine/hhMessageActor.h>
 #include <Hedgehog/Universe/Engine/hhMessageProcess.h>
 #include <Hedgehog/Universe/Engine/hhParallelJob.h>
+#include <Hedgehog/Universe/Engine/hhStateMachine.h>
+#include <Hedgehog/Universe/Engine/hhStateMachineBase.h>
 #include <Hedgehog/Universe/Engine/hhStateMachineMessageReceiver.h>
+#include <Hedgehog/Universe/Engine/hhUpdateInfo.h>
 #include <Hedgehog/Universe/Engine/hhUpdateUnit.h>
 #include <Hedgehog/Yggdrasill/hhYggAbstractBuffer.h>
 #include <Hedgehog/Yggdrasill/hhYggAllocator.h>

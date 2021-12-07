@@ -17,6 +17,7 @@
 #include <Sonic/System/GameObject.h>
 #include <Sonic/System/InputState.h>
 #include <Sonic/System/PadState.h>
+#include <Sonic/System/World.h>
 #include <Sonic/System/LightManager/LightManager.h>
 #include <Sonic/System/LightManager/LocalLight.h>
 #include <Sonic/System/RenderDirector/RenderDirector.h>
@@ -25,7 +26,7 @@
 #include <Sonic/Tool/EditParam/ParamBase.h>
 #include <Sonic/Tool/EditParam/ParamBool.h>
 #include <Sonic/Tool/EditParam/ParamTypeList.h>
-// #include <Sonic/Tool/EditParam/ParamValue.h>
+#include <Sonic/Tool/EditParam/ParamValue.h>
 #include <Sonic/Tool/ParameterEditor/AbstractParameter.h>
 #include <Sonic/Tool/ParameterEditor/AbstractParameterNode.h>
 #include <Sonic/Tool/ParameterEditor/ParameterCategory.h>

@@ -14,9 +14,9 @@ namespace Hedgehog::Base
     {
     public:
         CSynchronizedObject* m_pSynchronizedObject;
-        bool m_Success;
+        bool m_Locked;
 
-        CHolderBase() : m_pSynchronizedObject(nullptr), m_Success(false)
+        CHolderBase() : m_pSynchronizedObject(nullptr), m_Locked(false)
         {
             
         }
@@ -33,6 +33,6 @@ namespace Hedgehog::Base
     };
 
     ASSERT_OFFSETOF(CHolderBase, m_pSynchronizedObject, 0x0);
-    ASSERT_OFFSETOF(CHolderBase, m_Success, 0x4);
+    ASSERT_OFFSETOF(CHolderBase, m_Locked, 0x4);
     ASSERT_SIZEOF(CHolderBase, 0x8);
 }

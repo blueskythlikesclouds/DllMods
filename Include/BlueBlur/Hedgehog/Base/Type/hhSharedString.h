@@ -25,6 +25,40 @@ namespace Hedgehog::Base
         {
             return m_data.Get();
         }
+
+        CSharedString& operator=(const CSharedString& value)
+        {
+            m_data.Unset();
+            m_data.Set(value.m_data);
+            return *this;
+        }        
+        
+        CSharedString& operator=(const char* value)
+        {
+            m_data.Unset();
+            m_data.Set(value, value ? strlen(value) : 0);
+            return *this;
+        }
+
+        bool operator==(const CSharedString& value) const
+        {
+            return strcmp(c_str(), value.c_str()) == 0;
+        }        
+        
+        bool operator!=(const CSharedString& value) const
+        {
+            return !(*this == value);
+        }
+
+        bool operator==(const char* value) const
+        {
+            return strcmp(c_str(), value) == 0;
+        }       
+        
+        bool operator!=(const char* value) const
+        {
+            return !(*this == value);
+        }
     };
 
     ASSERT_SIZEOF(CSharedString, 0x4);

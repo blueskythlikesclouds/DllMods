@@ -22,10 +22,6 @@ namespace Sonic
         static SPadState* GetPadState()
         {
             const Hedgehog::Base::CHolderBase holder(ms_pInstance, true);
-
-            if (!holder.m_Success)
-                return nullptr;
-
             return &ms_pInstance->m_PadStates[ms_pInstance->m_CurrentPadStateIndex];
         }
     };
