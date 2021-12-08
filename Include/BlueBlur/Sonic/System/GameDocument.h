@@ -58,11 +58,11 @@ namespace Sonic
         virtual void _10() = 0;
         virtual void _14() = 0;
 
-        boost::shared_ptr<CWorld> GetWorld(const Hedgehog::Base::CSharedString& name = "main") const
+        boost::shared_ptr<CWorld> GetWorld(const char* name = "main") const
         {
             for (auto it = m_pMember->m_Worlds.begin(); it != m_pMember->m_Worlds.end(); it = it->next())
             {
-                if (name == it->m_Value.m_Key)
+                if (it->m_Value.m_Key == name)
                     return it->m_Value.m_Value;
             }
 
