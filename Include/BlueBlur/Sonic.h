@@ -15,6 +15,8 @@
 #include <Sonic/FxPipeline/Jobs/ToneMapping/FxToneMapping.h>
 #include <Sonic/System/GameDocument.h>
 #include <Sonic/System/GameObject.h>
+#include <Sonic/System/GameObject3D.h>
+#include <Sonic/System/GameObjectModel.h>
 #include <Sonic/System/InputState.h>
 #include <Sonic/System/PadState.h>
 #include <Sonic/System/World.h>

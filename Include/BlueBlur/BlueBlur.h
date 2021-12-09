@@ -1,8 +1,8 @@
 #pragma once
 
 // boost
-#define BOOST_NO_AUTO_PTR
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 // Eigen
 #include <Eigen/Eigen>
@@ -39,3 +39,5 @@ template<int n> struct InsertPadding
 {
     INSERT_PADDING(n);
 };
+
+struct null_ctor{};

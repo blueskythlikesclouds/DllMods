@@ -8,6 +8,9 @@ namespace Hedgehog::Base
     class CObject
     {
     public:
+        CObject() {}
+        CObject(const null_ctor&) {}
+
         void* operator new(const size_t size)
         {
             return __HH_ALLOC(size);

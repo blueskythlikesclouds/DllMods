@@ -11,6 +11,8 @@ namespace Hedgehog::Universe
     class CMessageActor;
     class IStateMachineMessageReceiver;
 
+    static inline FUNCTION_PTR(CMessageActor*, __thiscall, fpCMessageActorCtor, 0x768A00, CMessageActor* This);
+
     static inline FUNCTION_PTR(void, __thiscall, fpCMessageActorExecuteParallelJob, 0x7680C0, CMessageActor* This, const SUpdateInfo& updateInfo);
 
     static inline FUNCTION_PTR(void, __thiscall, fpCMessageActorSendMessage, 0x768340,
@@ -22,6 +24,13 @@ namespace Hedgehog::Universe
         INSERT_PADDING(0x24);
         uint32_t m_ActorID;
         INSERT_PADDING(0x4C);
+
+        CMessageActor(const null_ctor&) : IMessageProcess(null_ctor{}), CObject(null_ctor{}), IParallelJob(null_ctor{}) {}
+
+        CMessageActor() : CMessageActor(null_ctor{})
+        {
+            fpCMessageActorCtor(this);
+        }
 
         virtual void ExecuteParallelJob(const SUpdateInfo& updateInfo) override
         {

@@ -26,6 +26,17 @@ namespace Hedgehog::Base
             fpCHolderBaseCtor(this, pSynchronizedObject, forceSync);
         }
 
+        CHolderBase(CHolderBase&& other)
+        {
+            m_pSynchronizedObject = other.m_pSynchronizedObject;
+            m_Locked = other.m_Locked;
+
+            other.m_pSynchronizedObject = nullptr;
+            other.m_Locked = false;
+        }
+
+        CHolderBase(const CHolderBase& other) = delete;
+
         ~CHolderBase()
         {
             fpCHolderBaseDtor(this);

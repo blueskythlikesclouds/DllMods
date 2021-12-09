@@ -9,6 +9,7 @@
 #include <Hedgehog/Base/Platform/D3D9/hhCriticalSectionD3D9.h>
 #include <Hedgehog/Base/System/hhAllocator.h>
 #include <Hedgehog/Base/System/hhSymbol.h>
+#include <Hedgehog/Base/Thread/hhHolder.h>
 #include <Hedgehog/Base/Thread/hhHolderBase.h>
 #include <Hedgehog/Base/Thread/hhSynchronizedObject.h>
 #include <Hedgehog/Base/Type/hhCowData.h>
@@ -21,11 +22,18 @@
 #include <Hedgehog/FxRenderFramework/hhDrawInstanceParam.h>
 #include <Hedgehog/FxRenderFramework/hhScreenRenderParam.h>
 #include <Hedgehog/MirageCore/Camera/hhCamera.h>
+#include <Hedgehog/MirageCore/MatrixNode/hhMatrixNode.h>
+#include <Hedgehog/MirageCore/MatrixNode/hhMatrixNodeListener.h>
+#include <Hedgehog/MirageCore/MatrixNode/hhMatrixNodeTransform.h>
 #include <Hedgehog/MirageCore/Misc/hhDirector.h>
+#include <Hedgehog/MirageCore/Misc/hhInstanceInfo.h>
 #include <Hedgehog/MirageCore/Misc/hhLightManager.h>
 #include <Hedgehog/MirageCore/Misc/hhRenderingDevice.h>
 #include <Hedgehog/MirageCore/Misc/hhRenderingInfrastructure.h>
 #include <Hedgehog/MirageCore/Misc/hhStaticLightContext.h>
+#include <Hedgehog/MirageCore/Renderable/hhElement.h>
+#include <Hedgehog/MirageCore/Renderable/hhRenderable.h>
+#include <Hedgehog/MirageCore/Renderable/hhSingleElement.h>
 #include <Hedgehog/MirageCore/RenderData/hhLightData.h>
 #include <Hedgehog/MirageCore/RenderData/hhLightListData.h>
 #include <Hedgehog/MirageCore/RenderData/hhMirageDatabaseWrapper.h>

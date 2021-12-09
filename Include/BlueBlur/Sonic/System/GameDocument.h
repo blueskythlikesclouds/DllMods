@@ -5,6 +5,7 @@
 #include <Hedgehog/Base/Container/hhList.h>
 #include <Hedgehog/Base/Container/hhMap.h>
 #include <Hedgehog/Base/Type/hhSharedString.h>
+#include <Hedgehog/Base/Thread/hhHolder.h>
 #include <Hedgehog/Base/Thread/hhSynchronizedObject.h>
 #include <Hedgehog/Base/hhObject.h>
 
@@ -20,10 +21,16 @@ namespace Hedgehog::Universe
 
 namespace Sonic
 {
+    class CGameDocument;
     class CGameObject;
     class CLightManager;
     class CRenderDirector;
     class CWorld;
+
+    static FUNCTION_PTR(void, __stdcall, fpAddGameObject, 0xD631A0,
+        CGameDocument* pGameDocument, const Hedgehog::Base::THolder<CWorld>& worldHolder,
+        const boost::shared_ptr<CGameObject>& spGameObject, boost::shared_ptr<Hedgehog::Database::CDatabase>& spDatabase,
+        CGameObject* pParentGameObject);
 
     class CGameDocument : public Hedgehog::Base::CSynchronizedObject
     {
@@ -43,7 +50,7 @@ namespace Sonic
 
         static constexpr CGameDocument** ms_pInstance = (CGameDocument**)0x1E0BE5C;
 
-        static CGameDocument* GetInstance()
+        static Hedgehog::Base::THolder<CGameDocument> GetInstance()
         {
             return *ms_pInstance;
         }
@@ -58,15 +65,20 @@ namespace Sonic
         virtual void _10() = 0;
         virtual void _14() = 0;
 
-        boost::shared_ptr<CWorld> GetWorld(const char* name = "main") const
+        Hedgehog::Base::THolder<CWorld> GetWorld(const char* name = "main") const
         {
             for (auto it = m_pMember->m_Worlds.begin(); it != m_pMember->m_Worlds.end(); it = it->next())
             {
                 if (it->m_Value.m_Key == name)
-                    return it->m_Value.m_Value;
+                    return it->m_Value.m_Value.get();
             }
 
             return nullptr;
+        }
+
+        void AddGameObject(const boost::shared_ptr<CGameObject>& spGameObject, const char* worldName = "main", CGameObject* pParentGameObject = nullptr)
+        {
+            fpAddGameObject(this, GetWorld(worldName), spGameObject, m_pMember->m_spDatabase, pParentGameObject);
         }
     };
 

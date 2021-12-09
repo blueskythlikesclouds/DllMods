@@ -8,6 +8,9 @@ namespace Hedgehog::Universe
     class IParallelJob
     {
     public:
+        IParallelJob() {}
+        IParallelJob(const null_ctor&) {}
+
         virtual ~IParallelJob() = default;
 
         virtual void ExecuteParallelJob(const SUpdateInfo& updateInfo) = 0;
