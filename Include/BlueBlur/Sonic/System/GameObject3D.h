@@ -36,6 +36,9 @@ namespace Sonic
             fpCGameObject3DCtor(this);
         }
 
+        virtual void AddCallback(const Hedgehog::Base::THolder<CWorld>& worldHolder,
+            Sonic::CGameDocument* pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& spDatabase) override {}
+
         virtual bool MatrixNodeUpdatedCallback(const Hedgehog::Math::CMatrix& matrix, size_t flags) override
         {
             return fpCGameObject3DMatrixNodeUpdatedCallback(this, matrix, flags);

@@ -3,8 +3,14 @@
 #include <BlueBlur.h>
 
 #include <Hedgehog/Base/System/hhSymbol.h>
+#include <Hedgehog/Base/Thread/hhHolder.h>
 #include <Hedgehog/Universe/Engine/hhMessageActor.h>
 #include <Hedgehog/Universe/Engine/hhUpdateUnit.h>
+
+namespace Hedgehog::Database
+{
+    class CDatabase;
+}
 
 namespace Hedgehog::Mirage
 {
@@ -13,7 +19,9 @@ namespace Hedgehog::Mirage
 
 namespace Sonic
 {
+    class CGameDocument;
     class CGameObject;
+    class CWorld;
 
     static uint32_t pCGameObjectCtor = 0xD601F0;
 
@@ -25,6 +33,9 @@ namespace Sonic
             call[pCGameObjectCtor]
         }
     }
+
+    static FUNCTION_PTR(void, __thiscall, fpCGameObjectUpdateParallel, 0xD5F2A0,
+        CGameObject* This, const Hedgehog::Universe::SUpdateInfo& updateInfo);
 
     static FUNCTION_PTR(void, __thiscall, fpCGameObjectAddRenderable, 0xD5F620,
         CGameObject* This, const Hedgehog::Base::CStringSymbol category, const boost::shared_ptr<Hedgehog::Mirage::CRenderable>& spRenderable, const bool castShadow);
@@ -46,6 +57,27 @@ namespace Sonic
         {
             fCGameObjectCtor(this);
         }
+
+        virtual void UpdateParallel(const Hedgehog::Universe::SUpdateInfo& updateInfo)
+        {
+            fpCGameObjectUpdateParallel(this, updateInfo);
+        }
+
+        virtual bool _CGameObjectVTable10() { return true; }
+        virtual void* _CGameObjectVTable14() { return 0; }
+
+        virtual void Initialize(const Hedgehog::Base::THolder<CWorld>& worldHolder, 
+            Sonic::CGameDocument* pGameDocument) {}
+
+        virtual void AddCallback(const Hedgehog::Base::THolder<CWorld>& worldHolder, 
+            Sonic::CGameDocument* pGameDocument, const boost::shared_ptr<Hedgehog::Database::CDatabase>& spDatabase) = 0;
+
+        virtual void RemoveCallback(Sonic::CGameDocument* pGameDocument) {}
+
+        virtual void _CGameObjectVTable24(void*) {}
+        virtual void _CGameObjectVTable28() {}
+        virtual void _CGameObjectVTable2C(void*) {}
+        virtual void _CGameObjectVTable30(void*) {}
 
         void AddRenderable(const Hedgehog::Base::CStringSymbol category, 
             const boost::shared_ptr<Hedgehog::Mirage::CRenderable>& spRenderable, const bool castShadow)

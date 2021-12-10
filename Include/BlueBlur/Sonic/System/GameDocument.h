@@ -8,15 +8,11 @@
 #include <Hedgehog/Base/Thread/hhHolder.h>
 #include <Hedgehog/Base/Thread/hhSynchronizedObject.h>
 #include <Hedgehog/Base/hhObject.h>
+#include <Hedgehog/Universe/Engine/hhUpdateManager.h>
 
 namespace Hedgehog::Database
 {
     class CDatabase;
-}
-
-namespace Hedgehog::Universe
-{
-    class CUpdateManager;
 }
 
 namespace Sonic
@@ -79,6 +75,11 @@ namespace Sonic
         void AddGameObject(const boost::shared_ptr<CGameObject>& spGameObject, const char* worldName = "main", CGameObject* pParentGameObject = nullptr)
         {
             fpAddGameObject(this, GetWorld(worldName), spGameObject, m_pMember->m_spDatabase, pParentGameObject);
+        }
+
+        void AddUpdateUnit(const Hedgehog::Base::CSharedString& category, Hedgehog::Universe::CUpdateUnit* pUpdateUnit)
+        {
+            m_pMember->m_spUpdateManager->Add(category, pUpdateUnit);
         }
     };
 

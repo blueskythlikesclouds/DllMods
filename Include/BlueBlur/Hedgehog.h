@@ -51,6 +51,7 @@
 #include <Hedgehog/Universe/Engine/hhStateMachineBase.h>
 #include <Hedgehog/Universe/Engine/hhStateMachineMessageReceiver.h>
 #include <Hedgehog/Universe/Engine/hhUpdateInfo.h>
+#include <Hedgehog/Universe/Engine/hhUpdateManager.h>
 #include <Hedgehog/Universe/Engine/hhUpdateUnit.h>
 #include <Hedgehog/Yggdrasill/hhYggAbstractBuffer.h>
 #include <Hedgehog/Yggdrasill/hhYggAllocator.h>

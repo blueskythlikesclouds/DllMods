@@ -18,9 +18,9 @@ namespace Hedgehog::Universe
     class CMessageManager
     {
     public:
-        void Add(const Hedgehog::Base::CSharedString& category, CMessageActor* pMessageActor)
+        bool Add(const Hedgehog::Base::CSharedString& category, CMessageActor* pMessageActor)
         {
-            fpCMessageManagerAdd(this, category, pMessageActor);
+            return fpCMessageManagerAdd(this, category, pMessageActor);
         }
     };
 }

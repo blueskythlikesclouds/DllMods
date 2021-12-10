@@ -4,17 +4,7 @@
 
 #include <Hedgehog/Base/Thread/hhHolder.h>
 #include <Hedgehog/Base/Thread/hhSynchronizedObject.h>
-
-namespace Hedgehog::Base
-{
-    class CSharedString;
-}
-
-namespace Hedgehog::Universe
-{
-    class CMessageActor;
-    class CMessageManager;
-}
+#include <Hedgehog/Universe/Engine/hhMessageManager.h>
 
 namespace Sonic
 {
