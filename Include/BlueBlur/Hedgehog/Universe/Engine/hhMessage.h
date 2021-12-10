@@ -12,8 +12,8 @@ namespace Hedgehog::Universe
         boost::shared_ptr<void> m_spUnk0;
 
         virtual ~Message() = default;
-        virtual void IsOfType(const char* pTypeId) = 0;
-        virtual const char* GetTypeId() = 0;
+        virtual bool IsOfType(const char* pType) = 0;
+        virtual const char* GetType() = 0;
     };
 
     ASSERT_OFFSETOF(Message, m_SenderActorID, 0x4);

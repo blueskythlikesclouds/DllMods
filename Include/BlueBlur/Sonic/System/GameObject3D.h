@@ -14,7 +14,7 @@ namespace Sonic
 {
     class CGameObject3D;
 
-    static FUNCTION_PTR(CGameObject3D*, __thiscall, fpCGameObject3DCtor, 0xD5DAC0, CGameObject3D* This);
+    static FUNCTION_PTR(CGameObject3D*, __stdcall, fpCGameObject3DCtor, 0xD5DAC0, CGameObject3D* This);
 
     static FUNCTION_PTR(bool, __thiscall, fpCGameObject3DMatrixNodeUpdatedCallback, 0xD5C780,
         CGameObject3D* This, const Hedgehog::Math::CMatrix& matrix, size_t flags);

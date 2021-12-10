@@ -44,6 +44,7 @@
 #include <Hedgehog/MotionCore/MotionData/hhMotionDatabaseWrapper.h>
 #include <Hedgehog/Universe/Engine/hhMessage.h>
 #include <Hedgehog/Universe/Engine/hhMessageActor.h>
+#include <Hedgehog/Universe/Engine/hhMessageManager.h>
 #include <Hedgehog/Universe/Engine/hhMessageProcess.h>
 #include <Hedgehog/Universe/Engine/hhParallelJob.h>
 #include <Hedgehog/Universe/Engine/hhStateMachine.h>
