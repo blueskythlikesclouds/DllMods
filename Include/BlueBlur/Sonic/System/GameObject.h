@@ -46,7 +46,8 @@ namespace Sonic
         class CMember
         {
         public:
-            INSERT_PADDING(0x80);
+            CGameDocument* m_pGameDocument;
+            INSERT_PADDING(0x7C);
         };
 
         CMember* m_pMember;
@@ -79,6 +80,11 @@ namespace Sonic
         virtual void _CGameObjectVTable2C(void*) {}
         virtual void _CGameObjectVTable30(void*) {}
 
+        Hedgehog::Base::THolder<CGameDocument> GetGameDocument() const
+        {
+            return m_pMember->m_pGameDocument;
+        }
+
         void AddRenderable(const Hedgehog::Base::CStringSymbol category, 
             const boost::shared_ptr<Hedgehog::Mirage::CRenderable>& spRenderable, const bool castShadow)
         {
@@ -86,6 +92,7 @@ namespace Sonic
         }
     };
 
+    ASSERT_OFFSETOF(CGameObject::CMember, m_pGameDocument, 0x0);
     ASSERT_SIZEOF(CGameObject::CMember, 0x80);
 
     ASSERT_OFFSETOF(CGameObject, m_pMember, 0xA4);

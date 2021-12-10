@@ -39,7 +39,9 @@ namespace Sonic
             Hedgehog::map<Hedgehog::Base::CSharedString, boost::shared_ptr<CWorld>> m_Worlds;
             boost::shared_ptr<Hedgehog::Database::CDatabase> m_spDatabase;
             Hedgehog::list<boost::shared_ptr<CGameObject>> m_GameObjects;
-            INSERT_PADDING(0x50);
+            INSERT_PADDING(0x18);
+            Hedgehog::vector<size_t> m_PlayerIDs;
+            INSERT_PADDING(0x28);
             boost::shared_ptr<CLightManager> m_spLightManager;
             INSERT_PADDING(0x128);
         };
@@ -88,6 +90,7 @@ namespace Sonic
     ASSERT_OFFSETOF(CGameDocument::CMember, m_Worlds, 0x10);
     ASSERT_OFFSETOF(CGameDocument::CMember, m_spDatabase, 0x1C);
     ASSERT_OFFSETOF(CGameDocument::CMember, m_GameObjects, 0x24);
+    ASSERT_OFFSETOF(CGameDocument::CMember, m_PlayerIDs, 0x48);
     ASSERT_OFFSETOF(CGameDocument::CMember, m_spLightManager, 0x80);
     ASSERT_SIZEOF(CGameDocument::CMember, 0x1B0);
 
