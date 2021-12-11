@@ -14,6 +14,7 @@ public:
     static float bgAlpha;
     static float fontSize;
     static float valueStepAmount;
+    static float labelDisplayTime;
 
     static bool getVisible();
     static void setVisible(bool value);

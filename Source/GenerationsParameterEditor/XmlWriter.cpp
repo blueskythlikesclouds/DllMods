@@ -45,6 +45,12 @@ void XmlWriter::writeEndElement()
     stream << "</" << name << ">" << std::endl;
 }
 
+void XmlWriter::writeComment(const std::string& comment)
+{
+    indent();
+    stream << "<!-- " << comment << " -->" << std::endl;
+}
+
 bool XmlWriter::isOpen() const
 {
     return stream.is_open();

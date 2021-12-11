@@ -1,7 +1,7 @@
 ﻿#include "Configuration.h"
 #include "ParameterData.h"
 #include "Path.h"
-#include "Status.h"
+#include "DebugDrawTextImpl.h"
 
 const char* const EMPTY_STRING = (const char*)0x13E0DC0;
 
@@ -427,12 +427,12 @@ void AbstractParameterData::save()
     XmlWriter writer(Path::getGameDirectoryPath() + "/work/" + name);
     if (!writer.isOpen())
     {
-        Status::addLabel("Failed to save " + std::string(name));
+        DebugDrawText::log(("Failed to save " + std::string(name)).c_str(), Configuration::labelDisplayTime);
         return;
     }
 
     writer.writeBeginDocument();
     write(writer);
 
-    Status::addLabel("Saved " + std::string(name));
+    DebugDrawText::log(("Saved " + std::string(name)).c_str(), Configuration::labelDisplayTime);
 }

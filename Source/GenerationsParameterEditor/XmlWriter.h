@@ -20,6 +20,7 @@ public:
     void writeEndElement();
     template<typename T>
     void writeElement(const std::string& name, T value);
+    void writeComment(const std::string& comment);
 
     bool isOpen() const;
 };

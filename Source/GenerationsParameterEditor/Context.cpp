@@ -2,7 +2,11 @@
 #include "Context.h"
 #include "ParameterEditor.h"
 #include "PlayerInfo.h"
-#include "Status.h"
+#include "GlobalLightEditor.h"
+#include "DebugDrawTextImpl.h"
+
+const uint32_t* const WIDTH = (uint32_t*)0x1DFDDDC;
+const uint32_t* const HEIGHT = (uint32_t*)0x1DFDDE0;
 
 std::string Context::modDirectoryPath;
 std::string Context::imGuiIniPath = "ImGui.ini";
@@ -42,15 +46,13 @@ void Context::initialize(HWND window, IDirect3DDevice9* device)
     ImGuiIO& io = ImGui::GetIO();
     io.MouseDrawCursor = true;
     io.IniFilename = imGuiIniPath.c_str();
+    io.DisplaySize = { (float)*WIDTH, (float)*HEIGHT };
 
-    RECT rect;
-    GetClientRect(window, &rect);
-
-    const float fontSize = max(Configuration::fontSize, (rect.bottom - rect.top) / 1080.0f * Configuration::fontSize);
+    const float fontSize = max(Configuration::fontSize, *HEIGHT / 1080.0f * Configuration::fontSize);
 
     if ((font = io.Fonts->AddFontFromFileTTF((modDirectoryPath + "/Fonts/DroidSans.ttf").c_str(), fontSize, nullptr, io.Fonts->GetGlyphRangesDefault())) == nullptr)
     {
-        Status::addLabel("Failed to load DroidSans.ttf");
+        DebugDrawText::log("Failed to load DroidSans.ttf", Configuration::labelDisplayTime);
         font = io.Fonts->AddFontDefault();
     }
 
@@ -58,11 +60,11 @@ void Context::initialize(HWND window, IDirect3DDevice9* device)
     fontConfig.MergeMode = true;
 
     if (!io.Fonts->AddFontFromFileTTF((modDirectoryPath + "/Fonts/DroidSansJapanese.ttf").c_str(), fontSize * 1.25f, &fontConfig, io.Fonts->GetGlyphRangesJapanese()))
-        Status::addLabel("Failed to load DroidSansJapanese.ttf");
+        DebugDrawText::log("Failed to load DroidSansJapanese.ttf", Configuration::labelDisplayTime);
 
     io.Fonts->Build();
 
-    Status::addLabel("Press Esc to hide/show the UI.");
+    DebugDrawText::log("Press Esc to hide/show the UI.", Configuration::labelDisplayTime);
 }
 
 void Context::update()
@@ -82,7 +84,8 @@ void Context::update()
     ParameterEditor::update();
     Configuration::update();
     PlayerInfo::update();
-    Status::update();
+    GlobalLightEditor::update();
+    DebugDrawTextImpl::update();
 
     ImGui::PopFont();
 

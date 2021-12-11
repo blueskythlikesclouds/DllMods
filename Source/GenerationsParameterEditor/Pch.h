@@ -17,3 +17,5 @@
 #include <INIReader.h>
 
 #include <Helpers.h>
+
+#include <BlueBlur.h>

@@ -24,7 +24,6 @@
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="XmlWriter.cpp" />
     <ClCompile Include="Path.cpp" />
-    <ClCompile Include="Status.cpp" />
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="ParameterEditor.cpp" />
     <ClCompile Include="Types.cpp" />
@@ -32,13 +31,14 @@
     <ClCompile Include="ParameterData.cpp" />
     <ClCompile Include="PlayerInfo.cpp" />
     <ClCompile Include="SynchronizedObject.cpp" />
+    <ClCompile Include="GlobalLightEditor.cpp" />
+    <ClCompile Include="DebugDrawTextImpl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Std.h" />
     <ClInclude Include="XmlWriter.h" />
     <ClInclude Include="Path.h" />
-    <ClInclude Include="Status.h" />
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="ParameterEditor.h" />
     <ClInclude Include="Types.h" />
@@ -46,6 +46,9 @@
     <ClInclude Include="ParameterData.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="SynchronizedObject.h" />
+    <ClInclude Include="GlobalLightEditor.h" />
+    <ClInclude Include="DebugDrawTextImpl.h" />
+    <ClInclude Include="Include\DebugDrawText.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="imgui">

@@ -5,7 +5,15 @@
 class ParameterEditor
 {
 public:
-    typedef std::map<AbstractParameter*, std::unique_ptr<AbstractParameterData>> Map;
+    struct CmpByName
+    {
+        bool operator()(const AbstractParameter* lhs, const AbstractParameter* rhs) const
+        {
+            return strcmp(lhs->name, rhs->name) < 0;
+        }
+    };
+
+    typedef std::map<AbstractParameter*, std::unique_ptr<AbstractParameterData>, CmpByName> Map;
 
 private:
     static void updateLazyAbstractParameter(Map::value_type& it, bool isStatic);

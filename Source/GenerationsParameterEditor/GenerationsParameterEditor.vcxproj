@@ -56,12 +56,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);IsGenerationsParameterEditor=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Dependencies\imgui;..\..\Include\BlueBlur;$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -76,16 +77,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);IsGenerationsParameterEditor=1</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Dependencies\imgui;..\..\Include\BlueBlur;$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -104,6 +106,7 @@
     <ClCompile Include="..\..\Dependencies\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="..\..\Dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Context.cpp" />
+    <ClCompile Include="GlobalLightEditor.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Configuration.cpp" />
@@ -119,12 +122,14 @@
     <ClCompile Include="PlayerInfo.cpp" />
     <ClCompile Include="SynchronizedObject.cpp" />
     <ClCompile Include="Types.cpp" />
-    <ClCompile Include="Status.cpp" />
+    <ClCompile Include="DebugDrawTextImpl.cpp" />
     <ClCompile Include="XmlWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="Context.h" />
+    <ClInclude Include="Include\DebugDrawText.h" />
+    <ClInclude Include="GlobalLightEditor.h" />
     <ClInclude Include="ParameterData.h" />
     <ClInclude Include="ParameterEditor.h" />
     <ClInclude Include="Path.h" />
@@ -132,7 +137,7 @@
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="SynchronizedObject.h" />
     <ClInclude Include="Types.h" />
-    <ClInclude Include="Status.h" />
+    <ClInclude Include="DebugDrawTextImpl.h" />
     <ClInclude Include="Std.h" />
     <ClInclude Include="XmlWriter.h" />
   </ItemGroup>

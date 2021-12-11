@@ -2,7 +2,8 @@
 #include "Context.h"
 #include "ParameterEditor.h"
 #include "PlayerInfo.h"
-#include "Status.h"
+#include "GlobalLightEditor.h"
+#include "DebugDrawTextImpl.h"
 
 #include <fstream>
 
@@ -14,6 +15,7 @@ bool Configuration::wrapNames = true;
 float Configuration::bgAlpha = 0.625f;
 float Configuration::fontSize = 16.0f;
 float Configuration::valueStepAmount = 0.1f;
+float Configuration::labelDisplayTime = 5.0f;
 
 void Configuration::load()
 {
@@ -21,7 +23,7 @@ void Configuration::load()
 
     if (reader.ParseError() != 0)
     {
-        Status::addLabel("Failed to load " + std::string(FILE_NAME));
+        DebugDrawText::log(("Failed to load " + std::string(FILE_NAME)).c_str(), labelDisplayTime);
         return;
     }
 
@@ -33,8 +35,9 @@ void Configuration::load()
     valueStepAmount = reader.GetFloat("Configuration", "ValueStepAmount", 0.1f);
     ParameterEditor::visible = reader.GetBoolean("Configuration", "DisplayParameterEditorWindow", true);
     PlayerInfo::visible = reader.GetBoolean("Configuration", "DisplayPlayerInfoWindow", false);
-    Status::visible = reader.GetBoolean("Configuration", "DisplayStatusWindow", true);
-    Status::labelDisplayTime = reader.GetFloat("Configuration", "StatusLabelDisplayTime", 5.0f);
+    GlobalLightEditor::visible = reader.GetBoolean("Configuration", "DisplayGlobalLightWindow", false);
+    DebugDrawTextImpl::visible = reader.GetBoolean("Configuration", "DisplayStatusWindow", true);
+    labelDisplayTime = reader.GetFloat("Configuration", "StatusLabelDisplayTime", 5.0f);
 }
 
 void Configuration::save()
@@ -42,7 +45,7 @@ void Configuration::save()
     std::ofstream stream(Context::getModDirectoryPath() + "/" + FILE_NAME, std::ofstream::out);
     if (!stream.is_open())
     {
-        Status::addLabel("Failed to save " + std::string(FILE_NAME));
+        DebugDrawText::log(("Failed to save " + std::string(FILE_NAME)).c_str(), labelDisplayTime);
         return;
     }
 
@@ -55,8 +58,9 @@ void Configuration::save()
     stream << "ValueStepAmount" << "=" << valueStepAmount << std::endl;
     stream << "DisplayParameterEditorWindow" << "=" << (ParameterEditor::visible ? "true" : "false") << std::endl;
     stream << "DisplayPlayerInfoWindow" << "=" << (PlayerInfo::visible ? "true" : "false") << std::endl;
-    stream << "DisplayStatusWindow" << "=" << (Status::visible ? "true" : "false") << std::endl;
-    stream << "StatusLabelDisplayTime" << "=" << Status::labelDisplayTime << std::endl;
+    stream << "DisplayGlobalLightWindow" << "=" << (GlobalLightEditor::visible ? "true" : "false") << std::endl;
+    stream << "DisplayStatusWindow" << "=" << (DebugDrawTextImpl::visible ? "true" : "false") << std::endl;
+    stream << "StatusLabelDisplayTime" << "=" << labelDisplayTime << std::endl;
 }
 
 bool Configuration::getVisible()
@@ -90,8 +94,9 @@ void Configuration::update()
         ImGui::InputFloat("Value step amount", &valueStepAmount, 0.1f, 0, "%g");
         ImGui::Checkbox("Display parameter editor window", &ParameterEditor::visible);
         ImGui::Checkbox("Display player info window", &PlayerInfo::visible);
-        ImGui::Checkbox("Display status window", &Status::visible);
-        ImGui::InputFloat("Status label display time", &Status::labelDisplayTime, 1.0f, 0, "%g");
+        ImGui::Checkbox("Display global light editor window", &GlobalLightEditor::visible);
+        ImGui::Checkbox("Display status window", &DebugDrawTextImpl::visible);
+        ImGui::InputFloat("Status label display time", &labelDisplayTime, 1.0f, 0, "%g");
     }
     ImGui::End();
 
