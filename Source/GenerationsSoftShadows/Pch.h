@@ -12,5 +12,4 @@
 
 #include <Helpers.h>
 
-#include <Hedgehog.h>
-#include <Sonic.h>
+#include <BlueBlur.h>

@@ -17,7 +17,6 @@
 
 #include <Helpers.h>
 
-#include <Sonic.h>
-#include <Hedgehog.h>
+#include <BlueBlur.h>
 
 #include <DDSTextureLoader9.h>

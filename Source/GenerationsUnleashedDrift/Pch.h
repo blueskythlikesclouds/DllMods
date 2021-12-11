@@ -15,7 +15,5 @@
 #include <LostCodeLoader.h>
 
 #include <BlueBlur.h>
-#include <Sonic.h>
-#include <Hedgehog.h>
 
 #include "Types.h"

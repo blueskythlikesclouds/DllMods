@@ -5,9 +5,6 @@
 #include <Windows.h>
 #include <detours.h>
 
-#define BOOST_NO_AUTO_PTR
-#include <boost/shared_ptr.hpp>
-
 #include <array>
 #include <cstdint>
 #include <cstdio>
@@ -16,10 +13,7 @@
 
 #include <Helpers.h>
 
-#include "DX_PATCH.h"
+#include <BlueBlur.h>
+
 #include "Types.h"
 #include "Functions.h"
-
-// BlueBlur
-#include <Hedgehog.h>
-#include <Sonic.h>

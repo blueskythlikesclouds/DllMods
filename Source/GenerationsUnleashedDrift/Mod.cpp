@@ -311,7 +311,7 @@ HOOK(void, __fastcall, CSonicStateDriftOnLeave, 0xDF2D20, void* This)
 
 HOOK(void, __stdcall, ChangeAnimation, 0xCDFC80, void* A1, SharedPtrTypeless& A2, const hh::base::CSharedString& name)
 {
-    if (strcmp(name.m_pStr, "Walk") == 0)
+    if (name == "Walk")
     {
         void* sonicContext = *(void**)0x1E5E2F0;
 

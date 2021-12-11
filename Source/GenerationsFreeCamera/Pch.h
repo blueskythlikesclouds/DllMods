@@ -24,5 +24,4 @@
 #include "Math.h"
 #include "String.h"
 
-#include <Hedgehog.h>
-#include <Sonic.h>
+#include <BlueBlur.h>

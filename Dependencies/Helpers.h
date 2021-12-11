@@ -73,6 +73,12 @@ const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
         WRITE_MEMORY(location, uint8_t, 0xE9); \
         WRITE_MEMORY(location + 1, uint32_t, (uint32_t)(function) - (size_t)(location) - 5); \
     }
+	
+#define WRITE_CALL(location, function) \
+    { \
+        WRITE_MEMORY(location, uint8_t, 0xE8); \
+        WRITE_MEMORY(location + 1, uint32_t, (uint32_t)(function) - (size_t)(location) - 5); \
+    }
 
 #define WRITE_NOP(location, count) \
     { \
