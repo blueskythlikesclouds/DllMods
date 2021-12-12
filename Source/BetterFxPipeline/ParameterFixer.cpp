@@ -4,16 +4,16 @@
 // FxPipeline
 // 
 
-HOOK(void*, __fastcall, SetShader, 0x415EE0, YggSchedulerSubInternal* This, void* Edx, const boost::shared_ptr<VertexShaderData>& vertexShaderData, const boost::shared_ptr<PixelShaderData>& pixelShaderData)
+HOOK(void*, __fastcall, SetShader, 0x415EE0, hh::ygg::CYggDevice* This, void* Edx, const boost::shared_ptr<hh::mr::CVertexShaderData>& vertexShaderData, const boost::shared_ptr<hh::mr::CPixelShaderData>& pixelShaderData)
 {
     void* result = originalSetShader(This, Edx, vertexShaderData, pixelShaderData);
 
     const float forceAlphaColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    const uint8_t forceAlphaColorRegister = *(uint8_t*)((uint8_t*)This->renderingInfrastructure->internal.globalParametersData + 
-        This->renderingInfrastructure->internal.globalParameterIndex * 2 + 544);
+    const uint8_t forceAlphaColorRegister = *(uint8_t*)((uint8_t*)This->m_pRenderingInfrastructure->m_RenderingDevice.m_pGlobalParametersData + 
+        This->m_pRenderingInfrastructure->m_RenderingDevice.m_GlobalParameterIndex * 2 + 544);
 
     if (forceAlphaColorRegister != 255)
-        This->dxpDevice->SetPixelShaderConstantF(forceAlphaColorRegister, forceAlphaColor, 1);
+        This->m_pD3DDevice->SetPixelShaderConstantF(forceAlphaColorRegister, forceAlphaColor, 1);
 
     return result;
 }

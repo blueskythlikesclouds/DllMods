@@ -5,7 +5,7 @@
 // FxPipeline
 //
 
-HOOK(void*, __stdcall, InitializeBloomGlareFrameBuffers, 0x10D1C90, YggJob* This)
+HOOK(void*, __stdcall, InitializeBloomGlareFrameBuffers, 0x10D1C90, Sonic::CFxJob* This)
 {
     ResolutionScaler::scaleTo720p = true;
 

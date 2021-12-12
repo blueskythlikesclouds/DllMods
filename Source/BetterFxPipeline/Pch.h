@@ -14,6 +14,3 @@
 #include <Helpers.h>
 
 #include <BlueBlur.h>
-
-#include "Types.h"
-#include "Functions.h"

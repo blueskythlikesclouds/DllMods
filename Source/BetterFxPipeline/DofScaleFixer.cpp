@@ -29,7 +29,7 @@ namespace
 }
 
 // FxPipeline
-HOOK(void, __fastcall, ExecuteAlternativeDepthOfField, 0x1228960, YggJob* This)
+HOOK(void, __fastcall, ExecuteAlternativeDepthOfField, 0x1228960, Sonic::CFxJob* This)
 {
     execute([=]() { originalExecuteAlternativeDepthOfField(This); });
 }

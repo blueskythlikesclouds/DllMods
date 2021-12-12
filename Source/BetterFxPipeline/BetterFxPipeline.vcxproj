@@ -77,7 +77,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
@@ -86,6 +86,7 @@
       <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,8 +123,7 @@
     <ClCompile Include="SceneEffectOverrider.cpp" />
     <ClCompile Include="BloomTypeHandler.cpp" />
     <ClCompile Include="StereoShaderReplacer.cpp" />
-    <ClCompile Include="TransparentShadowFixer.cpp" />
-    <ClCompile Include="Types.cpp" />
+    <ClCompile Include="ShaderPatcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Configuration.h" />
@@ -132,7 +132,6 @@
     <ClInclude Include="ShadowHandler.h" />
     <ClInclude Include="BloomScaleFixer.h" />
     <ClInclude Include="DofScaleFixer.h" />
-    <ClInclude Include="Functions.h" />
     <ClInclude Include="FxaaRenderer.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="ParameterFixer.h" />
@@ -146,8 +145,7 @@
     <ClInclude Include="SceneEffectOverrider.h" />
     <ClInclude Include="BloomTypeHandler.h" />
     <ClInclude Include="StereoShaderReplacer.h" />
-    <ClInclude Include="TransparentShadowFixer.h" />
-    <ClInclude Include="Types.h" />
+    <ClInclude Include="ShaderPatcher.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="CopyTexture.wpu.hlsl">
@@ -171,6 +169,18 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ObjectFileOutput>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)CopyTexture.wvu.h</HeaderFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="MotionBlur.wpu.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">3.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">3.0</ShaderModel>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)MotionBlur.wpu.h</HeaderFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ObjectFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)MotionBlur.wpu.h</HeaderFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ObjectFileOutput>
     </FxCompile>

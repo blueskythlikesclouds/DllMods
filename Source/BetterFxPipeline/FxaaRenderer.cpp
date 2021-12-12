@@ -16,40 +16,40 @@ const std::array<const char*, 7> FxaaRenderer::SHADER_NAMES =
 // FxPipeline
 // 
 
-ShaderDataPair fxaaShaderPair;
-boost::shared_ptr<YggTexture> fxaaFrameBuffer;
+hh::mr::SShaderPair fxaaShaderPair;
+boost::shared_ptr<hh::ygg::CYggTexture> fxaaFrameBuffer;
 
-HOOK(void*, __fastcall, InitializeCrossFade, 0x10C21A0, YggJob* This)
+HOOK(void*, __fastcall, InitializeCrossFade, 0x10C21A0, Sonic::CFxJob* This)
 {
-    loadShaderDataPair(This->scheduler, fxaaShaderPair, "FxFilterNone", FxaaRenderer::SHADER_NAMES[(uint32_t)Configuration::fxaaIntensity - 1]);
-    createYggTexture(This->scheduler->internal->subInternal, fxaaFrameBuffer, 1, 1, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, NULL);
+    This->m_pScheduler->GetShader(fxaaShaderPair, "FxFilterNone", FxaaRenderer::SHADER_NAMES[(uint32_t)Configuration::fxaaIntensity - 1]);
+    This->m_pScheduler->m_pMisc->m_pDevice->CreateTexture(fxaaFrameBuffer, 1.0f, 1.0f, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, NULL);
 
     return originalInitializeCrossFade(This);
 }
 
-HOOK(void*, __fastcall, ExecuteCrossFade, 0x10C22D0, YggJob* This)
+HOOK(void*, __fastcall, ExecuteCrossFade, 0x10C22D0, Sonic::CFxJob* This)
 {
     void* result = originalExecuteCrossFade(This);
 
-    if (!fxaaShaderPair.first || !fxaaShaderPair.second || !fxaaFrameBuffer)
+    if (!fxaaShaderPair.m_spVertexShader || !fxaaShaderPair.m_spPixelShader || !fxaaFrameBuffer)
         return result;
 
-    boost::shared_ptr<YggTexture> frameBuffer;
-    getDefaultFramebuffer(This, frameBuffer);
+    boost::shared_ptr<hh::ygg::CYggTexture> frameBuffer;
+    This->GetDefaultTexture(frameBuffer);
 
-    boost::shared_ptr<YggSurface> surface;
-    getYggSurface(fxaaFrameBuffer.get(), surface, 0, 0);
+    boost::shared_ptr<hh::ygg::CYggSurface> surface;
+    fxaaFrameBuffer->GetSurface(surface, 0, 0);
 
-    setRenderTarget(This->scheduler->internal->subInternal, 0, surface);
-    setShader(This->scheduler->internal->subInternal, fxaaShaderPair.first, fxaaShaderPair.second);
+    This->m_pScheduler->m_pMisc->m_pDevice->SetRenderTarget(0, surface);
+    This->m_pScheduler->m_pMisc->m_pDevice->SetShader(fxaaShaderPair);
 
-    setTexture(This->scheduler->internal->subInternal, 0, frameBuffer);
-    setSamplerFilter(This->scheduler->internal->subInternal, 0, D3DTEXF_LINEAR, D3DTEXF_LINEAR, D3DTEXF_NONE);
-    setSamplerAddressMode(This->scheduler->internal->subInternal, 0, D3DTADDRESS_CLAMP);
+    This->m_pScheduler->m_pMisc->m_pDevice->SetTexture(0, frameBuffer);
+    This->m_pScheduler->m_pMisc->m_pDevice->SetSamplerFilter(0, D3DTEXF_LINEAR, D3DTEXF_LINEAR, D3DTEXF_NONE);
+    This->m_pScheduler->m_pMisc->m_pDevice->SetSamplerAddressMode(0, D3DTADDRESS_CLAMP);
 
-    renderQuad(This->scheduler->internal->subInternal, 0, 0, 0);
+    This->m_pScheduler->m_pMisc->m_pDevice->DrawQuad2D(nullptr, 0, 0);
 
-    setDefaultFramebuffer(This, fxaaFrameBuffer);
+    This->SetDefaultTexture(fxaaFrameBuffer);
 
     return result;
 }

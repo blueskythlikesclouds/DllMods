@@ -20,9 +20,6 @@
     <ClCompile Include="ShadowHandler.cpp">
       <Filter>Shadow</Filter>
     </ClCompile>
-    <ClCompile Include="TransparentShadowFixer.cpp">
-      <Filter>Shadow</Filter>
-    </ClCompile>
     <ClCompile Include="ParticlePostProcessor.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -41,7 +38,6 @@
     <ClCompile Include="FxaaRenderer.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Types.cpp" />
     <ClCompile Include="ShaderLoader.cpp">
       <Filter>Other</Filter>
     </ClCompile>
@@ -56,6 +52,9 @@
     </ClCompile>
     <ClCompile Include="StereoShaderReplacer.cpp">
       <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderPatcher.cpp">
+      <Filter>Other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,9 +75,6 @@
     <ClInclude Include="ShadowHandler.h">
       <Filter>Shadow</Filter>
     </ClInclude>
-    <ClInclude Include="TransparentShadowFixer.h">
-      <Filter>Shadow</Filter>
-    </ClInclude>
     <ClInclude Include="ParticlePostProcessor.h">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -95,8 +91,6 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Hash.h" />
-    <ClInclude Include="Types.h" />
-    <ClInclude Include="Functions.h" />
     <ClInclude Include="FxaaRenderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -114,6 +108,9 @@
     </ClInclude>
     <ClInclude Include="StereoShaderReplacer.h">
       <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderPatcher.h">
+      <Filter>Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +135,9 @@
       <Filter>Resources</Filter>
     </FxCompile>
     <FxCompile Include="CopyTexture.wpu.hlsl">
+      <Filter>Resources</Filter>
+    </FxCompile>
+    <FxCompile Include="MotionBlur.wpu.hlsl">
       <Filter>Resources</Filter>
     </FxCompile>
   </ItemGroup>

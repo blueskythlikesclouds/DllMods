@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class TransparentShadowFixer
+class ShaderPatcher
 {
     static bool enabled;
 

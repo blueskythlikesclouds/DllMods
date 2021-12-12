@@ -16,7 +16,7 @@
 #include "ReflectionFixer.h"
 #include "ShaderLoader.h"
 #include "StereoShaderReplacer.h"
-#include "TransparentShadowFixer.h"
+#include "ShaderPatcher.h"
 
 extern "C" __declspec(dllexport) void __cdecl OnFrame()
 {
@@ -43,7 +43,7 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
 
     ParameterFixer::applyPatches();
 
-    TransparentShadowFixer::applyPatches();
+    ShaderPatcher::applyPatches();
 
     BloomScaleFixer::applyPatches();
 
