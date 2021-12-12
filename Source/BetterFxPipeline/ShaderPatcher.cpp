@@ -1,5 +1,6 @@
 ﻿#include "Hash.h"
 #include "ShaderPatcher.h"
+#include "Configuration.h"
 #include "MotionBlur.wpu.h"
 
 HOOK(void, __cdecl, LoadVertexShaderCode, 0x734110, uint32_t a1, uint8_t* data, size_t length, void* a4, void* a5, void* a6)
@@ -39,5 +40,7 @@ void ShaderPatcher::applyPatches()
     enabled = true;
 
     INSTALL_HOOK(LoadVertexShaderCode);
-    INSTALL_HOOK(LoadPixelShaderCode);
+
+    if (Configuration::enhancedMotionBlur)
+        INSTALL_HOOK(LoadPixelShaderCode);
 }

@@ -3,6 +3,7 @@
 bool Configuration::forceIgnoreFinalLightColorAdjustment = false;
 bool Configuration::postProcessingOnParticles = false;
 BloomType Configuration::bloomType = BloomType::MTFx;
+bool Configuration::enhancedMotionBlur = false;
 
 FxaaIntensity Configuration::fxaaIntensity = FxaaIntensity::DISABLED;
 
@@ -29,6 +30,7 @@ bool Configuration::load(const std::string& filePath)
     fxaaIntensity = (FxaaIntensity)reader.GetInteger("Renderer", "FxaaIntensity", (uint32_t)FxaaIntensity::DISABLED);
     postProcessingOnParticles = reader.GetBoolean("Renderer", "PostProcessingOnParticles", false);
     bloomType = (BloomType)reader.GetInteger("Renderer", "BloomType", 0);
+    enhancedMotionBlur = reader.GetBoolean("Renderer", "EnhancedMotionBlur", false);
 
     shadowResolution = (uint32_t)max(1, reader.GetInteger("Shadows", "ShadowResolution", 4096));
     ambientShadowBiasObject = reader.GetFloat("Shadows", "AmbientShadowBiasObject", -1);

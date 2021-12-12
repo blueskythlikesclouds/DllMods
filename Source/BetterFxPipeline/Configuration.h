@@ -40,6 +40,7 @@ public:
     static FxaaIntensity fxaaIntensity;
     static bool postProcessingOnParticles;
     static BloomType bloomType;
+    static bool enhancedMotionBlur;
 
     static uint32_t shadowResolution;
     static float ambientShadowBiasObject;
