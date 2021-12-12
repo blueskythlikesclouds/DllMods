@@ -1,7 +1,7 @@
 ﻿#include "Configuration.h"
 
 bool Configuration::forceIgnoreFinalLightColorAdjustment = false;
-bool Configuration::postProcessingOnParticles = true;
+bool Configuration::postProcessingOnParticles = false;
 BloomType Configuration::bloomType = BloomType::MTFx;
 
 FxaaIntensity Configuration::fxaaIntensity = FxaaIntensity::DISABLED;
@@ -11,7 +11,7 @@ float Configuration::ambientShadowBiasObject = -1;
 float Configuration::ambientShadowBiasTerrain = -1;
 bool Configuration::enableTerrainShadowCast = false;
 bool Configuration::forceCastShadow = false;
-ShadowType Configuration::shadowType = ShadowType::Directional;
+ShadowType Configuration::shadowType = ShadowType::Default;
 LambertShadowMode Configuration::lambertShadowObject = LambertShadowMode::ENABLE;
 LambertShadowMode Configuration::lambertShadowTerrain = LambertShadowMode::ENABLE;
 
@@ -27,7 +27,7 @@ bool Configuration::load(const std::string& filePath)
 
     forceIgnoreFinalLightColorAdjustment = reader.GetBoolean("Renderer", "ForceIgnoreFinalLightColorAdjustment", false);
     fxaaIntensity = (FxaaIntensity)reader.GetInteger("Renderer", "FxaaIntensity", (uint32_t)FxaaIntensity::DISABLED);
-    postProcessingOnParticles = reader.GetBoolean("Renderer", "PostProcessingOnParticles", true);
+    postProcessingOnParticles = reader.GetBoolean("Renderer", "PostProcessingOnParticles", false);
     bloomType = (BloomType)reader.GetInteger("Renderer", "BloomType", 0);
 
     shadowResolution = (uint32_t)max(1, reader.GetInteger("Shadows", "ShadowResolution", 4096));
@@ -35,7 +35,7 @@ bool Configuration::load(const std::string& filePath)
     ambientShadowBiasTerrain = reader.GetFloat("Shadows", "AmbientShadowBiasTerrain", -1);
     enableTerrainShadowCast = reader.GetBoolean("Shadows", "EnableTerrainShadowCast", false);
     forceCastShadow = reader.GetBoolean("Shadows", "ForceCastShadow", false);
-    shadowType = (ShadowType)reader.GetInteger("Shadows", "ShadowType", (long)ShadowType::Directional);
+    shadowType = (ShadowType)reader.GetInteger("Shadows", "ShadowType", (long)ShadowType::Default);
     lambertShadowObject = (LambertShadowMode)reader.GetInteger("Shadows", "LambertShadowObject", (uint32_t)LambertShadowMode::ENABLE);
     lambertShadowTerrain = (LambertShadowMode)reader.GetInteger("Shadows", "LambertShadowTerrain", (uint32_t)LambertShadowMode::ENABLE);
 
