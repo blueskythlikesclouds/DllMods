@@ -1,9 +1,5 @@
 ﻿#pragma once
 
-#ifndef offsetof
-#define offsetof(s, m) ((size_t)&(((s*)0)->m))
-#endif
-
 #define _CONCAT2(x, y) x##y
 #define CONCAT2(x, y) _CONCAT(x, y)
 #define INSERT_PADDING(length) \
