@@ -44,15 +44,6 @@ void ProcMsgHitReactionPlate(Sonic::Player::CPlayerSpeed* This, const Sonic::Mes
             pState->m_JumpMinVelocity = minVelocity;
             pState->m_JumpMaxVelocity = maxVelocity;
 
-            This->GetContext()->m_spMatrixNodeTransform->m_Transform.SetPosition(message.m_Position + message.m_Direction * 0.25f);
-
-            const auto yawDirection = hh::math::CVector(message.m_Direction.x(), 0, message.m_Direction.z()).normalized();
-            const float yaw = atan2(yawDirection.x(), yawDirection.z());
-            const float pitch = asin(-message.m_Direction.y());
-
-            This->GetContext()->m_VerticalRotation = Eigen::AngleAxisf(pitch, Eigen::Vector3f::UnitX()) * Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitY());
-            This->GetContext()->m_HorizontalRotation.setIdentity();
-
             hh::math::CVector targetPosition;
             This->SendMessageImm(message.m_TargetActorID, boost::make_shared<Sonic::Message::MsgGetPosition>(targetPosition));
 
@@ -66,6 +57,20 @@ void ProcMsgHitReactionPlate(Sonic::Player::CPlayerSpeed* This, const Sonic::Mes
                 Sonic::Player::CPlayerSpeedStateReactionLand::eAnimationType_ReactionJumpR;
 
             This->GetContext()->PlaySound(4002046, false);
+
+            const auto yawDirection = hh::math::CVector(message.m_Direction.x(), 0, message.m_Direction.z()).normalized();
+            const float yaw = atan2(yawDirection.x(), yawDirection.z());
+            const float pitch = asin(-message.m_Direction.y());
+
+            const auto rotation = Eigen::AngleAxisf(pitch, Eigen::Vector3f::UnitX()) *
+                Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitY());
+
+            This->GetContext()->m_VerticalRotation = rotation;
+            This->GetContext()->m_HorizontalRotation.setIdentity();
+            This->GetContext()->m_ModelUpDirection = (rotation * hh::math::CVector::UnitY()).normalized();
+
+            This->GetContext()->m_spMatrixNode->m_Transform.SetRotationAndPosition(rotation * This->GetContext()->m_HorizontalRotation, message.m_Position + message.m_Direction * 0.25f);
+            This->GetContext()->m_spMatrixNode->NotifyChanged();
         }
     }
     else if (This->m_StateMachine.GetCurrentState()->GetName() != "ReactionLand")
@@ -153,6 +158,6 @@ extern "C" void __declspec(dllexport) Init()
     WRITE_JUMP(0xE5CDB3, reactionJumpPlaySfxTrampoline);
     WRITE_JUMP(0x124B915, reactionJumpSetAnimTrampoline);
 
-    WRITE_MEMORY(0x1274C03 + 6, char*, "sn_airboost_loop");
-    WRITE_MEMORY(0x1274C6A + 6, char*, "sn_airboost_loop");
+    WRITE_MEMORY(0x1274C03 + 6, char*, "sn_wall_fly00_loop");
+    WRITE_MEMORY(0x1274C6A + 6, char*, "sn_wall_fly00_loop");
 }
