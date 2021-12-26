@@ -35,9 +35,9 @@ void ProcMsgHitReactionPlate(Sonic::Player::CPlayerSpeed* This, const Sonic::Mes
     const float minVelocity = message.m_JumpMinVelocity <= 0 ? 40 : message.m_JumpMinVelocity;
     const float maxVelocity = message.m_JumpMaxVelocity <= 0 ? 60 : message.m_JumpMaxVelocity;
 
-    if (message.m_Type)
+    if (message.m_Type != 0) // 0 == Begin
     {
-        if (message.m_Type != 5) // End
+        if (message.m_Type != 5 && This->m_StateMachine.GetCurrentState()->GetName() == "ReactionJump") // 5 == End
         {
             const auto pState = This->GetContext()->SetState<Sonic::Player::CPlayerSpeedStateReactionLand>();
             pState->m_TargetActorID = message.m_TargetActorID;
@@ -68,7 +68,7 @@ void ProcMsgHitReactionPlate(Sonic::Player::CPlayerSpeed* This, const Sonic::Mes
             This->GetContext()->PlaySound(4002046, false);
         }
     }
-    else // Begin
+    else if (This->m_StateMachine.GetCurrentState()->GetName() != "ReactionLand")
     {
         fE5CD90(
             message.m_TargetActorID,
