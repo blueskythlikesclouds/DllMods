@@ -1,0 +1,242 @@
+struct ShaderInfo
+{
+    size_t index;
+    const char* vertexShaderName;
+    const char* pixelShaderName;
+};
+
+struct DrawInstanceParam
+{
+    uint32_t reserved;
+
+    const char* name;
+    uint32_t id;
+
+    void* callback;
+
+    void* childParams;
+    uint32_t childParamCount;
+
+    uint8_t rt0;
+    uint8_t rt1;
+
+    uint8_t rt2;
+    uint8_t rt3;
+
+    uint8_t s0;
+    uint8_t s1;
+    uint8_t s2;
+    uint8_t s3;
+
+    uint32_t unk1;
+    uint32_t unk2;
+    uint32_t unk3;
+    uint32_t unk4;
+    uint32_t unk5;
+    uint32_t unk6;
+};
+
+struct ScreenRenderParam
+{
+    const char* name;
+    void* callback;
+    size_t shaderIndex;
+    INSERT_PADDING(0x18);
+};
+
+FUNCTION_PTR(void, __cdecl, SceneTraversed_ScreenDefault, ASLR(0xC48F70), void* sceneRenderInfo, const ScreenRenderParam* screenRenderParam);
+
+void __cdecl SceneTraversed_ScreenGammaCorrection(void* sceneRenderInfo, const ScreenRenderParam* screenRenderParam, bool drc)
+{
+    float gamma = 1.25f;
+
+    if (const auto sceneParameters = app::xgame::SceneParameters::GetInstance())
+    {
+        if (const auto sceneData = sceneParameters->GetSceneData())
+            gamma = 1.0f / (drc ? sceneData->config.gammaDRCWiiU : sceneData->config.gammaTVWiiU);
+    }
+
+    const float gammaConstData[] = 
+    {
+        gamma,
+        gamma,
+        gamma,
+        1.0f
+    };
+
+    app::ApplicationWin::GetInstance()->GetDirect3DDevice()->SetPixelShaderConstantF(150, gammaConstData, 1);
+
+    SceneTraversed_ScreenDefault(sceneRenderInfo, screenRenderParam);
+}
+
+void __cdecl SceneTraversed_ScreenGammaCorrectionTV(void* sceneRenderInfo, const ScreenRenderParam* screenRenderParam)
+{
+    SceneTraversed_ScreenGammaCorrection(sceneRenderInfo, screenRenderParam, false);
+}
+
+void __cdecl SceneTraversed_ScreenGammaCorrectionDRC(void* sceneRenderInfo, const ScreenRenderParam* screenRenderParam)
+{
+    SceneTraversed_ScreenGammaCorrection(sceneRenderInfo, screenRenderParam, true);
+}
+
+ScreenRenderParam gammaCorrectionScreenRenderParamTV =
+{
+    "gamma correction tv",
+    (void*)&SceneTraversed_ScreenGammaCorrectionTV,
+    0, // set in Init
+    {}
+};
+
+DrawInstanceParam gammaCorrectionDrawInstanceParamTV =
+{
+    0,
+    "ScreenScreenStateFlags::Copy",
+    0,
+    (void*)ASLR(0xC58F50),
+    &gammaCorrectionScreenRenderParamTV,
+    0,
+
+    0,
+    0x0B,
+    0,
+    0x0C,
+
+    0x00,
+    0x00,
+    0x00,
+    0x0B,
+
+    0,
+    0x8000000,
+    0x101,
+    0,
+    0,
+    0
+};
+
+ScreenRenderParam gammaCorrectionScreenRenderParamDRC =
+{
+    "gamma correction drc",
+    (void*)&SceneTraversed_ScreenGammaCorrectionDRC,
+    0, // set in Init
+    {}
+};
+
+DrawInstanceParam gammaCorrectionDrawInstanceParamDRC =
+{
+    0,
+    "ScreenScreenStateFlags::Copy",
+    0,
+    (void*)ASLR(0xC58F50),
+    &gammaCorrectionScreenRenderParamDRC,
+    0,
+
+    0,
+    0x04,
+    0,
+    0x04,
+
+    0x00,
+    0x00,
+    0x00,
+    0x04,
+
+    0,
+    0x8000000,
+    0x101,
+    0,
+    0,
+    0
+};
+
+void injectDrawInstanceParam(DrawInstanceParam* drawInstanceParam, bool drc)
+{
+    DrawInstanceParam* newDrawInstanceParams = (DrawInstanceParam*)operator new(sizeof(DrawInstanceParam) * (drawInstanceParam->childParamCount + 1));
+    memcpy(newDrawInstanceParams, drawInstanceParam->childParams, sizeof(DrawInstanceParam) * drawInstanceParam->childParamCount);
+    memcpy(&newDrawInstanceParams[drawInstanceParam->childParamCount], drc ? &gammaCorrectionDrawInstanceParamDRC : &gammaCorrectionDrawInstanceParamTV, sizeof(DrawInstanceParam));
+
+    WRITE_MEMORY(&drawInstanceParam->childParams, DrawInstanceParam*, newDrawInstanceParams);
+    WRITE_MEMORY(&drawInstanceParam->childParamCount, size_t, drawInstanceParam->childParamCount + 1);
+}
+
+FUNCTION_PTR(void, __thiscall, fileLoaderLoadFile, ASLR(0x490C80),
+    app::fnd::FileLoader* This, csl::fnd::com_ptr<app::fnd::FileHandleObj>& result, const char* pName, const char* a3, const app::fnd::FileLoaderParam& params);
+
+FUNCTION_PTR(void, __thiscall, packFileSetup, ASLR(0xC19560),
+    hh::ut::PackFile* This, csl::fnd::IAllocator* allocator, void* renderingInfrastructure);
+
+void* __fastcall getResourceImpl(hh::ut::PackFile* This, void* Edx, const hh::ut::ResourceTypeInfo& info, const char* name, uint* A3)
+{
+    void* result = This->GetResource(info, name, A3);
+    if (result)
+        return result;
+
+#if 1
+    static csl::fnd::com_ptr<app::fnd::FileHandleObj> fileHandleObj;
+
+    if (!fileHandleObj)
+    {
+        fileLoaderLoadFile(csl::fnd::Singleton<app::fnd::FileLoader>::GetInstance(), fileHandleObj, "FxGammaCorrection.pac", nullptr, app::fnd::FileLoaderParam());
+        csl::fnd::Singleton<app::fnd::FileLoader>::GetInstance()->WaitSyncAll();
+    }
+
+    return hh::ut::PackFile(fileHandleObj->m_pBuffer).GetResource(info, name, A3);
+#else
+    hh::ut::PackFile packFile(fxGammaCorrectionPacData);
+
+    static bool initialized;
+    if (!initialized)
+    {
+        void* renderingInfrastructure = *(void**)(*(char**)(*(char**)ASLR(0xFD3CC4) + 12) + 180);
+        packFileSetup(&packFile, app::fnd::GetTempAllocator(), renderingInfrastructure);
+
+        initialized = true;
+    }
+
+    return packFile.GetResource(info, name, A3);
+#endif
+}
+
+extern "C" void __declspec(dllexport) Init()
+{
+    //
+    // Inject FxGammaCorrection
+    //
+#if 0 // Broken
+    size_t* const byteSize = (size_t*)ASLR(0xC506A4);
+    WRITE_MEMORY(byteSize, size_t, 0x10 + ((*byteSize) + 0xF) & ~0xF);
+
+    ShaderInfo** const shaderInfos = (ShaderInfo**)ASLR(0xC56863);
+    size_t* const shaderInfoCount = (size_t*)ASLR(0xC56868);
+    
+    ShaderInfo* newShaderInfos = (ShaderInfo*)operator new(sizeof(ShaderInfo) * (*shaderInfoCount + 1));
+    memcpy(newShaderInfos, (char*)*shaderInfos - 4, sizeof(ShaderInfo) * (*shaderInfoCount));
+
+    ShaderInfo& newShaderInfo = newShaderInfos[*shaderInfoCount];
+    newShaderInfo.index = ((*byteSize) / 0x10) - 1;
+    newShaderInfo.vertexShaderName = "FxFilterT";
+    newShaderInfo.pixelShaderName = "FxGammaCorrection";
+
+    WRITE_MEMORY(shaderInfos, char*, (char*)newShaderInfos + 4);
+    WRITE_MEMORY(shaderInfoCount, size_t, *shaderInfoCount + 1);
+#else // Sacrifice FxFXAA_5
+    WRITE_MEMORY(ASLR(0xEB8028), char*, "FxFilterT");
+    WRITE_MEMORY(ASLR(0xEB802C), char*, "FxGammaCorrection");
+#endif
+
+    //
+    // Inject DrawInstanceParam
+    //
+#if 0 // Broken
+    gammaCorrectionScreenRenderParamTV.shaderIndex = newShaderInfo.index;
+    gammaCorrectionScreenRenderParamDRC.shaderIndex = newShaderInfo.index;
+#else
+    gammaCorrectionScreenRenderParamTV.shaderIndex = 0x52;
+    gammaCorrectionScreenRenderParamDRC.shaderIndex = 0x52;
+#endif
+
+    injectDrawInstanceParam((DrawInstanceParam*)ASLR(0xEBF158), false);
+
+    WRITE_CALL(ASLR(0xC2BF99), getResourceImpl);
+    WRITE_CALL(ASLR(0xC2C269), getResourceImpl);
+}

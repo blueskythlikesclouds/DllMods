@@ -1,3 +1,6 @@
 [submodule "Include/BlueBlur"]
 	path = Include/BlueBlur
 	url = https://github.com/blueskythlikesclouds/BlueBlur.git
+[submodule "Include/LWAPI"]
+	path = Include/LWAPI
+	url = https://github.com/Sajidur78/LWAPI
