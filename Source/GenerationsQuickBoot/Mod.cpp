@@ -50,11 +50,8 @@ HOOK(void, __fastcall, CGameplayFlowStageSetStageInfo, 0xCFF6A0, void* This)
 {
     originalCGameplayFlowStageSetStageInfo(This);
 
-    if (!stageTerrain.empty())
-    {
-        uint32_t stageTerrainAddress = GetMultiLevelAddress(0x1E66B34, { 0x4, 0x1B4, 0x80, 0x20 });
-        strcpy(*(char**)stageTerrainAddress, stageTerrain.c_str());
-    }
+    uint32_t stageTerrainAddress = GetMultiLevelAddress(0x1E66B34, { 0x4, 0x1B4, 0x80, 0x20 });
+    strcpy(*(char**)stageTerrainAddress, stageTerrain.c_str());
 }
 
 std::string stageName = "";
@@ -171,7 +168,10 @@ extern "C" __declspec(dllexport) void Init()
     stageTerrain = reader.Get("QuickBoot", "StageTerrain", "");
 
     WRITE_JUMP(0xD56CCA, SetCorrectTerrainForMission_ASM);
-    INSTALL_HOOK(CGameplayFlowStageSetStageInfo);
+    if (!stageTerrain.empty())
+    {
+        INSTALL_HOOK(CGameplayFlowStageSetStageInfo);
+    }
 
     const size_t declarationsLength = sprintf(luaData,
         "global(\"StageName\", \"%s\");\n"
