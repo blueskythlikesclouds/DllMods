@@ -44,44 +44,51 @@ uint32_t GetMultiLevelAddress(uint32_t initAddress, std::vector<uint32_t> offset
     return address;
 }
 
+
+std::string stageTerrain = "";
+HOOK(void, __fastcall, CGameplayFlowStageSetStageInfo, 0xCFF6A0, void* This)
+{
+    originalCGameplayFlowStageSetStageInfo(This);
+
+    if (!stageTerrain.empty())
+    {
+        uint32_t stageTerrainAddress = GetMultiLevelAddress(0x1E66B34, { 0x4, 0x1B4, 0x80, 0x20 });
+        strcpy(*(char**)stageTerrainAddress, stageTerrain.c_str());
+    }
+}
+
 std::string stageName = "";
 int stageMission = 0;
-std::string stageTerrain = "";
-
-void SetCorrectTerrain()
+void SetCorrectTerrainForMission()
 {
-    std::string terrainToLoad = stageTerrain;
-    if (terrainToLoad.empty())
+    std::string terrainToLoad = stageName;
+    if ((stageName == "ghz100" && stageMission == 3) // 300
+    || (stageName == "ghz100" && stageMission == 4) // 400
+    || (stageName == "ssz100" && stageMission == 3) // 304
+    || (stageName == "sph100" && stageMission == 1) // 106
+    || (stageName == "cte100" && stageMission == 2) // 208
+    || (stageName == "ssh100" && stageMission == 1) // 10A
+    || (stageName == "ssh200" && stageMission == 1) // 10B
+    || (stageName == "euc200" && stageMission == 4) // 40F
+    || (stageName == "pla200" && stageMission == 4) // 411
+    || (stageName == "pla200" && stageMission == 5)) // 511
     {
-        terrainToLoad = stageName;
-        if ((stageName == "ghz100" && stageMission == 3) // 300
-        || (stageName == "ghz100" && stageMission == 4) // 400
-        || (stageName == "ssz100" && stageMission == 3) // 304
-        || (stageName == "sph100" && stageMission == 1) // 106
-        || (stageName == "cte100" && stageMission == 2) // 208
-        || (stageName == "ssh100" && stageMission == 1) // 10A
-        || (stageName == "ssh200" && stageMission == 1) // 10B
-        || (stageName == "euc200" && stageMission == 4) // 40F
-        || (stageName == "pla200" && stageMission == 4) // 411
-        || (stageName == "pla200" && stageMission == 5)) // 511
-        {
-            terrainToLoad = stageName.substr(0, 5) + std::to_string(stageMission);
-        }
-        else if (stageName == "cte100" && stageMission == 5) // 508
-        {
-            terrainToLoad = "cte102";
-        }
-        else if (stageName == "euc200" && stageMission == 5) // 50F
-        {
-            terrainToLoad = "euc204";
-        }
+        terrainToLoad = stageName.substr(0, 5) + std::to_string(stageMission);
+    }
+    else if (stageName == "cte100" && stageMission == 5) // 508
+    {
+        terrainToLoad = "cte102";
+    }
+    else if (stageName == "euc200" && stageMission == 5) // 50F
+    {
+        terrainToLoad = "euc204";
     }
 
     uint32_t stageTerrainAddress = GetMultiLevelAddress(0x1E66B34, { 0x4, 0x1B4, 0x80, 0x20 });
     strcpy(*(char**)stageTerrainAddress, terrainToLoad.c_str());
 }
 
-void __declspec(naked) SetCorrectTerrain_ASM()
+void __declspec(naked) SetCorrectTerrainForMission_ASM()
 {
     static uint32_t sub_662010 = 0x662010;
     static uint32_t returnAddress = 0xD56CCF;
@@ -89,7 +96,7 @@ void __declspec(naked) SetCorrectTerrain_ASM()
     {
         call    [sub_662010]
         push    esi
-        call    SetCorrectTerrain
+        call    SetCorrectTerrainForMission
         pop     esi
         jmp     [returnAddress]
     }
@@ -162,7 +169,9 @@ extern "C" __declspec(dllexport) void Init()
     }
     stageMission = reader.GetInteger("QuickBoot", "StageMission", 0);
     stageTerrain = reader.Get("QuickBoot", "StageTerrain", "");
-    WRITE_JUMP(0xD56CCA, SetCorrectTerrain_ASM);
+
+    WRITE_JUMP(0xD56CCA, SetCorrectTerrainForMission_ASM);
+    INSTALL_HOOK(CGameplayFlowStageSetStageInfo);
 
     const size_t declarationsLength = sprintf(luaData,
         "global(\"StageName\", \"%s\");\n"
