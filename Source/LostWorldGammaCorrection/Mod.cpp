@@ -114,6 +114,7 @@ DrawInstanceParam gammaCorrectionDrawInstanceParamTV =
     0
 };
 
+#if 0
 ScreenRenderParam gammaCorrectionScreenRenderParamDRC =
 {
     "gamma correction drc",
@@ -148,12 +149,18 @@ DrawInstanceParam gammaCorrectionDrawInstanceParamDRC =
     0,
     0
 };
+#endif
 
 void injectDrawInstanceParam(DrawInstanceParam* drawInstanceParam, bool drc)
 {
     DrawInstanceParam* newDrawInstanceParams = (DrawInstanceParam*)operator new(sizeof(DrawInstanceParam) * (drawInstanceParam->childParamCount + 1));
     memcpy(newDrawInstanceParams, drawInstanceParam->childParams, sizeof(DrawInstanceParam) * drawInstanceParam->childParamCount);
+
+#if 0
     memcpy(&newDrawInstanceParams[drawInstanceParam->childParamCount], drc ? &gammaCorrectionDrawInstanceParamDRC : &gammaCorrectionDrawInstanceParamTV, sizeof(DrawInstanceParam));
+#else
+    memcpy(&newDrawInstanceParams[drawInstanceParam->childParamCount], &gammaCorrectionDrawInstanceParamTV, sizeof(DrawInstanceParam));
+#endif
 
     WRITE_MEMORY(&drawInstanceParam->childParams, DrawInstanceParam*, newDrawInstanceParams);
     WRITE_MEMORY(&drawInstanceParam->childParamCount, size_t, drawInstanceParam->childParamCount + 1);
@@ -199,6 +206,10 @@ void* __fastcall getResourceImpl(hh::ut::PackFile* This, void* Edx, const hh::ut
 
 extern "C" void __declspec(dllexport) Init()
 {
+    // Check if patches were applied already (safety measure for mods that include this DLL)
+    if (strcmp(*(char**)ASLR(0xEB802C), "FxGammaCorrection") == 0)
+        return;
+
     //
     // Inject FxGammaCorrection
     //
@@ -229,10 +240,14 @@ extern "C" void __declspec(dllexport) Init()
     //
 #if 0 // Broken
     gammaCorrectionScreenRenderParamTV.shaderIndex = newShaderInfo.index;
+#if 0
     gammaCorrectionScreenRenderParamDRC.shaderIndex = newShaderInfo.index;
+#endif
 #else
     gammaCorrectionScreenRenderParamTV.shaderIndex = 0x52;
+#if 0
     gammaCorrectionScreenRenderParamDRC.shaderIndex = 0x52;
+#endif
 #endif
 
     injectDrawInstanceParam((DrawInstanceParam*)ASLR(0xEBF158), false);
