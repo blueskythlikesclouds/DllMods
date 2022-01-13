@@ -44,6 +44,51 @@ uint32_t GetMultiLevelAddress(uint32_t initAddress, std::vector<uint32_t> offset
     return address;
 }
 
+std::string stageName = "";
+int stageMission = 0;
+void SetCorrectTerrainForMission()
+{
+    std::string terrainToLoad = stageName;
+    if ((stageName == "ghz100" && stageMission == 3) // 300
+    || (stageName == "ghz100" && stageMission == 4) // 400
+    || (stageName == "ssz100" && stageMission == 3) // 304
+    || (stageName == "sph100" && stageMission == 1) // 106
+    || (stageName == "cte100" && stageMission == 2) // 208
+    || (stageName == "ssh100" && stageMission == 1) // 10A
+    || (stageName == "ssh200" && stageMission == 1) // 10B
+    || (stageName == "euc200" && stageMission == 4) // 40F
+    || (stageName == "pla200" && stageMission == 4) // 411
+    || (stageName == "pla200" && stageMission == 5)) // 511
+    {
+        terrainToLoad = stageName.substr(0, 5) + std::to_string(stageMission);
+    }
+    else if (stageName == "cte100" && stageMission == 5) // 508
+    {
+        terrainToLoad = "cte102";
+    }
+    else if (stageName == "euc200" && stageMission == 5) // 50F
+    {
+        terrainToLoad = "euc204";
+    }
+
+    uint32_t stageTerrainAddress = GetMultiLevelAddress(0x1E66B34, { 0x4, 0x1B4, 0x80, 0x20 });
+    strcpy(*(char**)stageTerrainAddress, terrainToLoad.c_str());
+}
+
+void __declspec(naked) SetCorrectTerrainForMission_ASM()
+{
+    static uint32_t sub_662010 = 0x662010;
+    static uint32_t returnAddress = 0xD56CCF;
+    __asm
+    {
+        call    [sub_662010]
+        push    esi
+        call    SetCorrectTerrainForMission
+        pop     esi
+        jmp     [returnAddress]
+    }
+}
+
 enum LanguageType
 {
     English = 0,
@@ -75,7 +120,6 @@ extern "C" __declspec(dllexport) void Init()
     wchar_t** ppArgs = CommandLineToArgvW(GetCommandLineW(), &argc);
 
     int playerClass{ -1 };
-    std::string levelName;
 	
 	for (int i = 0; i < argc; i++)
 	{
@@ -87,7 +131,7 @@ extern "C" __declspec(dllexport) void Init()
                 break;
 
             std::wstring arg = ppArgs[nextArg];
-            levelName = std::string(arg.begin(), arg.end());
+            stageName = std::string(arg.begin(), arg.end());
 		}
         if (!wcscmp(pArg, L"--quickboot_player"))
         {
@@ -103,6 +147,16 @@ extern "C" __declspec(dllexport) void Init()
 	
     luaData = (char*)malloc(1024 + MainSequenceModSize);
 
+    // Read stage data from config
+    int g_IsQuickBoot = 3;
+    if (stageName.empty())
+    {
+        stageName = reader.Get("QuickBoot", "StageName", "ghz200");
+        g_IsQuickBoot = reader.GetInteger("QuickBoot", "g_IsQuickBoot", 0);
+    }
+    stageMission = reader.GetInteger("QuickBoot", "StageMission", 0);
+    WRITE_JUMP(0xD56CCA, SetCorrectTerrainForMission_ASM);
+
     const size_t declarationsLength = sprintf(luaData,
         "global(\"StageName\", \"%s\");\n"
         "global(\"StageMission\", %d);\n"
@@ -114,12 +168,12 @@ extern "C" __declspec(dllexport) void Init()
         "global(\"ExitType\", %d);\n"
         "global(\"ExitTypeOnGoalReach\", %d);\n",
 
-        levelName.empty() ? reader.Get("QuickBoot", "StageName", "ghz200").c_str() : levelName.c_str(),
-        reader.GetInteger("QuickBoot", "StageMission", 0),
+        stageName.c_str(),
+        stageMission,
         playerClass == -1 ? reader.GetInteger("QuickBoot", "PlayerClass", 0) : playerClass,
         reader.GetBoolean("QuickBoot", "ForcePlayerClassOnRestart", false),
         reader.GetBoolean("QuickBoot", "ForcePlayerClassOnGoalReach", false),
-        levelName.empty() ? reader.GetInteger("QuickBoot", "g_IsQuickBoot", 0) : 3,
+        g_IsQuickBoot,
         reader.GetInteger("QuickBoot", "ExitType", 0),
         reader.GetInteger("QuickBoot", "ExitTypeOnGoalReach", 0)
     );
