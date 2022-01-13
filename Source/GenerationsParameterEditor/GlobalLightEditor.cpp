@@ -46,12 +46,7 @@ void GlobalLightEditor::update()
     if (!visible)
         return;
 
-    Sonic::CGameDocument* pGameDocument = *Sonic::CGameDocument::ms_pInstance;
-
-    if (pGameDocument == nullptr || pGameDocument->m_pMember == nullptr)
-        return;
-
-    const boost::shared_ptr<Sonic::CLightManager> spLightManager = pGameDocument->m_pMember->m_spLightManager;
+    const boost::shared_ptr<Sonic::CLightManager> spLightManager = Sonic::CGameDocument::GetInstance()->m_pMember->m_spLightManager;
 
     if (spLightManager == nullptr || spLightManager->m_pStaticLightContext == nullptr)
         return;

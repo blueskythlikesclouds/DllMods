@@ -37,9 +37,9 @@ void ProcMsgHitReactionPlate(Sonic::Player::CPlayerSpeed* This, const Sonic::Mes
 
     if (message.m_Type != 0) // 0 == Begin
     {
-        if (message.m_Type != 5 && This->m_StateMachine.GetCurrentState()->GetName() == "ReactionJump") // 5 == End
+        if (message.m_Type != 5 && This->m_StateMachine.GetCurrentState()->GetStateName() == "ReactionJump") // 5 == End
         {
-            const auto pState = This->GetContext()->SetState<Sonic::Player::CPlayerSpeedStateReactionLand>();
+            const auto pState = This->GetContext()->ChangeState<Sonic::Player::CPlayerSpeedStateReactionLand>();
             pState->m_TargetActorID = message.m_TargetActorID;
             pState->m_JumpMinVelocity = minVelocity;
             pState->m_JumpMaxVelocity = maxVelocity;
@@ -51,7 +51,7 @@ void ProcMsgHitReactionPlate(Sonic::Player::CPlayerSpeed* This, const Sonic::Mes
             const auto targetDirection = (targetPosition - message.m_Position).normalized();
             const bool facesLeft = rightDirection.dot(targetDirection) < 0;
 
-            This->GetContext()->SetAnimation(facesLeft ? "ReactionLandL" : "ReactionLandR");
+            This->GetContext()->ChangeAnimation(facesLeft ? "ReactionLandL" : "ReactionLandR");
             pState->m_AnimationType = facesLeft ?
                 Sonic::Player::CPlayerSpeedStateReactionLand::eAnimationType_ReactionJumpL :
                 Sonic::Player::CPlayerSpeedStateReactionLand::eAnimationType_ReactionJumpR;
@@ -73,7 +73,7 @@ void ProcMsgHitReactionPlate(Sonic::Player::CPlayerSpeed* This, const Sonic::Mes
             This->GetContext()->m_spMatrixNode->NotifyChanged();
         }
     }
-    else if (This->m_StateMachine.GetCurrentState()->GetName() != "ReactionLand")
+    else if (This->m_StateMachine.GetCurrentState()->GetStateName() != "ReactionLand")
     {
         fE5CD90(
             message.m_TargetActorID,
@@ -106,7 +106,7 @@ void reactionJumpPlaySfx()
 
 void reactionJumpSetAnim()
 {
-    Sonic::Player::CPlayerSpeedContext::GetInstance()->SetAnimation("ReactionJumpU");
+    Sonic::Player::CPlayerSpeedContext::GetInstance()->ChangeAnimation("ReactionJumpU");
 }
 
 void __declspec(naked) reactionJumpPlaySfxTrampoline()
@@ -136,6 +136,17 @@ void __declspec(naked) reactionJumpSetAnimTrampoline()
         retn
     }
 }
+
+#if 0
+extern "C" void __declspec(dllexport) OnFrame()
+{
+    auto const pContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
+    if (!pContext) return;
+
+    pContext->m_spModelMatrixNode->m_Matrix = Eigen::Translation3f({ 0, 10, 0 });
+    pContext->m_spModelMatrixNode->NotifyChanged();
+}
+#endif
 
 extern "C" void __declspec(dllexport) Init()
 {

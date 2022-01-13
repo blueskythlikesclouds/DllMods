@@ -83,7 +83,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;..\..\Include\BlueBlur\Hedgehog\Math\detail;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
