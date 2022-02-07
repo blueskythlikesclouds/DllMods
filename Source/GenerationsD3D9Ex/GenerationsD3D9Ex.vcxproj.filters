@@ -56,6 +56,9 @@
     <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader9.cpp">
       <Filter>Dependencies\DDSTextureLoader</Filter>
     </ClCompile>
+    <ClCompile Include="MemoryHandler.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -110,6 +113,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader9.h">
       <Filter>Dependencies\DDSTextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryHandler.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

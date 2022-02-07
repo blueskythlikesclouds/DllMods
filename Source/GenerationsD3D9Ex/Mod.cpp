@@ -2,9 +2,12 @@
 #include "D3D9ExHandler.h"
 #include "LostCodeLoader.h"
 #include "DDSHandler.h"
+#include "MemoryHandler.h"
 
 extern "C" __declspec(dllexport) void Init(ModInfo* info)
 {
+    MemoryHandler::applyPatches();
+
     std::string dir = info->CurrentMod->Path;
 
     size_t pos = dir.find_last_of("\\/");

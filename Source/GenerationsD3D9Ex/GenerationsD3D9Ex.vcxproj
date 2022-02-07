@@ -118,6 +118,7 @@
     <ClCompile Include="D3D9ExVertexShader.cpp" />
     <ClCompile Include="D3D9ExVolumeTexture.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="MemoryHandler.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -145,6 +146,7 @@
     <ClInclude Include="D3D9ExVertexDeclaration.h" />
     <ClInclude Include="D3D9ExVertexShader.h" />
     <ClInclude Include="D3D9ExVolumeTexture.h" />
+    <ClInclude Include="MemoryHandler.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="DDSHandler.h" />
   </ItemGroup>
