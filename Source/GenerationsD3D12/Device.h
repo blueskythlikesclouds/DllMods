@@ -17,10 +17,25 @@ class RenderTargetSurface;
 class Device : public Unknown
 {
     ComPtr<ID3D12Device> d3d12Device;
+    ComPtr<ID3D12CommandQueue> d3d12CommandQueue;
+    ComPtr<ID3D12CommandAllocator> d3d12CommandAllocator;
+    ComPtr<ID3D12GraphicsCommandList> d3d12CommandList;
+    ComPtr<ID3D12Fence> d3d12Fence;
+    HANDLE d3d12FenceEvent;
+    UINT64 d3d12FenceValue;
+
+    ComPtr<IDXGISwapChain1> dxgiSwapChain;
+
+    D3DVIEWPORT9 d3d9Viewport;
 
 public:
     explicit Device(D3DPRESENT_PARAMETERS* presentationParameters);
     ~Device() = default;
+
+    ID3D12Device* GetD3D12Device() const
+    {
+        return d3d12Device.Get();
+    }
 
     virtual HRESULT TestCooperativeLevel();
     virtual UINT GetAvailableTextureMem();
@@ -138,9 +153,4 @@ public:
     virtual HRESULT DrawTriPatch(UINT Handle, const float* pNumSegs, const D3DTRIPATCH_INFO* pTriPatchInfo);
     virtual HRESULT DeletePatch(UINT Handle);
     virtual HRESULT CreateQuery(D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery);
-
-    ID3D12Device* GetD3D12Device() const
-    {
-        return d3d12Device.Get();
-    }
 };

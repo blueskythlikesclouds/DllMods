@@ -1,6 +1,6 @@
-﻿#include "ConversionHelper.h"
+﻿#include "ConversionUtilities.h"
 
-DXGI_FORMAT ConversionHelper::convert(D3DFORMAT format)
+DXGI_FORMAT ConversionUtilities::convert(D3DFORMAT format)
 {
     switch (format)
     {
@@ -56,7 +56,7 @@ DXGI_FORMAT ConversionHelper::convert(D3DFORMAT format)
     return DXGI_FORMAT_UNKNOWN;
 }
 
-DXGI_FORMAT ConversionHelper::makeTypeless(DXGI_FORMAT format)
+DXGI_FORMAT ConversionUtilities::makeTypeless(DXGI_FORMAT format)
 {
     switch (format)
     {
@@ -88,7 +88,7 @@ DXGI_FORMAT ConversionHelper::makeTypeless(DXGI_FORMAT format)
     }
 }
 
-DXGI_FORMAT ConversionHelper::makeUntypeless(DXGI_FORMAT format, bool srgb)
+DXGI_FORMAT ConversionUtilities::makeUntypeless(DXGI_FORMAT format, bool srgb)
 {
     switch (format)
     {
@@ -102,7 +102,7 @@ DXGI_FORMAT ConversionHelper::makeUntypeless(DXGI_FORMAT format, bool srgb)
     }
 }
 
-DXGI_FORMAT ConversionHelper::getDeclType(D3DDECLTYPE type)
+DXGI_FORMAT ConversionUtilities::getDeclType(D3DDECLTYPE type)
 {
     switch (type)
     {
@@ -128,7 +128,7 @@ DXGI_FORMAT ConversionHelper::getDeclType(D3DDECLTYPE type)
     }
 }
 
-const char* ConversionHelper::getDeclUsageName(D3DDECLUSAGE usage)
+const char* ConversionUtilities::getDeclUsageName(D3DDECLUSAGE usage)
 {
     switch (usage)
     {

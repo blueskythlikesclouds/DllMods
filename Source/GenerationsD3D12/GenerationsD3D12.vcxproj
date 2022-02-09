@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d9.lib;d3d12.lib;detours.lib;syelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;d3d12.lib;dxgi.lib;detours.lib;syelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Dependencies\Detours\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -92,7 +92,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d9.lib;d3d12.lib;detours.lib;syelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;d3d12.lib;dxgi.lib;detours.lib;syelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Dependencies\Detours\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -103,6 +103,7 @@
     <ClCompile Include="Direct3D9.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="PixelShader.cpp" />
+    <ClCompile Include="RenderTargetTexture.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -110,7 +111,7 @@
     <ClCompile Include="VertexDeclaration.cpp" />
     <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="DllMain.cpp" />
-    <ClCompile Include="ConversionHelper.cpp" />
+    <ClCompile Include="ConversionUtilities.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -127,13 +128,14 @@
     <ClInclude Include="Direct3D9.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="PixelShader.h" />
+    <ClInclude Include="RenderTargetTexture.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDeclaration.h" />
     <ClInclude Include="VertexShader.h" />
-    <ClInclude Include="ConversionHelper.h" />
+    <ClInclude Include="ConversionUtilities.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Unknown.h" />
   </ItemGroup>

@@ -40,11 +40,14 @@
     <ClCompile Include="Direct3D9.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="ConversionHelper.cpp">
+    <ClCompile Include="ConversionUtilities.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.cpp">
       <Filter>Dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTargetTexture.cpp">
+      <Filter>Base\Textures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -85,11 +88,14 @@
     <ClInclude Include="Direct3D9.h">
       <Filter>Base</Filter>
     </ClInclude>
-    <ClInclude Include="ConversionHelper.h">
+    <ClInclude Include="ConversionUtilities.h">
       <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h">
       <Filter>Dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTargetTexture.h">
+      <Filter>Base\Textures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

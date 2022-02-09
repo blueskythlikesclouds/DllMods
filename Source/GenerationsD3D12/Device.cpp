@@ -2,12 +2,64 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Surface.h"
-#include "ConversionHelper.h"
+#include "ConversionUtilities.h"
+#include "RenderTargetTexture.h"
 #include "VertexDeclaration.h"
+#include "Texture.h"
+#include "VertexBuffer.h"
 
 Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
 {
-    D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void**)d3d12Device.GetAddressOf());
+#if _DEBUG
+    ComPtr<ID3D12Debug> debugInterface;
+    D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface));
+    debugInterface->EnableDebugLayer();
+
+    SetWindowLongPtr(presentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | WS_OVERLAPPEDWINDOW);
+    SetWindowPos(presentationParameters->hDeviceWindow, HWND_TOP, (1920 - 1600) / 2, (1080 - 900) / 2, 1600, 900, SWP_FRAMECHANGED);
+#endif
+
+    // Create device
+    D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&d3d12Device));
+
+    // Create command queue
+    D3D12_COMMAND_QUEUE_DESC d3d12CommandQueueDesc;
+    d3d12CommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    d3d12CommandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+    d3d12CommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    d3d12CommandQueueDesc.NodeMask = 0;
+    d3d12Device->CreateCommandQueue(&d3d12CommandQueueDesc, IID_PPV_ARGS(&d3d12CommandQueue));
+
+    // Create command allocator
+    d3d12Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&d3d12CommandAllocator));
+
+    // Create graphics command list
+    d3d12Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, d3d12CommandAllocator.Get(), nullptr, IID_PPV_ARGS(&d3d12CommandList));
+
+    // Create fence
+    d3d12Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&d3d12Fence));
+    d3d12FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+
+    // Create DXGI factory
+    ComPtr<IDXGIFactory4> dxgiFactory;
+    CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
+
+    // Create swap chain
+    DXGI_SWAP_CHAIN_DESC1 d3d12SwapChainDesc;
+    d3d12SwapChainDesc.Width = presentationParameters->BackBufferWidth;
+    d3d12SwapChainDesc.Height = presentationParameters->BackBufferHeight;
+    d3d12SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    d3d12SwapChainDesc.Stereo = FALSE;
+    d3d12SwapChainDesc.SampleDesc.Count = 1;
+    d3d12SwapChainDesc.SampleDesc.Quality = 0;
+    d3d12SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    d3d12SwapChainDesc.BufferCount = 2;
+    d3d12SwapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+    d3d12SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    d3d12SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+    d3d12SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    dxgiFactory->CreateSwapChainForHwnd(d3d12CommandQueue.Get(), presentationParameters->hDeviceWindow, &d3d12SwapChainDesc, nullptr, nullptr, &dxgiSwapChain);
+
 }
 
 FUNCTION_STUB(HRESULT, Device::TestCooperativeLevel)
@@ -40,12 +92,18 @@ FUNCTION_STUB(HRESULT, Device::Reset, D3DPRESENT_PARAMETERS* pPresentationParame
 
 HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
-    return S_OK;
+    return dxgiSwapChain->Present(1, 0);
 }
 
 HRESULT Device::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, Surface** ppBackBuffer)
 {
+    ComPtr<ID3D12Resource> d3d12BackBuffer;
 
+    const HRESULT hr = dxgiSwapChain->GetBuffer(iBackBuffer, IID_PPV_ARGS(&d3d12BackBuffer));
+    if (FAILED(hr))
+        return hr;
+
+    *ppBackBuffer = new Surface(this, d3d12BackBuffer);
     return S_OK;
 }
     
@@ -59,7 +117,28 @@ FUNCTION_STUB(void, Device::GetGammaRamp, UINT iSwapChain, D3DGAMMARAMP* pRamp)
 
 HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, Texture** ppTexture, HANDLE* pSharedHandle)
 {
-   
+    ComPtr<ID3D12Resource> d3d12Texture;
+
+    const CD3DX12_HEAP_PROPERTIES d3d12HeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+    const CD3DX12_RESOURCE_DESC d3d12ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(ConversionUtilities::convert(Format), Width, Height, 1, Levels);
+
+    const HRESULT hr = d3d12Device->CreateCommittedResource(&d3d12HeapProperties, D3D12_HEAP_FLAG_NONE,
+                                                            &d3d12ResourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr,
+                                                            IID_PPV_ARGS(&d3d12Texture));
+    if (FAILED(hr))
+        return hr;
+
+    if (Usage & D3DUSAGE_RENDERTARGET)
+    {
+    }
+    else if (Usage & D3DUSAGE_DEPTHSTENCIL)
+    {
+    }
+    else
+    {
+        *ppTexture = new Texture(this, d3d12Texture);
+    }
+
     return S_OK;
 }
 
@@ -69,13 +148,11 @@ FUNCTION_STUB(HRESULT, Device::CreateCubeTexture, UINT EdgeLength, UINT Levels, 
 
 HRESULT Device::CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, VertexBuffer** ppVertexBuffer, HANDLE* pSharedHandle)
 {
-
     return S_OK;
 }
 
 HRESULT Device::CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IndexBuffer** ppIndexBuffer, HANDLE* pSharedHandle)
 {
-
     return S_OK;
 }
 
@@ -91,7 +168,10 @@ FUNCTION_STUB(HRESULT, Device::GetRenderTargetData, Surface* pRenderTarget, Surf
 
 FUNCTION_STUB(HRESULT, Device::GetFrontBufferData, UINT iSwapChain, Surface* pDestSurface)
 
-FUNCTION_STUB(HRESULT, Device::StretchRect, Surface* pSourceSurface, CONST RECT* pSourceRect, Surface* pDestSurface, CONST RECT* pDestRect, D3DTEXTUREFILTERTYPE Filter)
+HRESULT Device::StretchRect(Surface* pSourceSurface, CONST RECT* pSourceRect, Surface* pDestSurface, CONST RECT* pDestRect, D3DTEXTUREFILTERTYPE Filter)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::ColorFill, Surface* pSurface, CONST RECT* pRect, D3DCOLOR color)
 
@@ -111,7 +191,7 @@ HRESULT Device::GetRenderTarget(DWORD RenderTargetIndex, Surface** ppRenderTarge
 
 HRESULT Device::SetDepthStencilSurface(Surface* pNewZStencil)
 {
-
+    
     return S_OK;
 }
 
@@ -121,9 +201,15 @@ HRESULT Device::GetDepthStencilSurface(Surface** ppZStencilSurface)
     return S_OK;
 }
 
-FUNCTION_STUB(HRESULT, Device::BeginScene)
+HRESULT Device::BeginScene()
+{
+    return S_OK;
+}
 
-FUNCTION_STUB(HRESULT, Device::EndScene)
+HRESULT Device::EndScene()
+{
+    return S_OK;
+}
 
 HRESULT Device::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil)
 {
@@ -136,11 +222,27 @@ FUNCTION_STUB(HRESULT, Device::GetTransform, D3DTRANSFORMSTATETYPE State, D3DMAT
 
 FUNCTION_STUB(HRESULT, Device::MultiplyTransform, D3DTRANSFORMSTATETYPE, CONST D3DMATRIX*)
 
-FUNCTION_STUB(HRESULT, Device::SetViewport, CONST D3DVIEWPORT9* pViewport)
+HRESULT Device::SetViewport(CONST D3DVIEWPORT9* pViewport)
+{
+    d3d9Viewport = *pViewport;
+
+    // Create D3D12_VIEWPORT from D3DVIEWPORT9
+    D3D12_VIEWPORT d3d12Viewport;
+    d3d12Viewport.TopLeftX = (float)pViewport->X;
+    d3d12Viewport.TopLeftY = (float)pViewport->Y;
+    d3d12Viewport.Width = (float)pViewport->Width;
+    d3d12Viewport.Height = (float)pViewport->Height;
+    d3d12Viewport.MinDepth = pViewport->MinZ;
+    d3d12Viewport.MaxDepth = pViewport->MaxZ;
+
+    // Set the viewport
+    d3d12CommandList->RSSetViewports(1, &d3d12Viewport);
+    return S_OK;
+}
 
 HRESULT Device::GetViewport(D3DVIEWPORT9* pViewport)
 {
-
+    *pViewport = d3d9Viewport;
     return S_OK;
 }
 
@@ -160,7 +262,10 @@ FUNCTION_STUB(HRESULT, Device::SetClipPlane, DWORD Index, CONST float* pPlane)
 
 FUNCTION_STUB(HRESULT, Device::GetClipPlane, DWORD Index, float* pPlane)
 
-FUNCTION_STUB(HRESULT, Device::SetRenderState, D3DRENDERSTATETYPE State, DWORD Value)
+HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetRenderState, D3DRENDERSTATETYPE State, DWORD* pValue)
 
@@ -176,15 +281,24 @@ FUNCTION_STUB(HRESULT, Device::GetClipStatus, D3DCLIPSTATUS9* pClipStatus)
 
 FUNCTION_STUB(HRESULT, Device::GetTexture, DWORD Stage, BaseTexture** ppTexture)
 
-FUNCTION_STUB(HRESULT, Device::SetTexture, DWORD Stage, BaseTexture* pTexture)
+HRESULT Device::SetTexture(DWORD Stage, BaseTexture* pTexture)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetTextureStageState, DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD* pValue)
 
-FUNCTION_STUB(HRESULT, Device::SetTextureStageState, DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value)
+HRESULT Device::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetSamplerState, DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD* pValue)
 
-FUNCTION_STUB(HRESULT, Device::SetSamplerState, DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD Value)
+HRESULT Device::SetSamplerState(DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD Value)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::ValidateDevice, DWORD* pNumPasses)
 
@@ -196,7 +310,19 @@ FUNCTION_STUB(HRESULT, Device::SetCurrentTexturePalette, UINT PaletteNumber)
 
 FUNCTION_STUB(HRESULT, Device::GetCurrentTexturePalette, UINT *PaletteNumber)
 
-FUNCTION_STUB(HRESULT, Device::SetScissorRect, CONST RECT* pRect)
+HRESULT Device::SetScissorRect(CONST RECT* pRect)
+{
+    // Create D3D12_RECT from RECT
+    D3D12_RECT d3d12Rect;
+    d3d12Rect.left = pRect->left;
+    d3d12Rect.top = pRect->top;
+    d3d12Rect.right = pRect->right;
+    d3d12Rect.bottom = pRect->bottom;
+
+    // Set the scissor rectangle
+    d3d12CommandList->RSSetScissorRects(1, &d3d12Rect);
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetScissorRect, RECT* pRect)
 
@@ -208,13 +334,25 @@ FUNCTION_STUB(HRESULT, Device::SetNPatchMode, float nSegments)
 
 FUNCTION_STUB(float, Device::GetNPatchMode)
 
-FUNCTION_STUB(HRESULT, Device::DrawPrimitive, D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
-
-FUNCTION_STUB(HRESULT, Device::DrawIndexedPrimitive, D3DPRIMITIVETYPE, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
-
-FUNCTION_STUB(HRESULT, Device::DrawPrimitiveUP, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
-
-FUNCTION_STUB(HRESULT, Device::DrawIndexedPrimitiveUP, D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
+HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
+{       
+    return S_OK;
+}       
+        
+HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
+{       
+    return S_OK;
+}       
+        
+HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
+{       
+    return S_OK;
+}       
+        
+HRESULT Device::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::ProcessVertices, UINT SrcStartIndex, UINT DestIndex, UINT VertexCount, VertexBuffer* pDestBuffer, VertexDeclaration* pVertexDecl, DWORD Flags)
 
@@ -224,59 +362,104 @@ HRESULT Device::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexElements
     return S_OK;
 }
 
-FUNCTION_STUB(HRESULT, Device::SetVertexDeclaration, VertexDeclaration* pDecl)
+HRESULT Device::SetVertexDeclaration(VertexDeclaration* pDecl)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetVertexDeclaration, VertexDeclaration** ppDecl)
 
-FUNCTION_STUB(HRESULT, Device::SetFVF, DWORD FVF)
+HRESULT Device::SetFVF(DWORD FVF)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetFVF, DWORD* pFVF)
 
-FUNCTION_STUB(HRESULT, Device::CreateVertexShader, CONST DWORD* pFunction, VertexShader** ppShader, DWORD FunctionSize)
+HRESULT Device::CreateVertexShader(CONST DWORD* pFunction, VertexShader** ppShader, DWORD FunctionSize)
+{
+    return S_OK;
+}
 
-FUNCTION_STUB(HRESULT, Device::SetVertexShader, VertexShader* pShader)
+HRESULT Device::SetVertexShader(VertexShader* pShader)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetVertexShader, VertexShader** ppShader)
 
-FUNCTION_STUB(HRESULT, Device::SetVertexShaderConstantF, UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
+HRESULT Device::SetVertexShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantF, UINT StartRegister, float* pConstantData, UINT Vector4fCount)
 
-FUNCTION_STUB(HRESULT, Device::SetVertexShaderConstantI, UINT StartRegister, CONST int* pConstantData, UINT Vector4iCount)
+HRESULT Device::SetVertexShaderConstantI(UINT StartRegister, CONST int* pConstantData, UINT Vector4iCount)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantI, UINT StartRegister, int* pConstantData, UINT Vector4iCount)
 
-FUNCTION_STUB(HRESULT, Device::SetVertexShaderConstantB, UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
+HRESULT Device::SetVertexShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantB, UINT StartRegister, BOOL* pConstantData, UINT BoolCount)
 
-FUNCTION_STUB(HRESULT, Device::SetStreamSource, UINT StreamNumber, VertexBuffer* pStreamData, UINT OffsetInBytes, UINT Stride)
+HRESULT Device::SetStreamSource(UINT StreamNumber, VertexBuffer* pStreamData, UINT OffsetInBytes, UINT Stride)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetStreamSource, UINT StreamNumber, VertexBuffer** ppStreamData, UINT* pOffsetInBytes, UINT* pStride)
 
-FUNCTION_STUB(HRESULT, Device::SetStreamSourceFreq, UINT StreamNumber, UINT Setting)
+HRESULT Device::SetStreamSourceFreq(UINT StreamNumber, UINT Setting)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetStreamSourceFreq, UINT StreamNumber, UINT* pSetting)
 
-FUNCTION_STUB(HRESULT, Device::SetIndices, IndexBuffer* pIndexData)
+HRESULT Device::SetIndices(IndexBuffer* pIndexData)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetIndices, IndexBuffer** ppIndexData)
 
-FUNCTION_STUB(HRESULT, Device::CreatePixelShader, CONST DWORD* pFunction, PixelShader** ppShader, DWORD FunctionSize)
+HRESULT Device::CreatePixelShader(CONST DWORD* pFunction, PixelShader** ppShader, DWORD FunctionSize)
+{
+    return S_OK;
+}
 
-FUNCTION_STUB(HRESULT, Device::SetPixelShader, PixelShader* pShader)
+HRESULT Device::SetPixelShader(PixelShader* pShader)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetPixelShader, PixelShader** ppShader)
 
-FUNCTION_STUB(HRESULT, Device::SetPixelShaderConstantF, UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
+HRESULT Device::SetPixelShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetPixelShaderConstantF, UINT StartRegister, float* pConstantData, UINT Vector4fCount)
 
-FUNCTION_STUB(HRESULT, Device::SetPixelShaderConstantI, UINT StartRegister, CONST int* pConstantData, UINT Vector4iCount)
+HRESULT Device::SetPixelShaderConstantI(UINT StartRegister, CONST int* pConstantData, UINT Vector4iCount)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetPixelShaderConstantI, UINT StartRegister, int* pConstantData, UINT Vector4iCount)
 
-FUNCTION_STUB(HRESULT, Device::SetPixelShaderConstantB, UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
+HRESULT Device::SetPixelShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
+{
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::GetPixelShaderConstantB, UINT StartRegister, BOOL* pConstantData, UINT BoolCount)
 

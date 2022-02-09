@@ -2,7 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#if _DEBUG && 0
+#if _DEBUG
 #define PRINT(x, ...) printf(x, __VA_ARGS__);
 #else
 #define PRINT(x, ...)
@@ -26,6 +26,8 @@
 #include <d3d9.h>
 #include <d3d12.h>
 #include <d3dx12.h>
+
+#include <dxgi1_4.h>
 
 #include <INIReader.h>
 

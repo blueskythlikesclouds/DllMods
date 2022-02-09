@@ -1,5 +1,5 @@
 ﻿#include "VertexDeclaration.h"
-#include "ConversionHelper.h"
+#include "ConversionUtilities.h"
 
 VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* vertexElements) : count(0)
 {
@@ -11,9 +11,9 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* vertexElements) : 
     for (size_t i = 0; i < count; i++)
     {
         D3D12_INPUT_ELEMENT_DESC& elementDesc = elementDescriptions[i];
-        elementDesc.SemanticName = ConversionHelper::getDeclUsageName((D3DDECLUSAGE)vertexElements[i].Usage);
+        elementDesc.SemanticName = ConversionUtilities::getDeclUsageName((D3DDECLUSAGE)vertexElements[i].Usage);
         elementDesc.SemanticIndex = vertexElements[i].UsageIndex;
-        elementDesc.Format = ConversionHelper::getDeclType((D3DDECLTYPE)vertexElements[i].Type);
+        elementDesc.Format = ConversionUtilities::getDeclType((D3DDECLTYPE)vertexElements[i].Type);
         elementDesc.InputSlot = vertexElements[i].Stream;
         elementDesc.AlignedByteOffset = vertexElements[i].Offset;
         elementDesc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;

@@ -18,7 +18,7 @@ enum
     D3DFMT_RAWZ = MAKEFOURCC('R', 'A', 'W', 'Z')
 };
 
-class ConversionHelper
+class ConversionUtilities
 {
 public:
     static DXGI_FORMAT convert(D3DFORMAT format);
