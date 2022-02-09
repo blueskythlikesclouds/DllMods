@@ -5,15 +5,27 @@
          "DisplayName":"Renderer",
          "Elements":[
             {
-               "Name":"ForceIgnoreFinalLightColorAdjustment",
+               "Name":"BloomType",
                "Description":[
-                  "Forces final light color adjustment to get ignored like Sonic Unleashed."
+				  "Determines the type of bloom shader to be used.",
+				  "",
+				  "Sonic Generations bloom shader is recommended to be used in vanilla Sonic Generations stages and level mods.",
+				  "It's strict when including objects in bloom, but it's very colorful.",
+				  "",
+				  "Sonic Unleashed bloom shader is recommended to be used in Sonic Unleashed stage ports.",
+				  "It's very relaxed when including objects in bloom (like jumpball) and it's very colorful.",
+				  "",
+				  "FxPipeline Renderer bloom shader is the original shader for the early renderer.",
+				  "It's in the middle when it comes to including objects in bloom, but it looks very white.",
+				  "You're not recommended to use this shader unless you prefer how it looks or a stage mod was designed for it.",
+				  "",
+				  "Stage mods can override this value. In these cases, your option is going to be ignored.",
                ],
-               "DisplayName":"Force ignore final light color adjustment",
-               "Type":"bool",
+               "DisplayName":"Bloom type",
+               "Type":"BloomType",
                "MinValue":null,
                "MaxValue":null,
-               "DefaultValue":false
+               "DefaultValue":"0"
             },
             {
                "Name":"FxaaIntensity",
@@ -38,30 +50,29 @@
                "Type":"bool",
                "MinValue":null,
                "MaxValue":null,
-               "DefaultValue":true
+               "DefaultValue":false
             },
             {
-               "Name":"BloomType",
+               "Name":"EnhancedMotionBlur",
                "Description":[
-				  "Determines the type of bloom shader to be used.",
-				  "",
-				  "Sonic Generations bloom shader is recommended to be used in vanilla Sonic Generations stages and level mods.",
-				  "It's strict when including objects in bloom, but it's very colorful.",
-				  "",
-				  "Sonic Unleashed bloom shader is recommended to be used in Sonic Unleashed stage ports.",
-				  "It's very relaxed when including objects in bloom (like jumpball) and it's very colorful.",
-				  "",
-				  "FxPipeline Renderer bloom shader is the original shader for the early renderer.",
-				  "It's in the middle when it comes to including objects in bloom, but it looks very white.",
-				  "You're not recommended to use this shader unless you prefer how it looks or a stage mod was designed for it.",
-				  "",
-				  "Stage mods can override this value. In these cases, your option is going to be ignored.",
+                  "Uses a motion blur shader that uses more samples and looks smoother."
                ],
-               "DisplayName":"Bloom type",
-               "Type":"BloomType",
+               "DisplayName":"Use enhanced motion blur",
+               "Type":"bool",
                "MinValue":null,
                "MaxValue":null,
-               "DefaultValue":"0"
+               "DefaultValue":false
+            },
+            {
+               "Name":"ForceIgnoreFinalLightColorAdjustment",
+               "Description":[
+                  "Forces final light color adjustment to get ignored like Sonic Unleashed."
+               ],
+               "DisplayName":"Force ignore final light color adjustment",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
             }
          ]
       },
@@ -89,7 +100,7 @@
                "Type":"ShadowType",
                "MinValue":null,
                "MaxValue":null,
-               "DefaultValue":"1"
+               "DefaultValue":"0"
             },
             {
                "Name":"LambertShadowObject",
@@ -160,6 +171,17 @@
                "DefaultValue":-1
             },
             {
+               "Name":"ForceCastShadow",
+               "Description":[
+                  "Forces all objects to cast shadows."
+               ],
+               "DisplayName":"Force shadow casting for objects",
+               "Type":"bool",
+               "MinValue":null,
+               "MaxValue":null,
+               "DefaultValue":false
+            },
+            {
                "Name":"EnableTerrainShadowCast",
                "Description":[
                   "Makes terrain cast real-time shadows.",
@@ -167,17 +189,6 @@
                   "should be enabled only for entertainment purposes."
                ],
                "DisplayName":"Enable terrain shadow casting",
-               "Type":"bool",
-               "MinValue":null,
-               "MaxValue":null,
-               "DefaultValue":false
-            },
-            {
-               "Name":"ForceCastShadow",
-               "Description":[
-                  "Forces all objects to cast shadows."
-               ],
-               "DisplayName":"Force shadow casting for objects",
                "Type":"bool",
                "MinValue":null,
                "MaxValue":null,
