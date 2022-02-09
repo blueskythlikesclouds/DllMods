@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Pch.cpp" />
+    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="Unknown.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelShader.cpp">
+      <Filter>Base\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseTexture.cpp">
+      <Filter>Base\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Base\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="Surface.cpp">
+      <Filter>Base\Surfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexDeclaration.cpp">
+      <Filter>Base\Vertices</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource.cpp">
+      <Filter>Base\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Device.cpp">
+      <Filter>Base\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexShader.cpp">
+      <Filter>Base\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>Base\Indices</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Base\Vertices</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D9.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="ConversionHelper.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Pch.h" />
+    <ClInclude Include="Unknown.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShader.h">
+      <Filter>Base\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseTexture.h">
+      <Filter>Base\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Base\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Base\Surfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexDeclaration.h">
+      <Filter>Base\Vertices</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Base\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Device.h">
+      <Filter>Base\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.h">
+      <Filter>Base\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>Base\Indices</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Base\Vertices</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D9.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="ConversionHelper.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h">
+      <Filter>Dependencies</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Base">
+      <UniqueIdentifier>{3062963d-746a-4531-a8c6-aaeb9d41ea40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Textures">
+      <UniqueIdentifier>{13288abc-ff3a-4ce5-99cc-cd0c19ddc91a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Surfaces">
+      <UniqueIdentifier>{a0efd585-99b6-4348-bda5-ce9d22f0adc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Vertices">
+      <UniqueIdentifier>{84c7ace6-a93c-4e06-898d-9a394e40b0da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Indices">
+      <UniqueIdentifier>{f44a5115-c2ba-4831-89ea-7740a52069a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Shaders">
+      <UniqueIdentifier>{699fb707-a43e-4a89-a889-0d584a105a24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Devices">
+      <UniqueIdentifier>{8fabe478-f593-4903-8250-633dc757761c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Resources">
+      <UniqueIdentifier>{d9eb1800-b755-4e52-bfec-7bb2807ca4d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies">
+      <UniqueIdentifier>{b394c73c-561b-41cc-937f-54bb64ef2919}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
