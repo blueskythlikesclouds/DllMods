@@ -1,0 +1,6 @@
+# Ignore symbolic links
+/Include/BlueBlur-submodule
+/Include/BlueBlur-symlink
+
+# Ignore private projects
+/Source/GenerationsPlayground
