@@ -11,6 +11,8 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
+#include "RenderTargetSurface.h"
+#include "DepthStencilSurface.h"
 
 #define g_main g_pixel_main
 #include "PixelShader.h"
@@ -35,28 +37,43 @@ struct PixelShaderConstants
 
 void Device::validateState()
 {
+    size_t renderTargetCount;
+    for (renderTargetCount = 0; renderTargetCount < _countof(d3dRenderTargets) && d3dRenderTargets[renderTargetCount].ptr; renderTargetCount++)
+        ;
+
+    size_t vertexBufferCount;
+    for (vertexBufferCount = 0; vertexBufferCount < _countof(d3dVertexBufferViews) && d3dVertexBufferViews[vertexBufferCount].BufferLocation; vertexBufferCount++)
+        ;
+
+    d3dPipelineStateDesc.NumRenderTargets = renderTargetCount;
+
+    ID3D12GraphicsCommandList* d3dCommandList = renderQueue.getD3DCommandList();
+
+    d3dCommandList->SetGraphicsRootSignature(d3dRootSignature.Get());
+    d3dCommandList->SetGraphicsRootConstantBufferView(0, vertexShaderConstants.getD3DResource()->GetGPUVirtualAddress());
+    d3dCommandList->SetGraphicsRootConstantBufferView(1, pixelShaderConstants.getD3DResource()->GetGPUVirtualAddress());
+    d3dCommandList->OMSetRenderTargets(renderTargetCount, d3dRenderTargets, FALSE, &d3dDepthStencil);
+    d3dCommandList->RSSetViewports(1, &d3dViewport);
+    d3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+    d3dCommandList->IASetIndexBuffer(&d3dIndexBufferView);
+    d3dCommandList->IASetVertexBuffers(0, vertexBufferCount, d3dVertexBufferViews);
+
     const size_t hash = Hash::compute(&d3dPipelineStateDesc, sizeof(d3dPipelineStateDesc));
 
     ComPtr<ID3D12PipelineState> d3dPipelineState;
 
     const auto pair = d3dPipelineStates.find(hash);
-    if (pair == d3dPipelineStates.end())
+
+    if (pair != d3dPipelineStates.end())
+        d3dPipelineState = pair->second;
+
+    else
     {
         d3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, IID_PPV_ARGS(&d3dPipelineState));
         d3dPipelineStates.insert(std::make_pair(hash, d3dPipelineState));
     }
-    else
-    {
-        d3dPipelineState = pair->second;
-    }
 
-    queues[0].getD3DCommandList()->SetPipelineState(d3dPipelineState.Get());
-    queues[0].getD3DCommandList()->SetGraphicsRootSignature(d3dRootSignature.Get());
-    queues[0].getD3DCommandList()->SetGraphicsRootConstantBufferView(0, vertexShaderConstants.getD3DResource()->GetGPUVirtualAddress());
-    queues[0].getD3DCommandList()->SetGraphicsRootConstantBufferView(1, pixelShaderConstants.getD3DResource()->GetGPUVirtualAddress());
-
-    queues[0].getD3DCommandList()->OMSetRenderTargets(1,
-        &d3dRenderTargets[d3dRenderTargetIndex]->getD3DCpuDescriptorHandle(), FALSE, &d3dDepthStencil->getD3DCpuDescriptorHandle());
+    d3dCommandList->SetPipelineState(d3dPipelineState.Get());
 }
 
 Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
@@ -78,8 +95,8 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 
     // Create command queues
-    for (auto& commandQueue : queues)
-        commandQueue.initialize(d3dDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    renderQueue.initialize(d3dDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    loadQueue.initialize(d3dDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     // Create swap chain
     ComPtr<IDXGISwapChain1> dxgiSwapChain1;
@@ -97,7 +114,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     d3d12SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     d3d12SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     d3d12SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-    dxgiFactory->CreateSwapChainForHwnd(queues[0].getD3DCommandQueue(), presentationParameters->hDeviceWindow, &d3d12SwapChainDesc, nullptr, nullptr, &dxgiSwapChain1);
+    dxgiFactory->CreateSwapChainForHwnd(renderQueue.getD3DCommandQueue(), presentationParameters->hDeviceWindow, &d3d12SwapChainDesc, nullptr, nullptr, &dxgiSwapChain1);
     dxgiSwapChain1.As(&dxgiSwapChain);
 
     // Create root parameters
@@ -144,18 +161,18 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     pixelShaderConstants.initialize(d3dDevice);
 
     // Create swap chain render targets
-    for (int i = 0; i < _countof(d3dRenderTargets); i++)
+    for (int i = 0; i < _countof(d3dSwapChainRenderTargets); i++)
     {
         ComPtr<ID3D12Resource> d3dBackBuffer;
         dxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(&d3dBackBuffer));
-        d3dRenderTargets[i] = new RenderTargetTexture(this, d3dBackBuffer);
+        d3dSwapChainRenderTargets[i] = new RenderTargetTexture(this, d3dBackBuffer, d3dBackBuffer->GetDesc().Format);
     }
 
-    d3dRenderTargetIndex = dxgiSwapChain->GetCurrentBackBufferIndex();
+    d3dSwapChainRenderTargetIndex = dxgiSwapChain->GetCurrentBackBufferIndex();
 
     // Transition from present to render target
-    queues[0].getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-                                                       d3dRenderTargets[d3dRenderTargetIndex]->getD3DResource(),
+    renderQueue.getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+                                                       d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DResource(),
                                                        D3D12_RESOURCE_STATE_PRESENT,
                                                        D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -176,14 +193,10 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
 
     d3dDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
                                        &d3dDepthStencilTextureDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
-                                       &CD3DX12_CLEAR_VALUE(DXGI_FORMAT_D32_FLOAT, 1.0f, 0),
+                                       &CD3DX12_CLEAR_VALUE(d3dDepthStencilTextureDesc.Format, 1.0f, 0),
                                        IID_PPV_ARGS(&d3dDepthStencilTexture));
 
-    d3dDepthStencil = new DepthStencilTexture(this, d3dDepthStencilTexture);
-
-    // Set render target and depth stencil
-    queues[0].getD3DCommandList()->OMSetRenderTargets(1, 
-        &d3dRenderTargets[d3dRenderTargetIndex]->getD3DCpuDescriptorHandle(), FALSE, &d3dDepthStencil->getD3DCpuDescriptorHandle());
+    d3dSwapChainDepthStencil = new DepthStencilTexture(this, d3dDepthStencilTexture, d3dDepthStencilTextureDesc.Format);
 }
 
 ID3D12Device* Device::getD3DDevice() const
@@ -191,9 +204,9 @@ ID3D12Device* Device::getD3DDevice() const
     return d3dDevice.Get();
 }
 
-CommandQueue& Device::getCommandQueue(const CommandQueueType type)
+CommandQueue& Device::getLoadQueue()
 {
-    return queues[(size_t)type];
+    return loadQueue;
 }
 
 FUNCTION_STUB(HRESULT, Device::TestCooperativeLevel)
@@ -227,49 +240,43 @@ FUNCTION_STUB(HRESULT, Device::Reset, D3DPRESENT_PARAMETERS* pPresentationParame
 HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
     // Transition from render target to present
-    queues[0].getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-                                                       d3dRenderTargets[d3dRenderTargetIndex]->getD3DResource(),
+    renderQueue.getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+                                                       d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DResource(),
                                                        D3D12_RESOURCE_STATE_RENDER_TARGET,
                                                        D3D12_RESOURCE_STATE_PRESENT));
 
     // Submit all
-    queues[0].submitAll();
+    renderQueue.submitAll();
 
     // Present
     dxgiSwapChain->Present(1, 0);
 
     // Set render target index
-    d3dRenderTargetIndex = dxgiSwapChain->GetCurrentBackBufferIndex();
+    d3dSwapChainRenderTargetIndex = dxgiSwapChain->GetCurrentBackBufferIndex();
 
     // Transition from present to render target
-    queues[0].getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-                                                       d3dRenderTargets[d3dRenderTargetIndex]->getD3DResource(),
+    renderQueue.getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+                                                       d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DResource(),
                                                        D3D12_RESOURCE_STATE_PRESENT,
                                                        D3D12_RESOURCE_STATE_RENDER_TARGET));
 
     // Set render target and depth stencil
-    queues[0].getD3DCommandList()->OMSetRenderTargets(1,
-        &d3dRenderTargets[d3dRenderTargetIndex]->getD3DCpuDescriptorHandle(), FALSE, &d3dDepthStencil->getD3DCpuDescriptorHandle());
+    renderQueue.getD3DCommandList()->OMSetRenderTargets(1,
+        &d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DCpuDescriptorHandle(), FALSE, &d3dSwapChainDepthStencil->getD3DCpuDescriptorHandle());
 
     // Clear render target to black.
     FLOAT color[4] = { 0, 0, 0, 1 };
-    queues[0].getD3DCommandList()->ClearRenderTargetView(d3dRenderTargets[d3dRenderTargetIndex]->getD3DCpuDescriptorHandle(), color, 0, nullptr);
+    renderQueue.getD3DCommandList()->ClearRenderTargetView(d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DCpuDescriptorHandle(), color, 0, nullptr);
 
     // Clear depth stencil
-    queues[0].getD3DCommandList()->ClearDepthStencilView(d3dDepthStencil->getD3DCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    renderQueue.getD3DCommandList()->ClearDepthStencilView(d3dSwapChainDepthStencil->getD3DCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     return S_OK;
 }
 
 HRESULT Device::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, Surface** ppBackBuffer)
 {
-    ComPtr<ID3D12Resource> d3dBackBuffer;
-
-    const HRESULT hr = dxgiSwapChain->GetBuffer(iBackBuffer, IID_PPV_ARGS(&d3dBackBuffer));
-    if (FAILED(hr))
-        return hr;
-
-    *ppBackBuffer = new Surface(this, d3dBackBuffer);
+    d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->GetSurfaceLevel(0, ppBackBuffer);
     return S_OK;
 }
     
@@ -284,6 +291,9 @@ FUNCTION_STUB(void, Device::GetGammaRamp, UINT iSwapChain, D3DGAMMARAMP* pRamp)
 HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, Texture** ppTexture, HANDLE* pSharedHandle)
 {
     ComPtr<ID3D12Resource> d3dTexture;
+    DXGI_FORMAT format = TypeConverter::makeUntypeless(TypeConverter::convert(Format), false);
+
+    FLOAT transparent[4] = { 0, 0, 0, 1 };
 
     const HRESULT hr = d3dDevice->CreateCommittedResource
     (
@@ -291,16 +301,15 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
 
         D3D12_HEAP_FLAG_NONE,
 
-        &CD3DX12_RESOURCE_DESC::Tex2D(
-            TypeConverter::makeUntypeless(TypeConverter::convert(Format), false), 
-                Width, Height, 1, Levels, 1, 0,
-                Usage & D3DUSAGE_RENDERTARGET ? D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET : 
-                Usage & D3DUSAGE_DEPTHSTENCIL ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_NONE),
+        &CD3DX12_RESOURCE_DESC::Tex2D(format, Width, Height, 1, Levels, 1, 0,
+            Usage & D3DUSAGE_RENDERTARGET ? D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET : 
+            Usage & D3DUSAGE_DEPTHSTENCIL ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_NONE),
 
         Usage & D3DUSAGE_RENDERTARGET ? D3D12_RESOURCE_STATE_RENDER_TARGET :
         Usage & D3DUSAGE_DEPTHSTENCIL ? D3D12_RESOURCE_STATE_DEPTH_WRITE : D3D12_RESOURCE_STATE_COMMON,
 
-        nullptr,
+        Usage & D3DUSAGE_RENDERTARGET ? &CD3DX12_CLEAR_VALUE(format, transparent) :
+        Usage & D3DUSAGE_DEPTHSTENCIL ? &CD3DX12_CLEAR_VALUE(format, 1.0f, 0) : nullptr,
 
         IID_PPV_ARGS(&d3dTexture)
     );
@@ -309,10 +318,10 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
         return hr;
 
     if (Usage & D3DUSAGE_RENDERTARGET)
-        *ppTexture = new RenderTargetTexture(this, d3dTexture);
+        *ppTexture = new RenderTargetTexture(this, d3dTexture, d3dTexture->GetDesc().Format);
 
     else if (Usage & D3DUSAGE_DEPTHSTENCIL)
-        *ppTexture = new DepthStencilTexture(this, d3dTexture);
+        *ppTexture = new DepthStencilTexture(this, d3dTexture, d3dTexture->GetDesc().Format);
 
     else
         *ppTexture = new Texture(this, d3dTexture);
@@ -332,7 +341,7 @@ HRESULT Device::CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL 
 
 HRESULT Device::CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IndexBuffer** ppIndexBuffer, HANDLE* pSharedHandle)
 {
-    *ppIndexBuffer = new IndexBuffer(this, Length, Format);
+    *ppIndexBuffer = new IndexBuffer(this, Length, TypeConverter::convert(Format));
     return S_OK;
 }
 
@@ -359,19 +368,42 @@ FUNCTION_STUB(HRESULT, Device::CreateOffscreenPlainSurface, UINT Width, UINT Hei
 
 HRESULT Device::SetRenderTarget(DWORD RenderTargetIndex, Surface* pRenderTarget)
 {
+    if (pRenderTarget)
+    {
+        const auto renderTargetTexture = ((RenderTargetSurface*)pRenderTarget)->getRenderTargetTexture();
+        d3dRenderTargets[RenderTargetIndex] = renderTargetTexture->getD3DCpuDescriptorHandle();
+        d3dPipelineStateDesc.RTVFormats[RenderTargetIndex] = renderTargetTexture->getFormat();
+    }
+
+    else
+    {
+        ZeroMemory(&d3dRenderTargets[RenderTargetIndex], sizeof(d3dRenderTargets[RenderTargetIndex]));
+        d3dPipelineStateDesc.RTVFormats[RenderTargetIndex] = DXGI_FORMAT_UNKNOWN;
+    }
 
     return S_OK;
 }
 
 HRESULT Device::GetRenderTarget(DWORD RenderTargetIndex, Surface** ppRenderTarget)
 {
-
     return S_OK;
 }
 
 HRESULT Device::SetDepthStencilSurface(Surface* pNewZStencil)
 {
-    
+    if (pNewZStencil)
+    {
+        const auto depthStencilTexture = ((DepthStencilSurface*)pNewZStencil)->getDepthStencilTexture();
+        d3dDepthStencil = depthStencilTexture->getD3DCpuDescriptorHandle();
+        d3dPipelineStateDesc.DSVFormat = depthStencilTexture->getFormat();
+    }
+
+    else
+    {
+        ZeroMemory(&d3dDepthStencil, sizeof(d3dDepthStencil));
+        d3dPipelineStateDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+    }
+
     return S_OK;
 }
 
@@ -393,6 +425,36 @@ HRESULT Device::EndScene()
 
 HRESULT Device::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil)
 {
+    ID3D12GraphicsCommandList* d3dCommandList = renderQueue.getD3DCommandList();
+
+    if (Flags & D3DCLEAR_TARGET)
+    {
+        // Convert D3DCOLOR to FLOAT[4]
+        FLOAT color[4];
+        color[0] = ((Color >> 16) & 0xFF) / 255.0f;
+        color[1] = ((Color >> 8) & 0xFF) / 255.0f;
+        color[2] = (Color & 0xFF) / 255.0f;
+        color[3] = ((Color >> 24) & 0xFF) / 255.0f;
+
+        for (size_t i = 0; i < Count; i++)
+            d3dCommandList->ClearRenderTargetView(d3dRenderTargets[i], color, 0, nullptr);
+    }
+
+    if (Flags & (D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL))
+    {
+        D3D12_CLEAR_FLAGS clearFlags = (D3D12_CLEAR_FLAGS)0;
+
+        if (Flags & D3DCLEAR_ZBUFFER)
+            clearFlags |= D3D12_CLEAR_FLAG_DEPTH;
+
+        if (Flags & D3DCLEAR_STENCIL)
+            clearFlags |= D3D12_CLEAR_FLAG_STENCIL;
+
+        d3dCommandList->ClearDepthStencilView(d3dDepthStencil, clearFlags, Z, (UINT8)Stencil, 0, nullptr);
+    }
+
+    renderQueue.submitAll();
+
     return S_OK;
 }
 
@@ -404,25 +466,25 @@ FUNCTION_STUB(HRESULT, Device::MultiplyTransform, D3DTRANSFORMSTATETYPE, CONST D
 
 HRESULT Device::SetViewport(CONST D3DVIEWPORT9* pViewport)
 {
-    d3dViewport = *pViewport;
-
     // Create D3D12_VIEWPORT from D3DVIEWPORT9
-    D3D12_VIEWPORT d3d12Viewport;
-    d3d12Viewport.TopLeftX = (float)pViewport->X;
-    d3d12Viewport.TopLeftY = (float)pViewport->Y;
-    d3d12Viewport.Width = (float)pViewport->Width;
-    d3d12Viewport.Height = (float)pViewport->Height;
-    d3d12Viewport.MinDepth = pViewport->MinZ;
-    d3d12Viewport.MaxDepth = pViewport->MaxZ;
-
-    // Set the viewport
-    queues[0].getD3DCommandList()->RSSetViewports(1, &d3d12Viewport);
+    d3dViewport.TopLeftX = (float)pViewport->X;
+    d3dViewport.TopLeftY = (float)pViewport->Y;
+    d3dViewport.Width = (float)pViewport->Width;
+    d3dViewport.Height = (float)pViewport->Height;
+    d3dViewport.MinDepth = pViewport->MinZ;
+    d3dViewport.MaxDepth = pViewport->MaxZ;
     return S_OK;
 }
 
 HRESULT Device::GetViewport(D3DVIEWPORT9* pViewport)
 {
-    *pViewport = d3dViewport;
+    // Create D3DVIEWPORT9 from D3D12_VIEWPORT
+    pViewport->X = (DWORD)d3dViewport.TopLeftX;
+    pViewport->Y = (DWORD)d3dViewport.TopLeftY;
+    pViewport->Width = (DWORD)d3dViewport.Width;
+    pViewport->Height = (DWORD)d3dViewport.Height;
+    pViewport->MinZ = d3dViewport.MinDepth;
+    pViewport->MaxZ = d3dViewport.MaxDepth;
     return S_OK;
 }
 
@@ -493,14 +555,10 @@ FUNCTION_STUB(HRESULT, Device::GetCurrentTexturePalette, UINT *PaletteNumber)
 HRESULT Device::SetScissorRect(CONST RECT* pRect)
 {
     // Create D3D12_RECT from RECT
-    D3D12_RECT d3d12Rect;
-    d3d12Rect.left = pRect->left;
-    d3d12Rect.top = pRect->top;
-    d3d12Rect.right = pRect->right;
-    d3d12Rect.bottom = pRect->bottom;
-
-    // Set the scissor rectangle
-    queues[0].getD3DCommandList()->RSSetScissorRects(1, &d3d12Rect);
+    d3dScissorRect.left = pRect->left;
+    d3dScissorRect.top = pRect->top;
+    d3dScissorRect.right = pRect->right;
+    d3dScissorRect.bottom = pRect->bottom;
     return S_OK;
 }
 
@@ -517,9 +575,9 @@ FUNCTION_STUB(float, Device::GetNPatchMode)
 HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
     validateState();
-    queues[0].getD3DCommandList()->IASetPrimitiveTopology(TypeConverter::getPrimitiveTopology(PrimitiveType));
-    queues[0].getD3DCommandList()->DrawInstanced(PrimitiveCount, 1, StartVertex, 0);
-    queues[0].submitAll();
+    renderQueue.getD3DCommandList()->IASetPrimitiveTopology(TypeConverter::getPrimitiveTopology(PrimitiveType));
+    renderQueue.getD3DCommandList()->DrawInstanced(PrimitiveCount, 1, StartVertex, 0);
+    renderQueue.submitAll();
 
     return S_OK;
 }       
@@ -527,9 +585,10 @@ HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, 
 HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
     validateState();
-    queues[0].getD3DCommandList()->IASetPrimitiveTopology(TypeConverter::getPrimitiveTopology(PrimitiveType));
-    queues[0].getD3DCommandList()->DrawIndexedInstanced(primCount, 1, startIndex, BaseVertexIndex, 0);
-    queues[0].submitAll();
+
+    renderQueue.getD3DCommandList()->IASetPrimitiveTopology(TypeConverter::getPrimitiveTopology(PrimitiveType));
+    renderQueue.getD3DCommandList()->DrawIndexedInstanced(primCount, 1, startIndex, BaseVertexIndex, 0);
+    renderQueue.submitAll();
 
     return S_OK;
 }       
@@ -608,7 +667,7 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantB, UINT StartRegister, BOO
 
 HRESULT Device::SetStreamSource(UINT StreamNumber, VertexBuffer* pStreamData, UINT OffsetInBytes, UINT Stride)
 {
-    queues[0].getD3DCommandList()->IASetVertexBuffers(StreamNumber, 1, pStreamData ? &pStreamData->getD3DVertexBufferView(OffsetInBytes, Stride) : nullptr);
+    d3dVertexBufferViews[StreamNumber] = pStreamData ? pStreamData->getD3DVertexBufferView(OffsetInBytes, Stride) : D3D12_VERTEX_BUFFER_VIEW();
     return S_OK;
 }
 
@@ -623,7 +682,7 @@ FUNCTION_STUB(HRESULT, Device::GetStreamSourceFreq, UINT StreamNumber, UINT* pSe
 
 HRESULT Device::SetIndices(IndexBuffer* pIndexData)
 {
-    queues[0].getD3DCommandList()->IASetIndexBuffer(pIndexData ? &pIndexData->getD3DIndexBufferView() : nullptr);
+    d3dIndexBufferView = pIndexData ? pIndexData->getD3DIndexBufferView() : D3D12_INDEX_BUFFER_VIEW();
     return S_OK;
 }
 

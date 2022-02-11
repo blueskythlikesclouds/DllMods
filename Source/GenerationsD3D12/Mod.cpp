@@ -29,13 +29,13 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
             IID_PPV_ARGS(&d3dUploadHeap));
 
         // Update subresources.
-        auto& commandQueue = d3dDevice->getCommandQueue(CommandQueueType::Load);
-        const auto lock = commandQueue.lock();
+        auto& queue = d3dDevice->getLoadQueue();
+        const auto lock = queue.lock();
 
-        UpdateSubresources(commandQueue.getD3DCommandList(), d3dTexture.Get(), d3dUploadHeap.Get(), 0, 0, subResources.size(), subResources.data());
+        UpdateSubresources(queue.getD3DCommandList(), d3dTexture.Get(), d3dUploadHeap.Get(), 0, 0, subResources.size(), subResources.data());
 
         // Transition the texture to a shader resource.
-        commandQueue.getD3DCommandList()->ResourceBarrier(
+        queue.getD3DCommandList()->ResourceBarrier(
             1,
             &CD3DX12_RESOURCE_BARRIER::Transition(
                 d3dTexture.Get(),
@@ -43,9 +43,9 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
         // Execute command list before freeing upload heap.
-        commandQueue.executeCommandList();
-        commandQueue.waitForFenceEvent();
-        commandQueue.resetCommandList();
+        queue.executeCommandList();
+        queue.waitForFenceEvent();
+        queue.resetCommandList();
 
         // Free upload heap.
         d3dUploadHeap.Reset();

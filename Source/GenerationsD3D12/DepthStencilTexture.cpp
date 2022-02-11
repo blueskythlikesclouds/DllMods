@@ -1,6 +1,8 @@
 ﻿#include "DepthStencilTexture.h"
+#include "DepthStencilSurface.h"
 
-DepthStencilTexture::DepthStencilTexture(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource) : Texture(d3dDevice, d3dResource)
+DepthStencilTexture::DepthStencilTexture(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource, DXGI_FORMAT format)
+    : Texture(d3dDevice, d3dResource), format(format)
 {
     // Create heap for DSV
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
@@ -16,7 +18,22 @@ DepthStencilTexture::DepthStencilTexture(const ComPtr<Device>& d3dDevice, const 
     d3dDevice->getD3DDevice()->CreateDepthStencilView(d3dResource.Get(), nullptr, d3dCpuDescriptorHandle);
 }
 
+DXGI_FORMAT DepthStencilTexture::getFormat() const
+{
+    return format;
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilTexture::getD3DCpuDescriptorHandle() const
 {
     return d3dCpuDescriptorHandle;
+}
+
+HRESULT DepthStencilTexture::GetSurfaceLevel(UINT Level, Surface** ppSurfaceLevel)
+{
+    if (!d3dDepthStencilSurface)
+        d3dDepthStencilSurface = new DepthStencilSurface(d3dDevice, this);
+
+    *ppSurfaceLevel = d3dDepthStencilSurface.Get();
+    (*ppSurfaceLevel)->AddRef();
+    return S_OK;
 }

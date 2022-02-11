@@ -8,11 +8,11 @@ VertexBuffer::VertexBuffer(const ComPtr<Device>& d3dDevice, const size_t length)
 
 D3D12_VERTEX_BUFFER_VIEW VertexBuffer::getD3DVertexBufferView(const size_t offsetInBytes, const size_t stride) const
 {
-    D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-    vertexBufferView.BufferLocation = d3dResource->GetGPUVirtualAddress() + offsetInBytes;
-    vertexBufferView.SizeInBytes = length - offsetInBytes;
-    vertexBufferView.StrideInBytes = stride;
-    return vertexBufferView;
+    D3D12_VERTEX_BUFFER_VIEW d3dVertexBufferView;
+    d3dVertexBufferView.BufferLocation = d3dResource->GetGPUVirtualAddress() + offsetInBytes;
+    d3dVertexBufferView.SizeInBytes = length - offsetInBytes;
+    d3dVertexBufferView.StrideInBytes = stride;
+    return d3dVertexBufferView;
 }
 
 HRESULT VertexBuffer::Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags)
@@ -45,11 +45,11 @@ HRESULT VertexBuffer::Unlock()
         nullptr,
         IID_PPV_ARGS(&d3dResource));
 
-    auto& commandQueue = d3dDevice->getCommandQueue(CommandQueueType::Load);
-    const auto lock = commandQueue.lock();
+    auto& queue = d3dDevice->getLoadQueue();
+    const auto lock = queue.lock();
 
     // Copy data from upload heap to default heap.
-    commandQueue.getD3DCommandList()->CopyBufferRegion(
+    queue.getD3DCommandList()->CopyBufferRegion(
         d3dResource.Get(),
         0,
         d3dUploadHeap.Get(),
@@ -57,7 +57,7 @@ HRESULT VertexBuffer::Unlock()
         length);
 
     // Transition default heap to vertex buffer state.
-    commandQueue.getD3DCommandList()->ResourceBarrier(
+    queue.getD3DCommandList()->ResourceBarrier(
         1,
         &CD3DX12_RESOURCE_BARRIER::Transition(
             d3dResource.Get(),
@@ -65,9 +65,9 @@ HRESULT VertexBuffer::Unlock()
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
     // Execute command list before freeing upload heap.
-    commandQueue.executeCommandList();
-    commandQueue.waitForFenceEvent();
-    commandQueue.resetCommandList();
+    queue.executeCommandList();
+    queue.waitForFenceEvent();
+    queue.resetCommandList();
 
     // Free upload heap.
     d3dUploadHeap = nullptr;

@@ -8,11 +8,11 @@ protected:
 public:
     Unknown();
 
-    virtual HRESULT QueryInterface(REFIID riid, void** ppvObj) final;
+    virtual HRESULT QueryInterface(REFIID riid, void** ppvObj);
 
-    virtual ULONG AddRef() final;
+    virtual ULONG AddRef();
 
-    virtual ULONG Release() final;
+    virtual ULONG Release();
 
     virtual ~Unknown();
 };

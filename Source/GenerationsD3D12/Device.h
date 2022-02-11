@@ -21,24 +21,18 @@ class VertexDeclaration;
 typedef Shader VertexShader;
 typedef Shader PixelShader;
 
-enum class CommandQueueType
-{
-    Render,
-    Load,
-    Max
-};
-
 struct VertexShaderConstants;
 struct PixelShaderConstants;
 
 class Device : public Unknown
 {
     ComPtr<ID3D12Device> d3dDevice;
-    CommandQueue queues[(size_t)CommandQueueType::Max];
+    CommandQueue renderQueue;
+    CommandQueue loadQueue;
     ComPtr<IDXGISwapChain3> dxgiSwapChain;
-    ComPtr<RenderTargetTexture> d3dRenderTargets[2];
-    size_t d3dRenderTargetIndex{};
-    ComPtr<DepthStencilTexture> d3dDepthStencil;
+    ComPtr<RenderTargetTexture> d3dSwapChainRenderTargets[2];
+    size_t d3dSwapChainRenderTargetIndex{};
+    ComPtr<DepthStencilTexture> d3dSwapChainDepthStencil;
 
     // Root signature
     ComPtr<ID3D12RootSignature> d3dRootSignature;
@@ -46,11 +40,16 @@ class Device : public Unknown
     ConstantBuffer<PixelShaderConstants> pixelShaderConstants;
 
     // Pipeline states
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc{};
     std::map<size_t, ComPtr<ID3D12PipelineState>> d3dPipelineStates;
 
-    // Cache
-    D3DVIEWPORT9 d3dViewport{};
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc{};
+    D3D12_CPU_DESCRIPTOR_HANDLE d3dRenderTargets[4]{};
+    D3D12_CPU_DESCRIPTOR_HANDLE d3dDepthStencil{};
+    D3D12_VIEWPORT d3dViewport{};
+    D3D12_RECT d3dScissorRect{};
+    D3D_PRIMITIVE_TOPOLOGY d3dPrimitiveTopology{};
+    D3D12_INDEX_BUFFER_VIEW d3dIndexBufferView{};
+    D3D12_VERTEX_BUFFER_VIEW d3dVertexBufferViews[8]{};
 
     void validateState();
 
@@ -59,7 +58,7 @@ public:
     ~Device() = default;
 
     ID3D12Device* getD3DDevice() const;
-    CommandQueue& getCommandQueue(CommandQueueType type = CommandQueueType::Render);
+    CommandQueue& getLoadQueue();
 
 #pragma region D3D9 Device
     virtual HRESULT TestCooperativeLevel();

@@ -55,6 +55,12 @@
     <ClCompile Include="Hash.cpp">
       <Filter>Base</Filter>
     </ClCompile>
+    <ClCompile Include="RenderTargetSurface.cpp">
+      <Filter>Base\Surfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencilSurface.cpp">
+      <Filter>Base\Surfaces</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -114,6 +120,12 @@
     </ClInclude>
     <ClInclude Include="Hash.h">
       <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTargetSurface.h">
+      <Filter>Base\Surfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencilSurface.h">
+      <Filter>Base\Surfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

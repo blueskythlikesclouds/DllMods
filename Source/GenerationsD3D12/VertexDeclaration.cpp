@@ -26,10 +26,10 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* vertexElements) : 
 
 D3D12_INPUT_LAYOUT_DESC VertexDeclaration::getD3DInputLayoutDesc() const
 {
-    D3D12_INPUT_LAYOUT_DESC inputLayoutDesc;
-    inputLayoutDesc.pInputElementDescs = d3dInputElementDescriptions.get();
-    inputLayoutDesc.NumElements = count;
-    return inputLayoutDesc;
+    D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+    d3dInputLayoutDesc.pInputElementDescs = d3dInputElementDescriptions.get();
+    d3dInputLayoutDesc.NumElements = count;
+    return d3dInputLayoutDesc;
 }
 
 FUNCTION_STUB(HRESULT, VertexDeclaration::GetDevice, Device** ppDevice)

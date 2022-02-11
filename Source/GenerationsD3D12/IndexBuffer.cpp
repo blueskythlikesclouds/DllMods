@@ -2,18 +2,18 @@
 #include "Device.h"
 #include "TypeConverter.h"
 
-IndexBuffer::IndexBuffer(const ComPtr<Device>& d3dDevice, size_t length, D3DFORMAT format)
+IndexBuffer::IndexBuffer(const ComPtr<Device>& d3dDevice, size_t length, DXGI_FORMAT format)
     : Resource(d3dDevice, nullptr), length(length), format(format)
 {
 }
 
 D3D12_INDEX_BUFFER_VIEW IndexBuffer::getD3DIndexBufferView() const
 {
-    D3D12_INDEX_BUFFER_VIEW indexBufferView;
-    indexBufferView.BufferLocation = d3dResource->GetGPUVirtualAddress();
-    indexBufferView.SizeInBytes = static_cast<UINT>(length);
-    indexBufferView.Format = TypeConverter::convert(format);
-    return indexBufferView;
+    D3D12_INDEX_BUFFER_VIEW d3dIndexBufferView;
+    d3dIndexBufferView.BufferLocation = d3dResource->GetGPUVirtualAddress();
+    d3dIndexBufferView.SizeInBytes = length;
+    d3dIndexBufferView.Format = format;
+    return d3dIndexBufferView;
 }
 
 HRESULT IndexBuffer::Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags)
@@ -46,11 +46,11 @@ HRESULT IndexBuffer::Unlock()
         nullptr,
         IID_PPV_ARGS(&d3dResource));
 
-    auto& commandQueue = d3dDevice->getCommandQueue(CommandQueueType::Load);
-    const auto lock = commandQueue.lock();
+    auto& queue = d3dDevice->getLoadQueue();
+    const auto lock = queue.lock();
 
     // Copy data from upload heap to default heap.
-    commandQueue.getD3DCommandList()->CopyBufferRegion(
+    queue.getD3DCommandList()->CopyBufferRegion(
         d3dResource.Get(),
         0,
         d3dUploadHeap.Get(),
@@ -58,7 +58,7 @@ HRESULT IndexBuffer::Unlock()
         length);
 
     // Transition default heap to index buffer state.
-    commandQueue.getD3DCommandList()->ResourceBarrier(
+    queue.getD3DCommandList()->ResourceBarrier(
         1,
         &CD3DX12_RESOURCE_BARRIER::Transition(
             d3dResource.Get(),
@@ -66,9 +66,9 @@ HRESULT IndexBuffer::Unlock()
             D3D12_RESOURCE_STATE_INDEX_BUFFER));
 
     // Execute command list before freeing upload heap.
-    commandQueue.executeCommandList();
-    commandQueue.waitForFenceEvent();
-    commandQueue.resetCommandList();
+    queue.executeCommandList();
+    queue.waitForFenceEvent();
+    queue.resetCommandList();
 
     // Free upload heap.
     d3dUploadHeap = nullptr;
