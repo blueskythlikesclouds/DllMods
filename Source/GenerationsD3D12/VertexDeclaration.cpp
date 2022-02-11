@@ -1,19 +1,22 @@
 ﻿#include "VertexDeclaration.h"
-#include "ConversionUtilities.h"
+#include "TypeConverter.h"
 
 VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* vertexElements) : count(0)
 {
     for (; vertexElements[count].Stream != 0xFF; count++)
         ;
 
-    elementDescriptions = std::make_unique<D3D12_INPUT_ELEMENT_DESC[]>(count);
+    d3dVertexElements = std::make_unique<D3DVERTEXELEMENT9[]>(count + 1);
+    memcpy(d3dVertexElements.get(), vertexElements, count * sizeof(D3DVERTEXELEMENT9));
+
+    d3dInputElementDescriptions = std::make_unique<D3D12_INPUT_ELEMENT_DESC[]>(count);
 
     for (size_t i = 0; i < count; i++)
     {
-        D3D12_INPUT_ELEMENT_DESC& elementDesc = elementDescriptions[i];
-        elementDesc.SemanticName = ConversionUtilities::getDeclUsageName((D3DDECLUSAGE)vertexElements[i].Usage);
+        D3D12_INPUT_ELEMENT_DESC& elementDesc = d3dInputElementDescriptions[i];
+        elementDesc.SemanticName = TypeConverter::getDeclUsageName((D3DDECLUSAGE)vertexElements[i].Usage);
         elementDesc.SemanticIndex = vertexElements[i].UsageIndex;
-        elementDesc.Format = ConversionUtilities::getDeclType((D3DDECLTYPE)vertexElements[i].Type);
+        elementDesc.Format = TypeConverter::getDeclType((D3DDECLTYPE)vertexElements[i].Type);
         elementDesc.InputSlot = vertexElements[i].Stream;
         elementDesc.AlignedByteOffset = vertexElements[i].Offset;
         elementDesc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
@@ -21,6 +24,20 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* vertexElements) : 
     }
 }
 
+D3D12_INPUT_LAYOUT_DESC VertexDeclaration::getD3DInputLayoutDesc() const
+{
+    D3D12_INPUT_LAYOUT_DESC inputLayoutDesc;
+    inputLayoutDesc.pInputElementDescs = d3dInputElementDescriptions.get();
+    inputLayoutDesc.NumElements = count;
+    return inputLayoutDesc;
+}
+
 FUNCTION_STUB(HRESULT, VertexDeclaration::GetDevice, Device** ppDevice)
 
-FUNCTION_STUB(HRESULT, VertexDeclaration::GetDeclaration, D3DVERTEXELEMENT9* pElement, UINT* pNumElements)
+HRESULT VertexDeclaration::GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements)
+{
+    memcpy(pElement, d3dVertexElements.get(), count * sizeof(D3DVERTEXELEMENT9));
+    *pNumElements = count;
+
+    return S_OK;
+}

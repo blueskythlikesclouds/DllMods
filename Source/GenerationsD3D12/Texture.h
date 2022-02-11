@@ -7,7 +7,7 @@ class Surface;
 class Texture : public BaseTexture
 {
 public:
-    explicit Texture(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3d12Resource);
+    explicit Texture(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource);
 
     virtual HRESULT GetLevelDesc(UINT Level, D3DSURFACE_DESC* pDesc);
     virtual HRESULT GetSurfaceLevel(UINT Level, Surface** ppSurfaceLevel);

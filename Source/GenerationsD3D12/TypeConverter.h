@@ -18,7 +18,7 @@ enum
     D3DFMT_RAWZ = MAKEFOURCC('R', 'A', 'W', 'Z')
 };
 
-class ConversionUtilities
+class TypeConverter
 {
 public:
     static DXGI_FORMAT convert(D3DFORMAT format);
@@ -26,4 +26,5 @@ public:
     static DXGI_FORMAT makeUntypeless(DXGI_FORMAT format, bool srgb);
     static DXGI_FORMAT getDeclType(D3DDECLTYPE type);
     static const char* getDeclUsageName(D3DDECLUSAGE usage);
+    static D3D_PRIMITIVE_TOPOLOGY getPrimitiveTopology(D3DPRIMITIVETYPE primitiveType);
 };

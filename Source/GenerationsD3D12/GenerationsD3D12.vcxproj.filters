@@ -7,9 +7,6 @@
     <ClCompile Include="Unknown.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="PixelShader.cpp">
-      <Filter>Base\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="BaseTexture.cpp">
       <Filter>Base\Textures</Filter>
     </ClCompile>
@@ -26,21 +23,15 @@
       <Filter>Base\Resources</Filter>
     </ClCompile>
     <ClCompile Include="Device.cpp">
-      <Filter>Base\Devices</Filter>
+      <Filter>Base\Common</Filter>
     </ClCompile>
-    <ClCompile Include="VertexShader.cpp">
+    <ClCompile Include="Shader.cpp">
       <Filter>Base\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="IndexBuffer.cpp">
-      <Filter>Base\Indices</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
-      <Filter>Base\Vertices</Filter>
     </ClCompile>
     <ClCompile Include="Direct3D9.cpp">
       <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="ConversionUtilities.cpp">
+    <ClCompile Include="TypeConverter.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.cpp">
@@ -49,14 +40,26 @@
     <ClCompile Include="RenderTargetTexture.cpp">
       <Filter>Base\Textures</Filter>
     </ClCompile>
+    <ClCompile Include="CommandQueue.cpp">
+      <Filter>Base\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthStencilTexture.cpp">
+      <Filter>Base\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>Base\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Base\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Hash.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Unknown.h">
       <Filter>Base</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelShader.h">
-      <Filter>Base\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="BaseTexture.h">
       <Filter>Base\Textures</Filter>
@@ -74,21 +77,15 @@
       <Filter>Base\Resources</Filter>
     </ClInclude>
     <ClInclude Include="Device.h">
-      <Filter>Base\Devices</Filter>
+      <Filter>Base\Common</Filter>
     </ClInclude>
-    <ClInclude Include="VertexShader.h">
+    <ClInclude Include="Shader.h">
       <Filter>Base\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
-      <Filter>Base\Indices</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
-      <Filter>Base\Vertices</Filter>
     </ClInclude>
     <ClInclude Include="Direct3D9.h">
       <Filter>Base</Filter>
     </ClInclude>
-    <ClInclude Include="ConversionUtilities.h">
+    <ClInclude Include="TypeConverter.h">
       <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h">
@@ -96,6 +93,27 @@
     </ClInclude>
     <ClInclude Include="RenderTargetTexture.h">
       <Filter>Base\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandQueue.h">
+      <Filter>Base\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CriticalSection.h">
+      <Filter>Base\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencilTexture.h">
+      <Filter>Base\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>Base\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Base\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>Base\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Hash.h">
+      <Filter>Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -111,14 +129,8 @@
     <Filter Include="Base\Vertices">
       <UniqueIdentifier>{84c7ace6-a93c-4e06-898d-9a394e40b0da}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Base\Indices">
-      <UniqueIdentifier>{f44a5115-c2ba-4831-89ea-7740a52069a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Base\Shaders">
       <UniqueIdentifier>{699fb707-a43e-4a89-a889-0d584a105a24}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Base\Devices">
-      <UniqueIdentifier>{8fabe478-f593-4903-8250-633dc757761c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Base\Resources">
       <UniqueIdentifier>{d9eb1800-b755-4e52-bfec-7bb2807ca4d4}</UniqueIdentifier>
@@ -126,5 +138,15 @@
     <Filter Include="Dependencies">
       <UniqueIdentifier>{b394c73c-561b-41cc-937f-54bb64ef2919}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Base\Common">
+      <UniqueIdentifier>{8fabe478-f593-4903-8250-633dc757761c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Buffers">
+      <UniqueIdentifier>{f44a5115-c2ba-4831-89ea-7740a52069a1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="VertexShader.hlsl" />
+    <FxCompile Include="PixelShader.hlsl" />
   </ItemGroup>
 </Project>

@@ -6,7 +6,7 @@
 class Surface : public Resource
 {
 public:
-    Surface(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3d12Resource);
+    Surface(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource);
 
     virtual HRESULT GetContainer(const IID& riid, void** ppContainer);
     virtual HRESULT GetDesc(D3DSURFACE_DESC* pDesc);

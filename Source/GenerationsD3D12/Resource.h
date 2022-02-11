@@ -9,11 +9,13 @@ class Resource : public Unknown
 
 protected:
     ComPtr<Device> d3dDevice;
-    ComPtr<ID3D12Resource> d3d12Resource;
+    ComPtr<ID3D12Resource> d3dResource;
 
 public:
-    explicit Resource(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3d12Resource);
+    explicit Resource(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource);
     ~Resource();
+
+    ID3D12Resource* getD3DResource() const;
 
     virtual HRESULT GetDevice(Device** ppDevice);
     virtual HRESULT SetPrivateData(const GUID& refguid, const void* pData, DWORD SizeOfData, DWORD Flags);

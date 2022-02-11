@@ -2,41 +2,66 @@
 
 #include "Unknown.h"
 
-class Direct3D9;
+#include "CommandQueue.h"
+#include "ConstantBuffer.h"
+
 class BaseTexture;
 class CubeTexture;
+class DepthStencilTexture;
+class Direct3D9;
 class IndexBuffer;
-class PixelShader;
+class RenderTargetSurface;
+class RenderTargetTexture;
+class Shader;
 class Surface;
 class Texture;
 class VertexBuffer;
 class VertexDeclaration;
-class VertexShader;
-class RenderTargetSurface;
+
+typedef Shader VertexShader;
+typedef Shader PixelShader;
+
+enum class CommandQueueType
+{
+    Render,
+    Load,
+    Max
+};
+
+struct VertexShaderConstants;
+struct PixelShaderConstants;
 
 class Device : public Unknown
 {
-    ComPtr<ID3D12Device> d3d12Device;
-    ComPtr<ID3D12CommandQueue> d3d12CommandQueue;
-    ComPtr<ID3D12CommandAllocator> d3d12CommandAllocator;
-    ComPtr<ID3D12GraphicsCommandList> d3d12CommandList;
-    ComPtr<ID3D12Fence> d3d12Fence;
-    HANDLE d3d12FenceEvent;
-    UINT64 d3d12FenceValue;
+    ComPtr<ID3D12Device> d3dDevice;
+    CommandQueue queues[(size_t)CommandQueueType::Max];
+    ComPtr<IDXGISwapChain3> dxgiSwapChain;
+    ComPtr<RenderTargetTexture> d3dRenderTargets[2];
+    size_t d3dRenderTargetIndex{};
+    ComPtr<DepthStencilTexture> d3dDepthStencil;
 
-    ComPtr<IDXGISwapChain1> dxgiSwapChain;
+    // Root signature
+    ComPtr<ID3D12RootSignature> d3dRootSignature;
+    ConstantBuffer<VertexShaderConstants> vertexShaderConstants;
+    ConstantBuffer<PixelShaderConstants> pixelShaderConstants;
 
-    D3DVIEWPORT9 d3d9Viewport;
+    // Pipeline states
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc{};
+    std::map<size_t, ComPtr<ID3D12PipelineState>> d3dPipelineStates;
+
+    // Cache
+    D3DVIEWPORT9 d3dViewport{};
+
+    void validateState();
 
 public:
     explicit Device(D3DPRESENT_PARAMETERS* presentationParameters);
     ~Device() = default;
 
-    ID3D12Device* GetD3D12Device() const
-    {
-        return d3d12Device.Get();
-    }
+    ID3D12Device* getD3DDevice() const;
+    CommandQueue& getCommandQueue(CommandQueueType type = CommandQueueType::Render);
 
+#pragma region D3D9 Device
     virtual HRESULT TestCooperativeLevel();
     virtual UINT GetAvailableTextureMem();
     virtual HRESULT EvictManagedResources();
@@ -153,4 +178,5 @@ public:
     virtual HRESULT DrawTriPatch(UINT Handle, const float* pNumSegs, const D3DTRIPATCH_INFO* pTriPatchInfo);
     virtual HRESULT DeletePatch(UINT Handle);
     virtual HRESULT CreateQuery(D3DQUERYTYPE Type, IDirect3DQuery9** ppQuery);
+#pragma endregion
 };

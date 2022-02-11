@@ -1,6 +1,6 @@
-﻿#include "ConversionUtilities.h"
+﻿#include "TypeConverter.h"
 
-DXGI_FORMAT ConversionUtilities::convert(D3DFORMAT format)
+DXGI_FORMAT TypeConverter::convert(D3DFORMAT format)
 {
     switch (format)
     {
@@ -56,7 +56,7 @@ DXGI_FORMAT ConversionUtilities::convert(D3DFORMAT format)
     return DXGI_FORMAT_UNKNOWN;
 }
 
-DXGI_FORMAT ConversionUtilities::makeTypeless(DXGI_FORMAT format)
+DXGI_FORMAT TypeConverter::makeTypeless(DXGI_FORMAT format)
 {
     switch (format)
     {
@@ -88,7 +88,7 @@ DXGI_FORMAT ConversionUtilities::makeTypeless(DXGI_FORMAT format)
     }
 }
 
-DXGI_FORMAT ConversionUtilities::makeUntypeless(DXGI_FORMAT format, bool srgb)
+DXGI_FORMAT TypeConverter::makeUntypeless(DXGI_FORMAT format, bool srgb)
 {
     switch (format)
     {
@@ -102,7 +102,7 @@ DXGI_FORMAT ConversionUtilities::makeUntypeless(DXGI_FORMAT format, bool srgb)
     }
 }
 
-DXGI_FORMAT ConversionUtilities::getDeclType(D3DDECLTYPE type)
+DXGI_FORMAT TypeConverter::getDeclType(D3DDECLTYPE type)
 {
     switch (type)
     {
@@ -128,7 +128,7 @@ DXGI_FORMAT ConversionUtilities::getDeclType(D3DDECLTYPE type)
     }
 }
 
-const char* ConversionUtilities::getDeclUsageName(D3DDECLUSAGE usage)
+const char* TypeConverter::getDeclUsageName(D3DDECLUSAGE usage)
 {
     switch (usage)
     {
@@ -148,4 +148,24 @@ const char* ConversionUtilities::getDeclUsageName(D3DDECLUSAGE usage)
     case D3DDECLUSAGE_SAMPLE: return "SAMPLE";
     default: return "UNKNOWN";
     }
+}
+
+D3D_PRIMITIVE_TOPOLOGY TypeConverter::getPrimitiveTopology(const D3DPRIMITIVETYPE primitiveType)
+{
+    switch (primitiveType)
+    {
+    case D3DPT_POINTLIST:
+        return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+    case D3DPT_LINELIST:
+        return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+    case D3DPT_LINESTRIP:
+        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+    case D3DPT_TRIANGLELIST:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    case D3DPT_TRIANGLESTRIP:
+    case D3DPT_TRIANGLEFAN:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+    }
+
+    return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 }

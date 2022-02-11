@@ -57,7 +57,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\DDSTextureLoader;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -78,7 +78,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -99,19 +99,21 @@
   <ItemGroup>
     <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="BaseTexture.cpp" />
+    <ClCompile Include="CommandQueue.cpp" />
+    <ClCompile Include="DepthStencilTexture.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="Direct3D9.cpp" />
+    <ClCompile Include="Hash.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
-    <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="RenderTargetTexture.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexDeclaration.cpp" />
-    <ClCompile Include="VertexShader.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="DllMain.cpp" />
-    <ClCompile Include="ConversionUtilities.cpp" />
+    <ClCompile Include="TypeConverter.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -124,20 +126,50 @@
   <ItemGroup>
     <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h" />
     <ClInclude Include="BaseTexture.h" />
+    <ClInclude Include="CommandQueue.h" />
+    <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="CriticalSection.h" />
+    <ClInclude Include="DepthStencilTexture.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="Direct3D9.h" />
+    <ClInclude Include="Hash.h" />
     <ClInclude Include="IndexBuffer.h" />
-    <ClInclude Include="PixelShader.h" />
     <ClInclude Include="RenderTargetTexture.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDeclaration.h" />
-    <ClInclude Include="VertexShader.h" />
-    <ClInclude Include="ConversionUtilities.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="TypeConverter.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Unknown.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)%(Filename).h</HeaderFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ObjectFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)%(Filename).h</HeaderFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ObjectFileOutput>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="VertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)%(Filename).h</HeaderFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ObjectFileOutput>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)%(Filename).h</HeaderFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ObjectFileOutput>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <vector>
 #include <memory>
+#include <mutex>
 
 #include <d3d9.h>
 #include <d3d12.h>

@@ -8,16 +8,54 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     if (pPictureData->m_Flags & hh::db::eDatabaseDataFlags_IsMadeOne)
         return;
 
-    const ComPtr<Device> device = (Device*)pRenderingInfrastructure->m_RenderingDevice.m_pD3DDevice;
+    const ComPtr<Device> d3dDevice = (Device*)pRenderingInfrastructure->m_RenderingDevice.m_pD3DDevice;
 
-    ComPtr<ID3D12Resource> resource;
+    ComPtr<ID3D12Resource> d3dTexture;
     std::vector<D3D12_SUBRESOURCE_DATA> subResources;
 
-    const HRESULT result = DirectX::LoadDDSTextureFromMemory(device->GetD3D12Device(), pData, length, resource.GetAddressOf(), subResources);
+    const HRESULT result = DirectX::LoadDDSTextureFromMemory(d3dDevice->getD3DDevice(), pData, length, d3dTexture.GetAddressOf(), subResources);
 
-    if (SUCCEEDED(result) && resource != nullptr)
+    if (SUCCEEDED(result) && d3dTexture != nullptr)
     {
-        pPictureData->m_pD3DTexture = (DX_PATCH::IDirect3DBaseTexture9*)(new Texture(device, resource));
+        // Create upload buffer.
+        ComPtr<ID3D12Resource> d3dUploadHeap;
+
+        d3dDevice->getD3DDevice()->CreateCommittedResource(
+            &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+            D3D12_HEAP_FLAG_NONE,
+            &CD3DX12_RESOURCE_DESC::Buffer(GetRequiredIntermediateSize(d3dTexture.Get(), 0, subResources.size())),
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&d3dUploadHeap));
+
+        // Update subresources.
+        auto& commandQueue = d3dDevice->getCommandQueue(CommandQueueType::Load);
+        const auto lock = commandQueue.lock();
+
+        UpdateSubresources(commandQueue.getD3DCommandList(), d3dTexture.Get(), d3dUploadHeap.Get(), 0, 0, subResources.size(), subResources.data());
+
+        // Transition the texture to a shader resource.
+        commandQueue.getD3DCommandList()->ResourceBarrier(
+            1,
+            &CD3DX12_RESOURCE_BARRIER::Transition(
+                d3dTexture.Get(),
+                D3D12_RESOURCE_STATE_COPY_DEST,
+                D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+
+        // Execute command list before freeing upload heap.
+        commandQueue.executeCommandList();
+        commandQueue.waitForFenceEvent();
+        commandQueue.resetCommandList();
+
+        // Free upload heap.
+        d3dUploadHeap.Reset();
+
+        // Set resource name.
+        WCHAR pictureName[0x100];
+        MultiByteToWideChar(CP_UTF8, 0, pPictureData->m_TypeAndName.c_str() + 15, -1, pictureName, _countof(pictureName));
+        d3dTexture->SetName(pictureName);
+
+        pPictureData->m_pD3DTexture = (DX_PATCH::IDirect3DBaseTexture9*)(new Texture(d3dDevice, d3dTexture));
         pPictureData->m_Type = hh::mr::ePictureType_Texture;
     }
     else
@@ -39,9 +77,9 @@ HOOK(Direct3D9*, __cdecl, Direct3DCreate, 0xA5EDD0, UINT SDKVersion)
     return new Direct3D9(SDKVersion);
 }
 
-HOOK(void, WINAPI, MyOutputDebugStringW, &OutputDebugStringW, LPCWSTR lpOutputString)
+HOOK(void, WINAPI, MyOutputDebugStringA, &OutputDebugStringA, LPCSTR lpOutputString)
 {
-    printf("%ls", lpOutputString);
+    printf(lpOutputString);
 }
 
 extern "C" __declspec(dllexport) void Init()
@@ -51,12 +89,12 @@ extern "C" __declspec(dllexport) void Init()
     INSTALL_HOOK(Direct3DCreate);
 
 #if _DEBUG
+    INSTALL_HOOK(MyOutputDebugStringA);
+
     if (!GetConsoleWindow())
         AllocConsole();
 
     freopen("CONOUT$", "w", stdout);
-
-    INSTALL_HOOK(MyOutputDebugStringW);
 
     WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
 #endif
