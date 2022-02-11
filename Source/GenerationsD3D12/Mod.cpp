@@ -88,6 +88,8 @@ extern "C" __declspec(dllexport) void Init()
     INSTALL_HOOK(FillTexture);
     INSTALL_HOOK(Direct3DCreate);
 
+    WRITE_CALL(0x64CF9E, 0x64F470);
+
 #if _DEBUG
     INSTALL_HOOK(MyOutputDebugStringA);
 

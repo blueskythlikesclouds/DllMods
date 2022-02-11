@@ -12,7 +12,7 @@
     returnType name(__VA_ARGS__) \
     { \
         PRINT("GenerationsD3D12: %s() stubbed\n", #name); \
-        return (returnType)NULL; \
+        return (returnType)E_FAIL; \
     }
 
 #include <Windows.h>

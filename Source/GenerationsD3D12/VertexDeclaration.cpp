@@ -50,6 +50,9 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
 
     // TODO: Do this depending on the shader reflection
     addIfMissing("TEXCOORD", 0);
+    addIfMissing("TEXCOORD", 1);
+    addIfMissing("TEXCOORD", 2);
+    addIfMissing("TEXCOORD", 3);
     addIfMissing("BLENDWEIGHT", 0);
     addIfMissing("BLENDINDICES", 0);
 }

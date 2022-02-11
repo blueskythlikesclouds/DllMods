@@ -32,7 +32,6 @@ class Device : public Unknown
     ComPtr<IDXGISwapChain3> swapChain;
     ComPtr<RenderTargetTexture> backBufferRenderTargets[2];
     size_t backBufferIndex{};
-    ComPtr<DepthStencilTexture> backBufferDepthStencil;
 
     // Root signature
     ComPtr<ID3D12RootSignature> rootSignature;
@@ -47,22 +46,52 @@ class Device : public Unknown
     D3D12_CPU_DESCRIPTOR_HANDLE samplerCpuDescriptorHandle;
     D3D12_GPU_DESCRIPTOR_HANDLE samplerGpuDescriptorHandle;
 
-    // Pipeline states
-    std::map<size_t, ComPtr<ID3D12PipelineState>> psoMap;
+    ComPtr<ID3D12Resource> vertexUploadBuffer;
+    ComPtr<ID3D12Resource> indexUploadBuffer;
+    void* vertexUploadBufferData{};
+    size_t vertexUploadBufferSize{};
+    void* indexUploadBufferData{};
+    size_t indexUploadBufferSize{};
+
+    struct PipelineStateCache
+    {
+        ComPtr<ID3D12PipelineState> pipelineState;
+        ComPtr<VertexShader> vertexShader;
+        ComPtr<PixelShader> pixelShader;
+        ComPtr<VertexDeclaration> vertexDeclaration;
+    };
+
+    std::map<size_t, PipelineStateCache> psoMap;
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pso{};
-    D3D12_CPU_DESCRIPTOR_HANDLE renderTargets[4]{};
-    D3D12_CPU_DESCRIPTOR_HANDLE depthStencil{};
+
+    ComPtr<RenderTargetTexture> renderTargets[4]{};
+    ComPtr<DepthStencilTexture> depthStencil{};
+
     D3D12_VIEWPORT viewport{};
     D3D12_RECT scissorRect{};
+
     D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
+    ComPtr<IndexBuffer> indexBuffer;
     D3D12_INDEX_BUFFER_VIEW indexBufferView{};
+
+    ComPtr<VertexBuffer> vertexBuffers[8];
     D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[8]{};
+
     UINT stencilRef{};
-    D3D12_CPU_DESCRIPTOR_HANDLE textures[16]{};
+
+    ComPtr<Texture> textures[16];
     D3D12_SAMPLER_DESC samplers[16]{};
 
+    ComPtr<VertexDeclaration> vertexDeclaration;
+
+    ComPtr<VertexShader> vertexShader;
+    ComPtr<PixelShader> pixelShader;
+
     void validateState();
+
+    void reserveVertexBuffer(size_t length);
+    void reserveIndexBuffer(size_t length);
 
 public:
     explicit Device(D3DPRESENT_PARAMETERS* presentationParameters);

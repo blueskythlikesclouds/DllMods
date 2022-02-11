@@ -56,7 +56,21 @@ D3D12_CPU_DESCRIPTOR_HANDLE Texture::getSrvDescriptorHandle() const
     return srvDescriptorHandle;
 }
 
-FUNCTION_STUB(HRESULT, Texture::GetLevelDesc, UINT Level, D3DSURFACE_DESC *pDesc)
+HRESULT Texture::GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc)
+{
+    if (!pDesc)
+        return E_INVALIDARG;
+
+    const D3D12_RESOURCE_DESC desc = resource->GetDesc();
+    if (desc.Dimension != D3D12_RESOURCE_DIMENSION_TEXTURE2D)
+        return E_FAIL;
+
+    ZeroMemory(pDesc, sizeof(*pDesc));
+    pDesc->Width = (UINT)desc.Width >> Level;
+    pDesc->Height = (UINT)desc.Height >> Level;
+
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Texture::GetSurfaceLevel, UINT Level, Surface** ppSurfaceLevel)
 
