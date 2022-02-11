@@ -1,10 +1,22 @@
 ﻿#include "VertexDeclaration.h"
 #include "TypeConverter.h"
 
-VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements) : count(0)
+void VertexDeclaration::addIfMissing(LPCSTR semanticName, UINT semanticIndex)
 {
-    std::vector<D3D12_INPUT_ELEMENT_DESC> inputElementList;
+    for (auto& element : inputElements)
+    {
+        if (strcmp(element.SemanticName, semanticName) == 0 && element.SemanticIndex == semanticIndex)
+            return;
+    }
 
+    auto inputElement = inputElements[0];
+    inputElement.SemanticName = semanticName;
+    inputElement.SemanticIndex = semanticIndex;
+    inputElements.push_back(inputElement);
+}
+
+VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
+{
     for (int i = 0; ; i++)
     {
         if (pVertexElements[i].Stream == 0xFF)
@@ -20,7 +32,7 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements) :
             break;
 
         D3D12_INPUT_ELEMENT_DESC desc;
-        desc.SemanticName = TypeConverter::getDeclUsageName((D3DDECLUSAGE)pVertexElements[i].Usage);
+        desc.SemanticName = TypeConverter::getDeclUsage((D3DDECLUSAGE)pVertexElements[i].Usage);
         desc.SemanticIndex = pVertexElements[i].UsageIndex;
         desc.Format = TypeConverter::getDeclType((D3DDECLTYPE)pVertexElements[i].Type);
         desc.InputSlot = pVertexElements[i].Stream;
@@ -28,24 +40,25 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements) :
         desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
         desc.InstanceDataStepRate = 0;
 
-        inputElementList.push_back(desc);
+        inputElements.push_back(desc);
     }
 
-    vertexElements = std::make_unique<D3DVERTEXELEMENT9[]>(inputElementList.size() + 1);
-    memcpy(vertexElements.get(), pVertexElements, sizeof(D3DVERTEXELEMENT9) * inputElementList.size());
-    vertexElements[inputElementList.size() - 1] = D3DDECL_END();
+    vertexElements = std::make_unique<D3DVERTEXELEMENT9[]>(inputElements.size() + 1);
+    memcpy(vertexElements.get(), pVertexElements, sizeof(D3DVERTEXELEMENT9) * inputElements.size());
+    vertexElements[inputElements.size() - 1] = D3DDECL_END();
+    vertexElementCount = inputElements.size();
 
-    inputElements = std::make_unique<D3D12_INPUT_ELEMENT_DESC[]>(inputElementList.size());
-    memcpy(inputElements.get(), inputElementList.data(), sizeof(D3D12_INPUT_ELEMENT_DESC) * inputElementList.size());
-
-    count = inputElementList.size();
+    // TODO: Do this depending on the shader reflection
+    addIfMissing("TEXCOORD", 0);
+    addIfMissing("BLENDWEIGHT", 0);
+    addIfMissing("BLENDINDICES", 0);
 }
 
 D3D12_INPUT_LAYOUT_DESC VertexDeclaration::getInputLayoutDesc() const
 {
     D3D12_INPUT_LAYOUT_DESC inputLayoutDesc;
-    inputLayoutDesc.pInputElementDescs = inputElements.get();
-    inputLayoutDesc.NumElements = count;
+    inputLayoutDesc.pInputElementDescs = inputElements.data();
+    inputLayoutDesc.NumElements = inputElements.size();
     return inputLayoutDesc;
 }
 
@@ -53,8 +66,8 @@ FUNCTION_STUB(HRESULT, VertexDeclaration::GetDevice, Device** ppDevice)
 
 HRESULT VertexDeclaration::GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements)
 {
-    memcpy(pElement, vertexElements.get(), count * sizeof(D3DVERTEXELEMENT9));
-    *pNumElements = count;
+    memcpy(pElement, vertexElements.get(), vertexElementCount * sizeof(D3DVERTEXELEMENT9));
+    *pNumElements = vertexElementCount;
 
     return S_OK;
 }

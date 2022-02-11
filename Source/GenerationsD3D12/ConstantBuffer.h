@@ -5,6 +5,8 @@ class ConstantBuffer
 {
     ComPtr<ID3D12Resource> resource;
     ComPtr<ID3D12DescriptorHeap> descriptorHeap;
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuDescriptorHandle{};
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle{};
     T* data{};
 
 public:
@@ -17,6 +19,21 @@ public:
     ID3D12Resource* getResource() const
     {
         return resource.Get();
+    }
+
+    ID3D12DescriptorHeap* getDescriptorHeap() const
+    {
+        return descriptorHeap.Get();
+    }
+
+    D3D12_CPU_DESCRIPTOR_HANDLE getCpuDescriptorHandle() const
+    {
+        return cpuDescriptorHandle;
+    }
+
+    D3D12_GPU_DESCRIPTOR_HANDLE getGpuDescriptorHandle() const
+    {
+        return gpuDescriptorHandle;
     }
 
     T* getData() const
@@ -42,11 +59,14 @@ public:
         desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
         device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptorHeap));
 
+        cpuDescriptorHandle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+        gpuDescriptorHandle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
         // Create constant buffer view.
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
         cbvDesc.BufferLocation = resource->GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = (sizeof(T) + 255) & ~0xFF;
-        device->CreateConstantBufferView(&cbvDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+        device->CreateConstantBufferView(&cbvDesc, cpuDescriptorHandle);
 
         // Map constant buffer.
         resource->Map(0, nullptr, reinterpret_cast<void**>(&data));

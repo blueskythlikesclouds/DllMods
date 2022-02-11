@@ -20,14 +20,14 @@
 #include "VertexShader.h"
 #undef g_main
 
-struct VertexShaderConstants
+struct VertexConstants
 {
     FLOAT c[256][4];
     INT i[16][4];
     BOOL b[16];
 };
 
-struct PixelShaderConstants
+struct PixelConstants
 {
     FLOAT c[224][4];
     INT i[16][4];
@@ -46,11 +46,40 @@ void Device::validateState()
 
     pso.NumRenderTargets = renderTargetCount;
 
+    const size_t srvIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    const size_t samplerIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+
+    for (size_t i = 0; i < _countof(textures); i++)
+    {
+        if (!textures[i].ptr)
+            continue;
+
+        device->CopyDescriptorsSimple(1, CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuDescriptorHandle, i * srvIncrementSize),
+                                      textures[i], D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    }
+
+    /*for (size_t i = 0; i < _countof(samplers); i++)
+        device->CreateSampler(&samplers[i], CD3DX12_CPU_DESCRIPTOR_HANDLE(samplerCpuDescriptorHandle, i * samplerIncrementSize));*/
+
     ID3D12GraphicsCommandList* commandList = renderQueue.getCommandList();
 
+    ID3D12DescriptorHeap* vertexConstantsDescriptorHeap = vertexConstants.getDescriptorHeap();
+    ID3D12DescriptorHeap* pixelConstantsDescriptorHeap = pixelConstants.getDescriptorHeap();
+
     commandList->SetGraphicsRootSignature(rootSignature.Get());
-    commandList->SetGraphicsRootConstantBufferView(0, vertexShaderConstants.getResource()->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootConstantBufferView(1, pixelShaderConstants.getResource()->GetGPUVirtualAddress());
+
+    commandList->SetDescriptorHeaps(1, &vertexConstantsDescriptorHeap);
+    commandList->SetGraphicsRootDescriptorTable(0, vertexConstants.getGpuDescriptorHandle());
+
+    commandList->SetDescriptorHeaps(1, &pixelConstantsDescriptorHeap);
+    commandList->SetGraphicsRootDescriptorTable(1, pixelConstants.getGpuDescriptorHandle());
+
+    commandList->SetDescriptorHeaps(1, srvDescriptorHeap.GetAddressOf());
+    commandList->SetGraphicsRootDescriptorTable(2, srvGpuDescriptorHandle);
+
+    commandList->SetDescriptorHeaps(1, samplerDescriptorHeap.GetAddressOf());
+    commandList->SetGraphicsRootDescriptorTable(3, samplerGpuDescriptorHandle);
+
     commandList->OMSetRenderTargets(renderTargetCount, renderTargets, FALSE, &depthStencil);
     commandList->RSSetViewports(1, &viewport);
     commandList->RSSetScissorRects(1, &scissorRect);
@@ -116,18 +145,18 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     dxgiFactory->CreateSwapChainForHwnd(renderQueue.getCommandQueue(), presentationParameters->hDeviceWindow, &swapChainDesc, nullptr, nullptr, &swapChain1);
     swapChain1.As(&swapChain);
 
-    // Create root parameters
-    D3D12_ROOT_PARAMETER rootParameters[2];
+    // Initialize root signature
+    CD3DX12_DESCRIPTOR_RANGE descriptorRanges[4];
+    descriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0);
+    descriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 1);
+    descriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, _countof(textures), 0, 2);
+    descriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, _countof(samplers), 0, 3);
 
-    rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameters[0].Descriptor.ShaderRegister = 0;
-    rootParameters[0].Descriptor.RegisterSpace = 0;
-    rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-
-    rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameters[1].Descriptor.ShaderRegister = 1;
-    rootParameters[1].Descriptor.RegisterSpace = 0;
-    rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    CD3DX12_ROOT_PARAMETER rootParameters[4];
+    rootParameters[0].InitAsDescriptorTable(1, &descriptorRanges[0], D3D12_SHADER_VISIBILITY_VERTEX);
+    rootParameters[1].InitAsDescriptorTable(1, &descriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+    rootParameters[2].InitAsDescriptorTable(1, &descriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
+    rootParameters[3].InitAsDescriptorTable(1, &descriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL);
 
     // Create root signature
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
@@ -139,6 +168,10 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     
     ComPtr<ID3DBlob> rootSignatureBlob, errorBlob;
     D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &rootSignatureBlob, &errorBlob);
+
+    if (errorBlob)
+        OutputDebugStringA((LPCSTR)errorBlob->GetBufferPointer());
+
     device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(), rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
     // Initialize PSO
@@ -156,8 +189,28 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     pso.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
     // Initialize constant buffers
-    vertexShaderConstants.initialize(device);
-    pixelShaderConstants.initialize(device);
+    vertexConstants.initialize(device);
+    pixelConstants.initialize(device);
+
+    // Create SRV descriptor heap
+    D3D12_DESCRIPTOR_HEAP_DESC srvDesc{};
+    srvDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    srvDesc.NumDescriptors = _countof(textures);
+    srvDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+    device->CreateDescriptorHeap(&srvDesc, IID_PPV_ARGS(&srvDescriptorHeap));
+    srvCpuDescriptorHandle = srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    srvGpuDescriptorHandle = srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+    // Create sampler descriptor heap
+    D3D12_DESCRIPTOR_HEAP_DESC samplerDesc{};
+    samplerDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+    samplerDesc.NumDescriptors = _countof(samplers);
+    samplerDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+    device->CreateDescriptorHeap(&samplerDesc, IID_PPV_ARGS(&samplerDescriptorHeap));
+    samplerCpuDescriptorHandle = samplerDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    samplerGpuDescriptorHandle = samplerDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 
     // Create swap chain render targets
     for (int i = 0; i < _countof(backBufferRenderTargets); i++)
@@ -184,7 +237,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     depthStencilDesc.Height = swapChainDesc.Height;
     depthStencilDesc.DepthOrArraySize = 1;
     depthStencilDesc.MipLevels = 1;
-    depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
     depthStencilDesc.SampleDesc.Count = 1;
     depthStencilDesc.SampleDesc.Quality = 0;
     depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
@@ -261,14 +314,14 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
 
     // Set render target and depth stencil
     renderQueue.getCommandList()->OMSetRenderTargets(1,
-        &backBufferRenderTargets[backBufferIndex]->getDescriptorHandle(), FALSE, &backBufferDepthStencil->getDescriptorHandle());
+        &backBufferRenderTargets[backBufferIndex]->getRtvDescriptorHandle(), FALSE, &backBufferDepthStencil->getDsvDescriptorHandle());
 
     // Clear render target to black.
     FLOAT color[4] = { 0, 0, 0, 1 };
-    renderQueue.getCommandList()->ClearRenderTargetView(backBufferRenderTargets[backBufferIndex]->getDescriptorHandle(), color, 0, nullptr);
+    renderQueue.getCommandList()->ClearRenderTargetView(backBufferRenderTargets[backBufferIndex]->getRtvDescriptorHandle(), color, 0, nullptr);
 
     // Clear depth stencil
-    renderQueue.getCommandList()->ClearDepthStencilView(backBufferDepthStencil->getDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    renderQueue.getCommandList()->ClearDepthStencilView(backBufferDepthStencil->getDsvDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     return S_OK;
 }
@@ -370,7 +423,7 @@ HRESULT Device::SetRenderTarget(DWORD RenderTargetIndex, Surface* pRenderTarget)
     if (pRenderTarget)
     {
         const auto renderTargetTexture = ((RenderTargetSurface*)pRenderTarget)->getTexture();
-        renderTargets[RenderTargetIndex] = renderTargetTexture->getDescriptorHandle();
+        renderTargets[RenderTargetIndex] = renderTargetTexture->getRtvDescriptorHandle();
         pso.RTVFormats[RenderTargetIndex] = renderTargetTexture->getFormat();
     }
 
@@ -393,7 +446,7 @@ HRESULT Device::SetDepthStencilSurface(Surface* pNewZStencil)
     if (pNewZStencil)
     {
         const auto depthStencilTexture = ((DepthStencilSurface*)pNewZStencil)->getTexture();
-        depthStencil = depthStencilTexture->getDescriptorHandle();
+        depthStencil = depthStencilTexture->getDsvDescriptorHandle();
         pso.DSVFormat = depthStencilTexture->getFormat();
     }
 
@@ -646,6 +699,7 @@ FUNCTION_STUB(HRESULT, Device::GetTexture, DWORD Stage, BaseTexture** ppTexture)
 
 HRESULT Device::SetTexture(DWORD Stage, BaseTexture* pTexture)
 {
+    textures[Stage] = pTexture ? reinterpret_cast<Texture*>(pTexture)->getSrvDescriptorHandle() : D3D12_CPU_DESCRIPTOR_HANDLE();
     return S_OK;
 }
 
@@ -770,7 +824,7 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShader, VertexShader** ppShader)
 
 HRESULT Device::SetVertexShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
 {
-    memcpy(&vertexShaderConstants.getData()->c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
+    memcpy(&vertexConstants.getData()->c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
     return S_OK;
 }
 
@@ -778,7 +832,7 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantF, UINT StartRegister, flo
 
 HRESULT Device::SetVertexShaderConstantI(UINT StartRegister, CONST int* pConstantData, UINT Vector4iCount)
 {
-    memcpy(&vertexShaderConstants.getData()->i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]));
+    memcpy(&vertexConstants.getData()->i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]));
     return S_OK;
 }
 
@@ -786,7 +840,7 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantI, UINT StartRegister, int
 
 HRESULT Device::SetVertexShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT BoolCount)
 {
-    memcpy(&vertexShaderConstants.getData()->b[StartRegister], pConstantData, BoolCount * sizeof(BOOL));
+    memcpy(&vertexConstants.getData()->b[StartRegister], pConstantData, BoolCount * sizeof(BOOL));
     return S_OK;
 }
 
@@ -832,7 +886,7 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShader, PixelShader** ppShader)
 
 HRESULT Device::SetPixelShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
 {
-    memcpy(&pixelShaderConstants.getData()->c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
+    memcpy(&pixelConstants.getData()->c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
     return S_OK;
 }
 
@@ -840,7 +894,7 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShaderConstantF, UINT StartRegister, floa
 
 HRESULT Device::SetPixelShaderConstantI(UINT StartRegister, CONST int* pConstantData, UINT Vector4iCount)
 {
-    memcpy(&pixelShaderConstants.getData()->i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]));
+    memcpy(&pixelConstants.getData()->i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]));
     return S_OK;
 }
 
@@ -848,7 +902,7 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShaderConstantI, UINT StartRegister, int*
 
 HRESULT Device::SetPixelShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
 {
-    memcpy(&pixelShaderConstants.getData()->b[StartRegister], pConstantData, BoolCount * sizeof(BOOL));
+    memcpy(&pixelConstants.getData()->b[StartRegister], pConstantData, BoolCount * sizeof(BOOL));
     return S_OK;
 }
 

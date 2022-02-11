@@ -24,6 +24,7 @@ public:
     static DXGI_FORMAT convert(D3DFORMAT format);
     static DXGI_FORMAT makeTypeless(DXGI_FORMAT format);
     static DXGI_FORMAT makeUntypeless(DXGI_FORMAT format, bool srgb);
+    static DXGI_FORMAT makeColor(DXGI_FORMAT format);
     static DXGI_FORMAT getDeclType(D3DDECLTYPE type);
-    static const char* getDeclUsageName(D3DDECLUSAGE usage);
+    static const char* getDeclUsage(D3DDECLUSAGE usage);
 };

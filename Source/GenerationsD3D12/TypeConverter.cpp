@@ -38,7 +38,7 @@ DXGI_FORMAT TypeConverter::convert(D3DFORMAT format)
     case D3DFMT_G32R32F: return DXGI_FORMAT_R32G32_FLOAT;
     case D3DFMT_INDEX16: return DXGI_FORMAT_R16_UINT;
     case D3DFMT_INDEX32: return DXGI_FORMAT_R32_UINT;
-    case D3DFMT_INTZ: return DXGI_FORMAT_D32_FLOAT;
+    case D3DFMT_INTZ: return DXGI_FORMAT_D24_UNORM_S8_UINT;
     case D3DFMT_RAWZ: return DXGI_FORMAT_D32_FLOAT;
     case D3DFMT_L16: return DXGI_FORMAT_R16_UNORM;
     case D3DFMT_L8: return DXGI_FORMAT_R8_UNORM;
@@ -103,6 +103,26 @@ DXGI_FORMAT TypeConverter::makeUntypeless(DXGI_FORMAT format, bool srgb)
     }
 }
 
+DXGI_FORMAT TypeConverter::makeColor(DXGI_FORMAT format)
+{
+    switch (format)
+    {
+    case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+        return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+
+    case DXGI_FORMAT_D24_UNORM_S8_UINT:
+        return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+
+    case DXGI_FORMAT_D32_FLOAT:
+        return DXGI_FORMAT_R32_FLOAT;
+
+    case DXGI_FORMAT_D16_UNORM:
+        return DXGI_FORMAT_R16_UNORM;
+    }
+
+    return format;
+}
+
 DXGI_FORMAT TypeConverter::getDeclType(D3DDECLTYPE type)
 {
     switch (type)
@@ -129,7 +149,7 @@ DXGI_FORMAT TypeConverter::getDeclType(D3DDECLTYPE type)
     }
 }
 
-const char* TypeConverter::getDeclUsageName(D3DDECLUSAGE usage)
+const char* TypeConverter::getDeclUsage(D3DDECLUSAGE usage)
 {
     switch (usage)
     {

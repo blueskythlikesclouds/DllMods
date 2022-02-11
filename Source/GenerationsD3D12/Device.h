@@ -21,8 +21,8 @@ class VertexDeclaration;
 typedef Shader VertexShader;
 typedef Shader PixelShader;
 
-struct VertexShaderConstants;
-struct PixelShaderConstants;
+struct VertexConstants;
+struct PixelConstants;
 
 class Device : public Unknown
 {
@@ -36,8 +36,16 @@ class Device : public Unknown
 
     // Root signature
     ComPtr<ID3D12RootSignature> rootSignature;
-    ConstantBuffer<VertexShaderConstants> vertexShaderConstants;
-    ConstantBuffer<PixelShaderConstants> pixelShaderConstants;
+    ConstantBuffer<VertexConstants> vertexConstants;
+    ConstantBuffer<PixelConstants> pixelConstants;
+
+    ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap;
+    D3D12_CPU_DESCRIPTOR_HANDLE srvCpuDescriptorHandle;
+    D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle;
+
+    ComPtr<ID3D12DescriptorHeap> samplerDescriptorHeap;
+    D3D12_CPU_DESCRIPTOR_HANDLE samplerCpuDescriptorHandle;
+    D3D12_GPU_DESCRIPTOR_HANDLE samplerGpuDescriptorHandle;
 
     // Pipeline states
     std::map<size_t, ComPtr<ID3D12PipelineState>> psoMap;
@@ -51,6 +59,8 @@ class Device : public Unknown
     D3D12_INDEX_BUFFER_VIEW indexBufferView{};
     D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[8]{};
     UINT stencilRef{};
+    D3D12_CPU_DESCRIPTOR_HANDLE textures[16]{};
+    D3D12_SAMPLER_DESC samplers[16]{};
 
     void validateState();
 

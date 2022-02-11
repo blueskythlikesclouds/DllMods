@@ -7,8 +7,10 @@ class Device;
 class VertexDeclaration : public Unknown
 {
     std::unique_ptr<D3DVERTEXELEMENT9[]> vertexElements;
-    std::unique_ptr<D3D12_INPUT_ELEMENT_DESC[]> inputElements;
-    size_t count;
+    std::vector<D3D12_INPUT_ELEMENT_DESC> inputElements;
+    size_t vertexElementCount{};
+
+    void addIfMissing(LPCSTR semanticName, UINT semanticIndex);
 
 public:
     VertexDeclaration(const D3DVERTEXELEMENT9* vertexElements);
