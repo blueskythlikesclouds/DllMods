@@ -40,4 +40,6 @@
 
 #include <wrl/client.h>
 
+#include "../BetterFxPipeline/Hash.h"
+
 using Microsoft::WRL::ComPtr;

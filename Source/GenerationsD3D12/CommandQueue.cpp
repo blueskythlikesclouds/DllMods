@@ -2,17 +2,17 @@
 
 CommandQueue::~CommandQueue()
 {
-    CloseHandle(d3dFenceEvent);
+    CloseHandle(fenceEvent);
 }
 
-ID3D12CommandQueue* CommandQueue::getD3DCommandQueue() const
+ID3D12CommandQueue* CommandQueue::getCommandQueue() const
 {
-    return d3dCommandQueue.Get();
+    return commandQueue.Get();
 }
 
-ID3D12GraphicsCommandList* CommandQueue::getD3DCommandList() const
+ID3D12GraphicsCommandList* CommandQueue::getCommandList() const
 {
-    return d3dCommandList.Get();
+    return commandList.Get();
 }
 
 std::lock_guard<CriticalSection> CommandQueue::lock()
@@ -20,7 +20,7 @@ std::lock_guard<CriticalSection> CommandQueue::lock()
     return std::lock_guard(criticalSection);
 }
 
-void CommandQueue::initialize(const ComPtr<ID3D12Device>& d3dDevice, D3D12_COMMAND_LIST_TYPE type)
+void CommandQueue::initialize(const ComPtr<ID3D12Device>& device, D3D12_COMMAND_LIST_TYPE type)
 {
     // Create command queue description.
     D3D12_COMMAND_QUEUE_DESC desc;
@@ -30,39 +30,39 @@ void CommandQueue::initialize(const ComPtr<ID3D12Device>& d3dDevice, D3D12_COMMA
     desc.NodeMask = 0;
 
     // Create command queue.
-    d3dDevice->CreateCommandQueue(&desc, IID_PPV_ARGS(&d3dCommandQueue));
+    device->CreateCommandQueue(&desc, IID_PPV_ARGS(&commandQueue));
 
     // Create command list.
-    d3dDevice->CreateCommandAllocator(type, IID_PPV_ARGS(&d3dCommandAllocator));
-    d3dDevice->CreateCommandList(
+    device->CreateCommandAllocator(type, IID_PPV_ARGS(&commandAllocator));
+    device->CreateCommandList(
         0,
         type,
-        d3dCommandAllocator.Get(),
+        commandAllocator.Get(),
         nullptr,
-        IID_PPV_ARGS(&d3dCommandList));
+        IID_PPV_ARGS(&commandList));
 
     // Create fence.
-    d3dDevice->CreateFence(
+    device->CreateFence(
         0,
         D3D12_FENCE_FLAG_NONE,
-        IID_PPV_ARGS(&d3dFence));
+        IID_PPV_ARGS(&fence));
 
-    d3dFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-    d3dFenceValue = 1;
+    fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    fenceValue = 1;
 }
 
 void CommandQueue::waitForFenceEvent()
 {
-    d3dCommandQueue->Signal(d3dFence.Get(), d3dFenceValue);
-    d3dFence->SetEventOnCompletion(d3dFenceValue, d3dFenceEvent);
-    WaitForSingleObjectEx(d3dFenceEvent, INFINITE, FALSE);
-    ++d3dFenceValue;
+    commandQueue->Signal(fence.Get(), fenceValue);
+    fence->SetEventOnCompletion(fenceValue, fenceEvent);
+    WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
+    ++fenceValue;
 }
 
 void CommandQueue::resetCommandList() const
 {
-    d3dCommandAllocator->Reset();
-    d3dCommandList->Reset(d3dCommandAllocator.Get(), nullptr);
+    commandAllocator->Reset();
+    commandList->Reset(commandAllocator.Get(), nullptr);
 }
 
 void CommandQueue::submitAll()
@@ -74,8 +74,8 @@ void CommandQueue::submitAll()
 
 void CommandQueue::executeCommandList() const
 {
-    d3dCommandList->Close();
+    commandList->Close();
 
-    ID3D12CommandList* commandLists[] = { d3dCommandList.Get() };
-    d3dCommandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+    ID3D12CommandList* commandLists[] = { commandList.Get() };
+    commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 }

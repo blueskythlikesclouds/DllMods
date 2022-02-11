@@ -6,24 +6,24 @@ class Device;
 
 class CommandQueue
 {
-    ComPtr<ID3D12CommandQueue> d3dCommandQueue;
-    ComPtr<ID3D12GraphicsCommandList> d3dCommandList;
-    ComPtr<ID3D12CommandAllocator> d3dCommandAllocator;
-    ComPtr<ID3D12Fence> d3dFence;
-    HANDLE d3dFenceEvent{};
-    UINT64 d3dFenceValue{};
+    ComPtr<ID3D12CommandQueue> commandQueue;
+    ComPtr<ID3D12GraphicsCommandList> commandList;
+    ComPtr<ID3D12CommandAllocator> commandAllocator;
+    ComPtr<ID3D12Fence> fence;
+    HANDLE fenceEvent{};
+    UINT64 fenceValue{};
     CriticalSection criticalSection;
 
 public:
     explicit CommandQueue() = default;
     ~CommandQueue();
 
-    ID3D12CommandQueue* getD3DCommandQueue() const;
-    ID3D12GraphicsCommandList* getD3DCommandList() const;
+    ID3D12CommandQueue* getCommandQueue() const;
+    ID3D12GraphicsCommandList* getCommandList() const;
 
     std::lock_guard<CriticalSection> lock();
 
-    void initialize(const ComPtr<ID3D12Device>& d3dDevice, D3D12_COMMAND_LIST_TYPE type);
+    void initialize(const ComPtr<ID3D12Device>& device, D3D12_COMMAND_LIST_TYPE type);
 
     void waitForFenceEvent();
     void executeCommandList() const;

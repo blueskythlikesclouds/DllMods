@@ -4,7 +4,6 @@
 #include "Surface.h"
 #include "TypeConverter.h"
 #include "DepthStencilTexture.h"
-#include "Hash.h"
 #include "RenderTargetTexture.h"
 #include "VertexDeclaration.h"
 #include "Texture.h"
@@ -38,170 +37,170 @@ struct PixelShaderConstants
 void Device::validateState()
 {
     size_t renderTargetCount;
-    for (renderTargetCount = 0; renderTargetCount < _countof(d3dRenderTargets) && d3dRenderTargets[renderTargetCount].ptr; renderTargetCount++)
+    for (renderTargetCount = 0; renderTargetCount < _countof(renderTargets) && renderTargets[renderTargetCount].ptr; renderTargetCount++)
         ;
 
     size_t vertexBufferCount;
-    for (vertexBufferCount = 0; vertexBufferCount < _countof(d3dVertexBufferViews) && d3dVertexBufferViews[vertexBufferCount].BufferLocation; vertexBufferCount++)
+    for (vertexBufferCount = 0; vertexBufferCount < _countof(vertexBufferViews) && vertexBufferViews[vertexBufferCount].BufferLocation; vertexBufferCount++)
         ;
 
-    d3dPipelineStateDesc.NumRenderTargets = renderTargetCount;
+    pso.NumRenderTargets = renderTargetCount;
 
-    ID3D12GraphicsCommandList* d3dCommandList = renderQueue.getD3DCommandList();
+    ID3D12GraphicsCommandList* commandList = renderQueue.getCommandList();
 
-    d3dCommandList->SetGraphicsRootSignature(d3dRootSignature.Get());
-    d3dCommandList->SetGraphicsRootConstantBufferView(0, vertexShaderConstants.getD3DResource()->GetGPUVirtualAddress());
-    d3dCommandList->SetGraphicsRootConstantBufferView(1, pixelShaderConstants.getD3DResource()->GetGPUVirtualAddress());
-    d3dCommandList->OMSetRenderTargets(renderTargetCount, d3dRenderTargets, FALSE, &d3dDepthStencil);
-    d3dCommandList->RSSetViewports(1, &d3dViewport);
-    d3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
-    d3dCommandList->IASetIndexBuffer(&d3dIndexBufferView);
-    d3dCommandList->IASetVertexBuffers(0, vertexBufferCount, d3dVertexBufferViews);
+    commandList->SetGraphicsRootSignature(rootSignature.Get());
+    commandList->SetGraphicsRootConstantBufferView(0, vertexShaderConstants.getResource()->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(1, pixelShaderConstants.getResource()->GetGPUVirtualAddress());
+    commandList->OMSetRenderTargets(renderTargetCount, renderTargets, FALSE, &depthStencil);
+    commandList->RSSetViewports(1, &viewport);
+    commandList->RSSetScissorRects(1, &scissorRect);
+    commandList->IASetIndexBuffer(&indexBufferView);
+    commandList->IASetVertexBuffers(0, vertexBufferCount, vertexBufferViews);
 
-    const size_t hash = Hash::compute(&d3dPipelineStateDesc, sizeof(d3dPipelineStateDesc));
+    const size_t hash = generateCrc32Hash(0, &pso, sizeof(pso));
 
-    ComPtr<ID3D12PipelineState> d3dPipelineState;
+    ComPtr<ID3D12PipelineState> pipelineState;
 
-    const auto pair = d3dPipelineStates.find(hash);
+    const auto pair = psoMap.find(hash);
 
-    if (pair != d3dPipelineStates.end())
-        d3dPipelineState = pair->second;
+    if (pair != psoMap.end())
+        pipelineState = pair->second;
 
     else
     {
-        d3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, IID_PPV_ARGS(&d3dPipelineState));
-        d3dPipelineStates.insert(std::make_pair(hash, d3dPipelineState));
+        device->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipelineState));
+        psoMap.insert(std::make_pair(hash, pipelineState));
     }
 
-    d3dCommandList->SetPipelineState(d3dPipelineState.Get());
+    commandList->SetPipelineState(pipelineState.Get());
 }
 
 Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
 {
 #if _DEBUG
-    ComPtr<ID3D12Debug> d3dDebugInterface;
-    D3D12GetDebugInterface(IID_PPV_ARGS(&d3dDebugInterface));
-    d3dDebugInterface->EnableDebugLayer();
+    ComPtr<ID3D12Debug> debugInterface;
+    D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface));
+    debugInterface->EnableDebugLayer();
 
     SetWindowLongPtr(presentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | WS_OVERLAPPEDWINDOW);
     SetWindowPos(presentationParameters->hDeviceWindow, HWND_TOP, (1920 - 1600) / 2, (1080 - 900) / 2, 1600, 900, SWP_FRAMECHANGED);
 #endif
 
     // Create device
-    D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&d3dDevice));
+    D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
 
     // Create DXGI factory
     ComPtr<IDXGIFactory4> dxgiFactory;
     CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 
     // Create command queues
-    renderQueue.initialize(d3dDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
-    loadQueue.initialize(d3dDevice, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    renderQueue.initialize(device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    loadQueue.initialize(device, D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     // Create swap chain
-    ComPtr<IDXGISwapChain1> dxgiSwapChain1;
+    ComPtr<IDXGISwapChain1> swapChain1;
 
-    DXGI_SWAP_CHAIN_DESC1 d3d12SwapChainDesc;
-    d3d12SwapChainDesc.Width = presentationParameters->BackBufferWidth;
-    d3d12SwapChainDesc.Height = presentationParameters->BackBufferHeight;
-    d3d12SwapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    d3d12SwapChainDesc.Stereo = FALSE;
-    d3d12SwapChainDesc.SampleDesc.Count = 1;
-    d3d12SwapChainDesc.SampleDesc.Quality = 0;
-    d3d12SwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    d3d12SwapChainDesc.BufferCount = 2;
-    d3d12SwapChainDesc.Scaling = DXGI_SCALING_STRETCH;
-    d3d12SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    d3d12SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-    d3d12SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-    dxgiFactory->CreateSwapChainForHwnd(renderQueue.getD3DCommandQueue(), presentationParameters->hDeviceWindow, &d3d12SwapChainDesc, nullptr, nullptr, &dxgiSwapChain1);
-    dxgiSwapChain1.As(&dxgiSwapChain);
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
+    swapChainDesc.Width = presentationParameters->BackBufferWidth;
+    swapChainDesc.Height = presentationParameters->BackBufferHeight;
+    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.Stereo = FALSE;
+    swapChainDesc.SampleDesc.Count = 1;
+    swapChainDesc.SampleDesc.Quality = 0;
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.BufferCount = 2;
+    swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+    swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    dxgiFactory->CreateSwapChainForHwnd(renderQueue.getCommandQueue(), presentationParameters->hDeviceWindow, &swapChainDesc, nullptr, nullptr, &swapChain1);
+    swapChain1.As(&swapChain);
 
     // Create root parameters
-    D3D12_ROOT_PARAMETER d3dRootParameters[2];
+    D3D12_ROOT_PARAMETER rootParameters[2];
 
-    d3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    d3dRootParameters[0].Descriptor.ShaderRegister = 0;
-    d3dRootParameters[0].Descriptor.RegisterSpace = 0;
-    d3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+    rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[0].Descriptor.ShaderRegister = 0;
+    rootParameters[0].Descriptor.RegisterSpace = 0;
+    rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
-    d3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    d3dRootParameters[1].Descriptor.ShaderRegister = 1;
-    d3dRootParameters[1].Descriptor.RegisterSpace = 0;
-    d3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[1].Descriptor.ShaderRegister = 1;
+    rootParameters[1].Descriptor.RegisterSpace = 0;
+    rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
     // Create root signature
-    D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
-    d3dRootSignatureDesc.NumParameters = _countof(d3dRootParameters);
-    d3dRootSignatureDesc.pParameters = d3dRootParameters;
-    d3dRootSignatureDesc.NumStaticSamplers = 0;
-    d3dRootSignatureDesc.pStaticSamplers = nullptr;
-    d3dRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+    rootSignatureDesc.NumParameters = _countof(rootParameters);
+    rootSignatureDesc.pParameters = rootParameters;
+    rootSignatureDesc.NumStaticSamplers = 0;
+    rootSignatureDesc.pStaticSamplers = nullptr;
+    rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
     
-    ComPtr<ID3DBlob> d3dRootSignatureBlob, d3dErrorBlob;
-    D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &d3dRootSignatureBlob, &d3dErrorBlob);
-    d3dDevice->CreateRootSignature(0, d3dRootSignatureBlob->GetBufferPointer(), d3dRootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&d3dRootSignature));
+    ComPtr<ID3DBlob> rootSignatureBlob, errorBlob;
+    D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &rootSignatureBlob, &errorBlob);
+    device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(), rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
-    // Initialize d3dPipelineStateDesc
-    d3dPipelineStateDesc.pRootSignature = d3dRootSignature.Get();
-    d3dPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    d3dPipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    d3dPipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    d3dPipelineStateDesc.SampleDesc = d3d12SwapChainDesc.SampleDesc;
-    d3dPipelineStateDesc.SampleMask = ~0;
-    d3dPipelineStateDesc.NumRenderTargets = 1;
-    d3dPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-    d3dPipelineStateDesc.DepthStencilState.DepthEnable = true;
-    d3dPipelineStateDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-    d3dPipelineStateDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-    d3dPipelineStateDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+    // Initialize PSO
+    pso.pRootSignature = rootSignature.Get();
+    pso.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pso.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    pso.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pso.SampleDesc = swapChainDesc.SampleDesc;
+    pso.SampleMask = ~0;
+    pso.NumRenderTargets = 1;
+    pso.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+    pso.DepthStencilState.DepthEnable = true;
+    pso.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+    pso.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    pso.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
     // Initialize constant buffers
-    vertexShaderConstants.initialize(d3dDevice);
-    pixelShaderConstants.initialize(d3dDevice);
+    vertexShaderConstants.initialize(device);
+    pixelShaderConstants.initialize(device);
 
     // Create swap chain render targets
-    for (int i = 0; i < _countof(d3dSwapChainRenderTargets); i++)
+    for (int i = 0; i < _countof(backBufferRenderTargets); i++)
     {
-        ComPtr<ID3D12Resource> d3dBackBuffer;
-        dxgiSwapChain->GetBuffer(i, IID_PPV_ARGS(&d3dBackBuffer));
-        d3dSwapChainRenderTargets[i] = new RenderTargetTexture(this, d3dBackBuffer, d3dBackBuffer->GetDesc().Format);
+        ComPtr<ID3D12Resource> backBuffer;
+        swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer));
+        backBufferRenderTargets[i] = new RenderTargetTexture(this, backBuffer);
     }
 
-    d3dSwapChainRenderTargetIndex = dxgiSwapChain->GetCurrentBackBufferIndex();
+    backBufferIndex = swapChain->GetCurrentBackBufferIndex();
 
     // Transition from present to render target
-    renderQueue.getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-                                                       d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DResource(),
+    renderQueue.getCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+                                                       backBufferRenderTargets[backBufferIndex]->getResource(),
                                                        D3D12_RESOURCE_STATE_PRESENT,
                                                        D3D12_RESOURCE_STATE_RENDER_TARGET));
 
     // Create fullscreen depth stencil texture
-    ComPtr<ID3D12Resource> d3dDepthStencilTexture;
-    D3D12_RESOURCE_DESC d3dDepthStencilTextureDesc;
-    d3dDepthStencilTextureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    d3dDepthStencilTextureDesc.Alignment = 0;
-    d3dDepthStencilTextureDesc.Width = d3d12SwapChainDesc.Width;
-    d3dDepthStencilTextureDesc.Height = d3d12SwapChainDesc.Height;
-    d3dDepthStencilTextureDesc.DepthOrArraySize = 1;
-    d3dDepthStencilTextureDesc.MipLevels = 1;
-    d3dDepthStencilTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    d3dDepthStencilTextureDesc.SampleDesc.Count = 1;
-    d3dDepthStencilTextureDesc.SampleDesc.Quality = 0;
-    d3dDepthStencilTextureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    d3dDepthStencilTextureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    ComPtr<ID3D12Resource> depthStencilTex;
+    D3D12_RESOURCE_DESC depthStencilDesc;
+    depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    depthStencilDesc.Alignment = 0;
+    depthStencilDesc.Width = swapChainDesc.Width;
+    depthStencilDesc.Height = swapChainDesc.Height;
+    depthStencilDesc.DepthOrArraySize = 1;
+    depthStencilDesc.MipLevels = 1;
+    depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthStencilDesc.SampleDesc.Count = 1;
+    depthStencilDesc.SampleDesc.Quality = 0;
+    depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-    d3dDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-                                       &d3dDepthStencilTextureDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
-                                       &CD3DX12_CLEAR_VALUE(d3dDepthStencilTextureDesc.Format, 1.0f, 0),
-                                       IID_PPV_ARGS(&d3dDepthStencilTexture));
+    device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+                                       &depthStencilDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
+                                       &CD3DX12_CLEAR_VALUE(depthStencilDesc.Format, 1.0f, 0),
+                                       IID_PPV_ARGS(&depthStencilTex));
 
-    d3dSwapChainDepthStencil = new DepthStencilTexture(this, d3dDepthStencilTexture, d3dDepthStencilTextureDesc.Format);
+    backBufferDepthStencil = new DepthStencilTexture(this, depthStencilTex);
 }
 
-ID3D12Device* Device::getD3DDevice() const
+ID3D12Device* Device::getUnderlyingDevice() const
 {
-    return d3dDevice.Get();
+    return device.Get();
 }
 
 CommandQueue& Device::getLoadQueue()
@@ -240,8 +239,8 @@ FUNCTION_STUB(HRESULT, Device::Reset, D3DPRESENT_PARAMETERS* pPresentationParame
 HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
     // Transition from render target to present
-    renderQueue.getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-                                                       d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DResource(),
+    renderQueue.getCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+                                                       backBufferRenderTargets[backBufferIndex]->getResource(),
                                                        D3D12_RESOURCE_STATE_RENDER_TARGET,
                                                        D3D12_RESOURCE_STATE_PRESENT));
 
@@ -249,34 +248,34 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
     renderQueue.submitAll();
 
     // Present
-    dxgiSwapChain->Present(1, 0);
+    swapChain->Present(1, 0);
 
     // Set render target index
-    d3dSwapChainRenderTargetIndex = dxgiSwapChain->GetCurrentBackBufferIndex();
+    backBufferIndex = swapChain->GetCurrentBackBufferIndex();
 
     // Transition from present to render target
-    renderQueue.getD3DCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-                                                       d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DResource(),
+    renderQueue.getCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+                                                       backBufferRenderTargets[backBufferIndex]->getResource(),
                                                        D3D12_RESOURCE_STATE_PRESENT,
                                                        D3D12_RESOURCE_STATE_RENDER_TARGET));
 
     // Set render target and depth stencil
-    renderQueue.getD3DCommandList()->OMSetRenderTargets(1,
-        &d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DCpuDescriptorHandle(), FALSE, &d3dSwapChainDepthStencil->getD3DCpuDescriptorHandle());
+    renderQueue.getCommandList()->OMSetRenderTargets(1,
+        &backBufferRenderTargets[backBufferIndex]->getDescriptorHandle(), FALSE, &backBufferDepthStencil->getDescriptorHandle());
 
     // Clear render target to black.
     FLOAT color[4] = { 0, 0, 0, 1 };
-    renderQueue.getD3DCommandList()->ClearRenderTargetView(d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->getD3DCpuDescriptorHandle(), color, 0, nullptr);
+    renderQueue.getCommandList()->ClearRenderTargetView(backBufferRenderTargets[backBufferIndex]->getDescriptorHandle(), color, 0, nullptr);
 
     // Clear depth stencil
-    renderQueue.getD3DCommandList()->ClearDepthStencilView(d3dSwapChainDepthStencil->getD3DCpuDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    renderQueue.getCommandList()->ClearDepthStencilView(backBufferDepthStencil->getDescriptorHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     return S_OK;
 }
 
 HRESULT Device::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, Surface** ppBackBuffer)
 {
-    d3dSwapChainRenderTargets[d3dSwapChainRenderTargetIndex]->GetSurfaceLevel(0, ppBackBuffer);
+    backBufferRenderTargets[backBufferIndex]->GetSurfaceLevel(0, ppBackBuffer);
     return S_OK;
 }
     
@@ -290,12 +289,12 @@ FUNCTION_STUB(void, Device::GetGammaRamp, UINT iSwapChain, D3DGAMMARAMP* pRamp)
 
 HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, Texture** ppTexture, HANDLE* pSharedHandle)
 {
-    ComPtr<ID3D12Resource> d3dTexture;
+    ComPtr<ID3D12Resource> texture;
     DXGI_FORMAT format = TypeConverter::makeUntypeless(TypeConverter::convert(Format), false);
 
-    FLOAT transparent[4] = { 0, 0, 0, 1 };
+    const FLOAT black[4] = { 0, 0, 0, 1 };
 
-    const HRESULT hr = d3dDevice->CreateCommittedResource
+    const HRESULT hr = device->CreateCommittedResource
     (
         &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 
@@ -308,23 +307,23 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
         Usage & D3DUSAGE_RENDERTARGET ? D3D12_RESOURCE_STATE_RENDER_TARGET :
         Usage & D3DUSAGE_DEPTHSTENCIL ? D3D12_RESOURCE_STATE_DEPTH_WRITE : D3D12_RESOURCE_STATE_COMMON,
 
-        Usage & D3DUSAGE_RENDERTARGET ? &CD3DX12_CLEAR_VALUE(format, transparent) :
+        Usage & D3DUSAGE_RENDERTARGET ? &CD3DX12_CLEAR_VALUE(format, black) :
         Usage & D3DUSAGE_DEPTHSTENCIL ? &CD3DX12_CLEAR_VALUE(format, 1.0f, 0) : nullptr,
 
-        IID_PPV_ARGS(&d3dTexture)
+        IID_PPV_ARGS(&texture)
     );
         
     if (FAILED(hr))
         return hr;
 
     if (Usage & D3DUSAGE_RENDERTARGET)
-        *ppTexture = new RenderTargetTexture(this, d3dTexture, d3dTexture->GetDesc().Format);
+        *ppTexture = new RenderTargetTexture(this, texture);
 
     else if (Usage & D3DUSAGE_DEPTHSTENCIL)
-        *ppTexture = new DepthStencilTexture(this, d3dTexture, d3dTexture->GetDesc().Format);
+        *ppTexture = new DepthStencilTexture(this, texture);
 
     else
-        *ppTexture = new Texture(this, d3dTexture);
+        *ppTexture = new Texture(this, texture);
 
     return S_OK;
 }
@@ -370,15 +369,15 @@ HRESULT Device::SetRenderTarget(DWORD RenderTargetIndex, Surface* pRenderTarget)
 {
     if (pRenderTarget)
     {
-        const auto renderTargetTexture = ((RenderTargetSurface*)pRenderTarget)->getRenderTargetTexture();
-        d3dRenderTargets[RenderTargetIndex] = renderTargetTexture->getD3DCpuDescriptorHandle();
-        d3dPipelineStateDesc.RTVFormats[RenderTargetIndex] = renderTargetTexture->getFormat();
+        const auto renderTargetTexture = ((RenderTargetSurface*)pRenderTarget)->getTexture();
+        renderTargets[RenderTargetIndex] = renderTargetTexture->getDescriptorHandle();
+        pso.RTVFormats[RenderTargetIndex] = renderTargetTexture->getFormat();
     }
 
     else
     {
-        ZeroMemory(&d3dRenderTargets[RenderTargetIndex], sizeof(d3dRenderTargets[RenderTargetIndex]));
-        d3dPipelineStateDesc.RTVFormats[RenderTargetIndex] = DXGI_FORMAT_UNKNOWN;
+        ZeroMemory(&renderTargets[RenderTargetIndex], sizeof(renderTargets[RenderTargetIndex]));
+        pso.RTVFormats[RenderTargetIndex] = DXGI_FORMAT_UNKNOWN;
     }
 
     return S_OK;
@@ -393,15 +392,15 @@ HRESULT Device::SetDepthStencilSurface(Surface* pNewZStencil)
 {
     if (pNewZStencil)
     {
-        const auto depthStencilTexture = ((DepthStencilSurface*)pNewZStencil)->getDepthStencilTexture();
-        d3dDepthStencil = depthStencilTexture->getD3DCpuDescriptorHandle();
-        d3dPipelineStateDesc.DSVFormat = depthStencilTexture->getFormat();
+        const auto depthStencilTexture = ((DepthStencilSurface*)pNewZStencil)->getTexture();
+        depthStencil = depthStencilTexture->getDescriptorHandle();
+        pso.DSVFormat = depthStencilTexture->getFormat();
     }
 
     else
     {
-        ZeroMemory(&d3dDepthStencil, sizeof(d3dDepthStencil));
-        d3dPipelineStateDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+        ZeroMemory(&depthStencil, sizeof(depthStencil));
+        pso.DSVFormat = DXGI_FORMAT_UNKNOWN;
     }
 
     return S_OK;
@@ -425,7 +424,7 @@ HRESULT Device::EndScene()
 
 HRESULT Device::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil)
 {
-    ID3D12GraphicsCommandList* d3dCommandList = renderQueue.getD3DCommandList();
+    ID3D12GraphicsCommandList* commandList = renderQueue.getCommandList();
 
     if (Flags & D3DCLEAR_TARGET)
     {
@@ -437,7 +436,7 @@ HRESULT Device::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR 
         color[3] = ((Color >> 24) & 0xFF) / 255.0f;
 
         for (size_t i = 0; i < Count; i++)
-            d3dCommandList->ClearRenderTargetView(d3dRenderTargets[i], color, 0, nullptr);
+            commandList->ClearRenderTargetView(renderTargets[i], color, 0, nullptr);
     }
 
     if (Flags & (D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL))
@@ -450,7 +449,7 @@ HRESULT Device::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR 
         if (Flags & D3DCLEAR_STENCIL)
             clearFlags |= D3D12_CLEAR_FLAG_STENCIL;
 
-        d3dCommandList->ClearDepthStencilView(d3dDepthStencil, clearFlags, Z, (UINT8)Stencil, 0, nullptr);
+        commandList->ClearDepthStencilView(depthStencil, clearFlags, Z, (UINT8)Stencil, 0, nullptr);
     }
 
     renderQueue.submitAll();
@@ -467,24 +466,24 @@ FUNCTION_STUB(HRESULT, Device::MultiplyTransform, D3DTRANSFORMSTATETYPE, CONST D
 HRESULT Device::SetViewport(CONST D3DVIEWPORT9* pViewport)
 {
     // Create D3D12_VIEWPORT from D3DVIEWPORT9
-    d3dViewport.TopLeftX = (float)pViewport->X;
-    d3dViewport.TopLeftY = (float)pViewport->Y;
-    d3dViewport.Width = (float)pViewport->Width;
-    d3dViewport.Height = (float)pViewport->Height;
-    d3dViewport.MinDepth = pViewport->MinZ;
-    d3dViewport.MaxDepth = pViewport->MaxZ;
+    viewport.TopLeftX = (float)pViewport->X;
+    viewport.TopLeftY = (float)pViewport->Y;
+    viewport.Width = (float)pViewport->Width;
+    viewport.Height = (float)pViewport->Height;
+    viewport.MinDepth = pViewport->MinZ;
+    viewport.MaxDepth = pViewport->MaxZ;
     return S_OK;
 }
 
 HRESULT Device::GetViewport(D3DVIEWPORT9* pViewport)
 {
     // Create D3DVIEWPORT9 from D3D12_VIEWPORT
-    pViewport->X = (DWORD)d3dViewport.TopLeftX;
-    pViewport->Y = (DWORD)d3dViewport.TopLeftY;
-    pViewport->Width = (DWORD)d3dViewport.Width;
-    pViewport->Height = (DWORD)d3dViewport.Height;
-    pViewport->MinZ = d3dViewport.MinDepth;
-    pViewport->MaxZ = d3dViewport.MaxDepth;
+    pViewport->X = (DWORD)viewport.TopLeftX;
+    pViewport->Y = (DWORD)viewport.TopLeftY;
+    pViewport->Width = (DWORD)viewport.Width;
+    pViewport->Height = (DWORD)viewport.Height;
+    pViewport->MinZ = viewport.MinDepth;
+    pViewport->MaxZ = viewport.MaxDepth;
     return S_OK;
 }
 
@@ -506,6 +505,128 @@ FUNCTION_STUB(HRESULT, Device::GetClipPlane, DWORD Index, float* pPlane)
 
 HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 {
+    switch (State)
+    {
+    case D3DRS_ZENABLE:
+        pso.DepthStencilState.DepthEnable = (BOOL)Value;
+        break;
+
+    case D3DRS_FILLMODE:
+        pso.RasterizerState.FillMode = (D3D12_FILL_MODE)Value;
+        break;
+
+    case D3DRS_ZWRITEENABLE:
+        pso.DepthStencilState.DepthWriteMask = (D3D12_DEPTH_WRITE_MASK)Value;
+        break;
+
+    case D3DRS_SRCBLEND:
+        pso.BlendState.RenderTarget[0].SrcBlend = (D3D12_BLEND)Value;
+        break;
+
+    case D3DRS_DESTBLEND:
+        pso.BlendState.RenderTarget[0].DestBlend = (D3D12_BLEND)Value;
+        break;
+
+    case D3DRS_CULLMODE:
+        pso.RasterizerState.CullMode = (D3D12_CULL_MODE)Value;
+        break;
+
+    case D3DRS_ZFUNC:
+        pso.DepthStencilState.DepthFunc = (D3D12_COMPARISON_FUNC)Value;
+        break;
+
+    case D3DRS_ALPHABLENDENABLE:
+        pso.BlendState.RenderTarget[0].BlendEnable = (BOOL)Value;
+        break;
+
+    case D3DRS_STENCILENABLE:
+        pso.DepthStencilState.StencilEnable = (BOOL)Value;
+        break;
+
+    case D3DRS_STENCILFAIL:
+        pso.DepthStencilState.FrontFace.StencilFailOp = (D3D12_STENCIL_OP)Value;
+        break;
+
+    case D3DRS_STENCILZFAIL:
+        pso.DepthStencilState.FrontFace.StencilDepthFailOp = (D3D12_STENCIL_OP)Value;
+        break;
+
+    case D3DRS_STENCILPASS:
+        pso.DepthStencilState.FrontFace.StencilPassOp = (D3D12_STENCIL_OP)Value;
+        break;
+
+    case D3DRS_STENCILFUNC:
+        pso.DepthStencilState.FrontFace.StencilFunc = (D3D12_COMPARISON_FUNC)Value;
+        break;
+
+    case D3DRS_STENCILREF:
+        stencilRef = (UINT)Value;
+        break;
+
+    case D3DRS_STENCILMASK:
+        pso.DepthStencilState.StencilReadMask = (UINT8)Value;
+        break;
+
+    case D3DRS_STENCILWRITEMASK:
+        pso.DepthStencilState.StencilWriteMask = (UINT8)Value;
+        break;
+
+    case D3DRS_COLORWRITEENABLE:
+        pso.BlendState.RenderTarget[0].RenderTargetWriteMask = (UINT8)Value;
+        break;
+
+    case D3DRS_BLENDOP:
+        pso.BlendState.RenderTarget[0].BlendOp = (D3D12_BLEND_OP)Value;
+        break;
+
+    case D3DRS_SLOPESCALEDEPTHBIAS:
+        pso.RasterizerState.SlopeScaledDepthBias = *(float*)&Value;
+        break;
+
+    case D3DRS_CCW_STENCILFAIL:
+        pso.DepthStencilState.BackFace.StencilFailOp = (D3D12_STENCIL_OP)Value;
+        break;
+
+    case D3DRS_CCW_STENCILZFAIL:
+        pso.DepthStencilState.BackFace.StencilDepthFailOp = (D3D12_STENCIL_OP)Value;
+        break;
+
+    case D3DRS_CCW_STENCILPASS:
+        pso.DepthStencilState.BackFace.StencilPassOp = (D3D12_STENCIL_OP)Value;
+        break;
+
+    case D3DRS_CCW_STENCILFUNC:
+        pso.DepthStencilState.BackFace.StencilFunc = (D3D12_COMPARISON_FUNC)Value;
+        break;
+
+    case D3DRS_COLORWRITEENABLE1:
+        pso.BlendState.RenderTarget[1].RenderTargetWriteMask = (UINT8)Value;
+        break;
+
+    case D3DRS_COLORWRITEENABLE2:
+        pso.BlendState.RenderTarget[2].RenderTargetWriteMask = (UINT8)Value;
+        break;
+
+    case D3DRS_COLORWRITEENABLE3: 
+        pso.BlendState.RenderTarget[3].RenderTargetWriteMask = (UINT8)Value;
+        break;
+
+    case D3DRS_DEPTHBIAS:
+        break;
+
+    case D3DRS_SRCBLENDALPHA:
+        pso.BlendState.RenderTarget[0].SrcBlendAlpha = (D3D12_BLEND)Value;
+        break;
+
+    case D3DRS_DESTBLENDALPHA:
+        pso.BlendState.RenderTarget[0].DestBlendAlpha = (D3D12_BLEND)Value;
+        break;
+
+    case D3DRS_BLENDOPALPHA:
+        pso.BlendState.RenderTarget[0].BlendOpAlpha = (D3D12_BLEND_OP)Value;
+        break;
+    }
+
     return S_OK;
 }
 
@@ -555,10 +676,10 @@ FUNCTION_STUB(HRESULT, Device::GetCurrentTexturePalette, UINT *PaletteNumber)
 HRESULT Device::SetScissorRect(CONST RECT* pRect)
 {
     // Create D3D12_RECT from RECT
-    d3dScissorRect.left = pRect->left;
-    d3dScissorRect.top = pRect->top;
-    d3dScissorRect.right = pRect->right;
-    d3dScissorRect.bottom = pRect->bottom;
+    scissorRect.left = pRect->left;
+    scissorRect.top = pRect->top;
+    scissorRect.right = pRect->right;
+    scissorRect.bottom = pRect->bottom;
     return S_OK;
 }
 
@@ -574,9 +695,12 @@ FUNCTION_STUB(float, Device::GetNPatchMode)
 
 HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
+    if (PrimitiveType > D3DPT_TRIANGLESTRIP)
+        return S_OK;
+
     validateState();
-    renderQueue.getD3DCommandList()->IASetPrimitiveTopology(TypeConverter::getPrimitiveTopology(PrimitiveType));
-    renderQueue.getD3DCommandList()->DrawInstanced(PrimitiveCount, 1, StartVertex, 0);
+    renderQueue.getCommandList()->IASetPrimitiveTopology((D3D12_PRIMITIVE_TOPOLOGY)PrimitiveType);
+    renderQueue.getCommandList()->DrawInstanced(PrimitiveCount, 1, StartVertex, 0);
     renderQueue.submitAll();
 
     return S_OK;
@@ -584,10 +708,13 @@ HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, 
         
 HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
+    if (PrimitiveType > D3DPT_TRIANGLESTRIP)
+        return S_OK;
+
     validateState();
 
-    renderQueue.getD3DCommandList()->IASetPrimitiveTopology(TypeConverter::getPrimitiveTopology(PrimitiveType));
-    renderQueue.getD3DCommandList()->DrawIndexedInstanced(primCount, 1, startIndex, BaseVertexIndex, 0);
+    renderQueue.getCommandList()->IASetPrimitiveTopology((D3D12_PRIMITIVE_TOPOLOGY)PrimitiveType);
+    renderQueue.getCommandList()->DrawIndexedInstanced(primCount, 1, startIndex, BaseVertexIndex, 0);
     renderQueue.submitAll();
 
     return S_OK;
@@ -613,7 +740,7 @@ HRESULT Device::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexElements
 
 HRESULT Device::SetVertexDeclaration(VertexDeclaration* pDecl)
 {
-    d3dPipelineStateDesc.InputLayout = pDecl ? pDecl->getD3DInputLayoutDesc() : D3D12_INPUT_LAYOUT_DESC();
+    pso.InputLayout = pDecl ? pDecl->getInputLayoutDesc() : D3D12_INPUT_LAYOUT_DESC();
     return S_OK;
 }
 
@@ -635,7 +762,7 @@ HRESULT Device::CreateVertexShader(CONST DWORD* pFunction, VertexShader** ppShad
 
 HRESULT Device::SetVertexShader(VertexShader* pShader)
 {
-    d3dPipelineStateDesc.VS = pShader ? pShader->getD3DShaderByteCode() : D3D12_SHADER_BYTECODE();
+    pso.VS = pShader ? pShader->getShaderByteCode() : D3D12_SHADER_BYTECODE();
     return S_OK;
 }
 
@@ -667,7 +794,7 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantB, UINT StartRegister, BOO
 
 HRESULT Device::SetStreamSource(UINT StreamNumber, VertexBuffer* pStreamData, UINT OffsetInBytes, UINT Stride)
 {
-    d3dVertexBufferViews[StreamNumber] = pStreamData ? pStreamData->getD3DVertexBufferView(OffsetInBytes, Stride) : D3D12_VERTEX_BUFFER_VIEW();
+    vertexBufferViews[StreamNumber] = pStreamData ? pStreamData->getVertexBufferView(OffsetInBytes, Stride) : D3D12_VERTEX_BUFFER_VIEW();
     return S_OK;
 }
 
@@ -682,7 +809,7 @@ FUNCTION_STUB(HRESULT, Device::GetStreamSourceFreq, UINT StreamNumber, UINT* pSe
 
 HRESULT Device::SetIndices(IndexBuffer* pIndexData)
 {
-    d3dIndexBufferView = pIndexData ? pIndexData->getD3DIndexBufferView() : D3D12_INDEX_BUFFER_VIEW();
+    indexBufferView = pIndexData ? pIndexData->getIndexBufferView() : D3D12_INDEX_BUFFER_VIEW();
     return S_OK;
 }
 
@@ -697,7 +824,7 @@ HRESULT Device::CreatePixelShader(CONST DWORD* pFunction, PixelShader** ppShader
 
 HRESULT Device::SetPixelShader(PixelShader* pShader)
 {
-    d3dPipelineStateDesc.PS = pShader ? pShader->getD3DShaderByteCode() : D3D12_SHADER_BYTECODE();
+    pso.PS = pShader ? pShader->getShaderByteCode() : D3D12_SHADER_BYTECODE();
     return S_OK;
 }
 

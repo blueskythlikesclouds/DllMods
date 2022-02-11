@@ -4,10 +4,10 @@
 
 class DepthStencilSurface : public Surface
 {
-    ComPtr<DepthStencilTexture> d3dDepthStencilTexture;
+    ComPtr<DepthStencilTexture> texture;
 
 public:
-    explicit DepthStencilSurface(const ComPtr<Device>& d3dDevice, const ComPtr<DepthStencilTexture>& d3dDepthStencilTexture);
+    explicit DepthStencilSurface(const ComPtr<Device>& device, const ComPtr<DepthStencilTexture>& texture);
 
-    DepthStencilTexture* getDepthStencilTexture() const;
+    DepthStencilTexture* getTexture() const;
 };

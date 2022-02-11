@@ -10,12 +10,12 @@ cbuffer VertexShaderConstants : register(b0)
 	bool b[16];
 };
 
-float4 main(in float4 pos : POSITION, in float3 normal : NORMAL, in uint4 blendIndices : BLENDINDICES, in float4 blendWeight : BLENDWEIGHT, out float3 outNormal : TEXCOORD0) : SV_POSITION
+float4 main(in float4 pos : POSITION, in float3 normal : NORMAL,/* in uint4 blendIndices : BLENDINDICES, in float4 blendWeight : BLENDWEIGHT, */ out float3 outNormal : TEXCOORD0) : SV_POSITION
 {
 	outNormal = mul(float4(normal, 0), g_MtxWorld).xyz;
 
 	float3 position = pos.xyz;
-	if (b[0])
+	/*if (b[0])
 	{
 		float3x4 blendMatrix = g_MtxPalette[blendIndices[0]] * blendWeight[0];
 		blendMatrix += g_MtxPalette[blendIndices[1]] * blendWeight[1];
@@ -23,7 +23,7 @@ float4 main(in float4 pos : POSITION, in float3 normal : NORMAL, in uint4 blendI
 		blendMatrix += g_MtxPalette[blendIndices[3]] * (1 - blendWeight[0] - blendWeight[1] - blendWeight[2]);
 
 		position = mul(blendMatrix, float4(position, 1));
-	}
+	}*/
 
 	return mul(mul(mul(float4(position, 1), g_MtxWorld), g_MtxView), g_MtxProjection);
 }

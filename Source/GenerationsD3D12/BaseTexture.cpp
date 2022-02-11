@@ -1,6 +1,6 @@
 ﻿#include "BaseTexture.h"
 
-BaseTexture::BaseTexture(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource) : Resource(d3dDevice, d3dResource)
+BaseTexture::BaseTexture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource) : Resource(device, resource)
 {
 }
 

@@ -6,7 +6,7 @@ Shader::Shader(const void* function, const size_t functionSize)
     memcpy(byteCode.get(), function, functionSize);
 }
 
-D3D12_SHADER_BYTECODE Shader::getD3DShaderByteCode() const
+D3D12_SHADER_BYTECODE Shader::getShaderByteCode() const
 {
     D3D12_SHADER_BYTECODE shaderByteCode;
     shaderByteCode.pShaderBytecode = byteCode.get();

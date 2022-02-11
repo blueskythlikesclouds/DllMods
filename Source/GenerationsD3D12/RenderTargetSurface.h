@@ -4,10 +4,10 @@
 
 class RenderTargetSurface : public Surface
 {
-    ComPtr<RenderTargetTexture> d3dRenderTargetTexture;
+    ComPtr<RenderTargetTexture> texture;
 
 public:
-    explicit RenderTargetSurface(const ComPtr<Device>& d3dDevice, const ComPtr<RenderTargetTexture>& d3dRenderTargetTexture);
+    explicit RenderTargetSurface(const ComPtr<Device>& device, const ComPtr<RenderTargetTexture>& texture);
 
-    RenderTargetTexture* getRenderTargetTexture() const;
+    RenderTargetTexture* getTexture() const;
 };

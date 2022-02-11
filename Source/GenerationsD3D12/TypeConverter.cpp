@@ -150,23 +150,3 @@ const char* TypeConverter::getDeclUsageName(D3DDECLUSAGE usage)
     default: return "UNKNOWN";
     }
 }
-
-D3D_PRIMITIVE_TOPOLOGY TypeConverter::getPrimitiveTopology(const D3DPRIMITIVETYPE primitiveType)
-{
-    switch (primitiveType)
-    {
-    case D3DPT_POINTLIST:
-        return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
-    case D3DPT_LINELIST:
-        return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
-    case D3DPT_LINESTRIP:
-        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
-    case D3DPT_TRIANGLELIST:
-        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    case D3DPT_TRIANGLESTRIP:
-    case D3DPT_TRIANGLEFAN:
-        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-    }
-
-    return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
-}

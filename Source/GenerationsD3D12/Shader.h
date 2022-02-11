@@ -12,7 +12,7 @@ class Shader : public Unknown
 public:
     Shader(const void* function, size_t functionSize);
 
-    D3D12_SHADER_BYTECODE getD3DShaderByteCode() const;
+    D3D12_SHADER_BYTECODE getShaderByteCode() const;
 
     virtual HRESULT GetDevice(Device** ppDevice);
     virtual HRESULT GetFunction(void*, UINT* pSizeOfData);

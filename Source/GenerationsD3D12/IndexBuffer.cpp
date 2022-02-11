@@ -2,66 +2,66 @@
 #include "Device.h"
 #include "TypeConverter.h"
 
-IndexBuffer::IndexBuffer(const ComPtr<Device>& d3dDevice, size_t length, DXGI_FORMAT format)
-    : Resource(d3dDevice, nullptr), length(length), format(format)
+IndexBuffer::IndexBuffer(const ComPtr<Device>& device, const size_t length, const DXGI_FORMAT format)
+    : Resource(device, nullptr), length(length), format(format)
 {
 }
 
-D3D12_INDEX_BUFFER_VIEW IndexBuffer::getD3DIndexBufferView() const
+D3D12_INDEX_BUFFER_VIEW IndexBuffer::getIndexBufferView() const
 {
-    D3D12_INDEX_BUFFER_VIEW d3dIndexBufferView;
-    d3dIndexBufferView.BufferLocation = d3dResource->GetGPUVirtualAddress();
-    d3dIndexBufferView.SizeInBytes = length;
-    d3dIndexBufferView.Format = format;
-    return d3dIndexBufferView;
+    D3D12_INDEX_BUFFER_VIEW indexBufferView;
+    indexBufferView.BufferLocation = resource->GetGPUVirtualAddress();
+    indexBufferView.SizeInBytes = length;
+    indexBufferView.Format = format;
+    return indexBufferView;
 }
 
 HRESULT IndexBuffer::Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags)
 {
     // Create upload heap.
-    d3dDevice->getD3DDevice()->CreateCommittedResource(
+    device->getUnderlyingDevice()->CreateCommittedResource(
         &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
         D3D12_HEAP_FLAG_NONE,
         &CD3DX12_RESOURCE_DESC::Buffer(length),
         D3D12_RESOURCE_STATE_GENERIC_READ,
         nullptr,
-        IID_PPV_ARGS(&d3dUploadHeap));
+        IID_PPV_ARGS(&uploadHeap));
 
     // Lock upload heap.
     const D3D12_RANGE range = { OffsetToLock, OffsetToLock + SizeToLock };
-    return d3dUploadHeap->Map(0, &range, ppbData);
+    return uploadHeap->Map(0, &range, ppbData);
 }
 
 HRESULT IndexBuffer::Unlock()
 {
     // Unlock upload heap.
-    d3dUploadHeap->Unmap(0, nullptr);
+    uploadHeap->Unmap(0, nullptr);
 
     // Create default heap.
-    d3dDevice->getD3DDevice()->CreateCommittedResource(
+    device->getUnderlyingDevice()->CreateCommittedResource(
         &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
         D3D12_HEAP_FLAG_NONE,
         &CD3DX12_RESOURCE_DESC::Buffer(length),
         D3D12_RESOURCE_STATE_COPY_DEST,
         nullptr,
-        IID_PPV_ARGS(&d3dResource));
+        IID_PPV_ARGS(&resource));
 
-    auto& queue = d3dDevice->getLoadQueue();
+    auto& queue = device->getLoadQueue();
     const auto lock = queue.lock();
 
     // Copy data from upload heap to default heap.
-    queue.getD3DCommandList()->CopyBufferRegion(
-        d3dResource.Get(),
+    queue.getCommandList()->CopyBufferRegion(
+        resource.Get(),
         0,
-        d3dUploadHeap.Get(),
+        uploadHeap.Get(),
         0,
         length);
 
     // Transition default heap to index buffer state.
-    queue.getD3DCommandList()->ResourceBarrier(
+    queue.getCommandList()->ResourceBarrier(
         1,
         &CD3DX12_RESOURCE_BARRIER::Transition(
-            d3dResource.Get(),
+            resource.Get(),
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_RESOURCE_STATE_INDEX_BUFFER));
 
@@ -71,7 +71,7 @@ HRESULT IndexBuffer::Unlock()
     queue.resetCommandList();
 
     // Free upload heap.
-    d3dUploadHeap = nullptr;
+    uploadHeap = nullptr;
 
     return S_OK;
 }

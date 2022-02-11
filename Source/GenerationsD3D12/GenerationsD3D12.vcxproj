@@ -104,7 +104,6 @@
     <ClCompile Include="DepthStencilTexture.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="Direct3D9.cpp" />
-    <ClCompile Include="Hash.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="RenderTargetSurface.cpp" />
     <ClCompile Include="RenderTargetTexture.cpp" />
@@ -135,7 +134,6 @@
     <ClInclude Include="DepthStencilTexture.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="Direct3D9.h" />
-    <ClInclude Include="Hash.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="RenderTargetSurface.h" />
     <ClInclude Include="RenderTargetTexture.h" />

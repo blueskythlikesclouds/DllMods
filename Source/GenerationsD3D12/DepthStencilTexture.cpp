@@ -1,21 +1,21 @@
 ﻿#include "DepthStencilTexture.h"
 #include "DepthStencilSurface.h"
 
-DepthStencilTexture::DepthStencilTexture(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource, DXGI_FORMAT format)
-    : Texture(d3dDevice, d3dResource), format(format)
+DepthStencilTexture::DepthStencilTexture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource)
+    : Texture(device, resource), format(resource->GetDesc().Format)
 {
     // Create heap for DSV
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
     desc.NumDescriptors = 1;
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    d3dDevice->getD3DDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3dDescriptorHeap));
+    device->getUnderlyingDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptorHeap));
 
     // Get CPU handle
-    d3dCpuDescriptorHandle = d3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    descriptorHandle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
     // Create DSV without D3D12_DEPTH_STENCIL_VIEW_DESC
-    d3dDevice->getD3DDevice()->CreateDepthStencilView(d3dResource.Get(), nullptr, d3dCpuDescriptorHandle);
+    device->getUnderlyingDevice()->CreateDepthStencilView(resource.Get(), nullptr, descriptorHandle);
 }
 
 DXGI_FORMAT DepthStencilTexture::getFormat() const
@@ -23,17 +23,17 @@ DXGI_FORMAT DepthStencilTexture::getFormat() const
     return format;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilTexture::getD3DCpuDescriptorHandle() const
+D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilTexture::getDescriptorHandle() const
 {
-    return d3dCpuDescriptorHandle;
+    return descriptorHandle;
 }
 
 HRESULT DepthStencilTexture::GetSurfaceLevel(UINT Level, Surface** ppSurfaceLevel)
 {
-    if (!d3dDepthStencilSurface)
-        d3dDepthStencilSurface = new DepthStencilSurface(d3dDevice, this);
+    if (!surface)
+        surface = new DepthStencilSurface(device, this);
 
-    *ppSurfaceLevel = d3dDepthStencilSurface.Get();
+    *ppSurfaceLevel = surface.Get();
     (*ppSurfaceLevel)->AddRef();
     return S_OK;
 }

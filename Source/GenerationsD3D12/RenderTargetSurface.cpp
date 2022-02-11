@@ -1,12 +1,12 @@
 ﻿#include "RenderTargetSurface.h"
 #include "RenderTargetTexture.h"
 
-RenderTargetSurface::RenderTargetSurface(const ComPtr<Device>& d3dDevice, const ComPtr<RenderTargetTexture>& d3dRenderTargetTexture)
-    : Surface(d3dDevice, d3dRenderTargetTexture->getD3DResource()), d3dRenderTargetTexture(d3dRenderTargetTexture)
+RenderTargetSurface::RenderTargetSurface(const ComPtr<Device>& device, const ComPtr<RenderTargetTexture>& texture)
+    : Surface(device, texture->getResource()), texture(texture)
 {
 }
 
-RenderTargetTexture* RenderTargetSurface::getRenderTargetTexture() const
+RenderTargetTexture* RenderTargetSurface::getTexture() const
 {
-    return d3dRenderTargetTexture.Get();
+    return texture.Get();
 }

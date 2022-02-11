@@ -3,20 +3,20 @@
 template<typename T>
 class ConstantBuffer
 {
-    ComPtr<ID3D12Resource> d3dResource;
-    ComPtr<ID3D12DescriptorHeap> d3dDescriptorHeap;
+    ComPtr<ID3D12Resource> resource;
+    ComPtr<ID3D12DescriptorHeap> descriptorHeap;
     T* data{};
 
 public:
     ~ConstantBuffer()
     {
-        if (d3dResource)
-            d3dResource->Unmap(0, nullptr);
+        if (resource)
+            resource->Unmap(0, nullptr);
     }
 
-    ID3D12Resource* getD3DResource() const
+    ID3D12Resource* getResource() const
     {
-        return d3dResource.Get();
+        return resource.Get();
     }
 
     T* getData() const
@@ -24,31 +24,31 @@ public:
         return data;
     }
 
-    void initialize(const ComPtr<ID3D12Device>& d3dDevice)
+    void initialize(const ComPtr<ID3D12Device>& device)
     {
         // Create constant buffer.
-        d3dDevice->CreateCommittedResource(
+        device->CreateCommittedResource(
             &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
             D3D12_HEAP_FLAG_NONE,
             &CD3DX12_RESOURCE_DESC::Buffer((sizeof(T) + 255) & ~0xFF),
             D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
-            IID_PPV_ARGS(&d3dResource));
+            IID_PPV_ARGS(&resource));
 
         // Create descriptor heap.
         D3D12_DESCRIPTOR_HEAP_DESC desc = {};
         desc.NumDescriptors = 1;
         desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-        d3dDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&d3dDescriptorHeap));
+        device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptorHeap));
 
         // Create constant buffer view.
-        D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-        cbvDesc.BufferLocation = d3dResource->GetGPUVirtualAddress();
+        D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+        cbvDesc.BufferLocation = resource->GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = (sizeof(T) + 255) & ~0xFF;
-        d3dDevice->CreateConstantBufferView(&cbvDesc, d3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+        device->CreateConstantBufferView(&cbvDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
         // Map constant buffer.
-        d3dResource->Map(0, nullptr, reinterpret_cast<void**>(&data));
+        resource->Map(0, nullptr, reinterpret_cast<void**>(&data));
     }
 };

@@ -1,16 +1,16 @@
 ﻿#include "Device.h"
 #include "Resource.h"
 
-Resource::Resource(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource)
-    : d3dDevice(d3dDevice), d3dResource(d3dResource)
+Resource::Resource(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource)
+    : device(device), resource(resource)
 {
 }
 
 Resource::~Resource() = default;
 
-ID3D12Resource* Resource::getD3DResource() const
+ID3D12Resource* Resource::getResource() const
 {
-    return d3dResource.Get();
+    return resource.Get();
 }
 
 FUNCTION_STUB(HRESULT, Resource::GetDevice, Device** ppDevice)

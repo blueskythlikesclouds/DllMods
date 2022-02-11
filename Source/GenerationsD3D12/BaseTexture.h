@@ -5,7 +5,7 @@
 class BaseTexture : public Resource
 {
 public:
-    BaseTexture(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource);
+    BaseTexture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource);
 
     virtual DWORD SetLOD(DWORD LODNew);
     virtual DWORD GetLOD();

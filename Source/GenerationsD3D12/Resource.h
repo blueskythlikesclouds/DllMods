@@ -8,14 +8,14 @@ class Resource : public Unknown
     INSERT_PADDING(8);
 
 protected:
-    ComPtr<Device> d3dDevice;
-    ComPtr<ID3D12Resource> d3dResource;
+    ComPtr<Device> device;
+    ComPtr<ID3D12Resource> resource;
 
 public:
-    explicit Resource(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource);
+    explicit Resource(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource);
     ~Resource();
 
-    ID3D12Resource* getD3DResource() const;
+    ID3D12Resource* getResource() const;
 
     virtual HRESULT GetDevice(Device** ppDevice);
     virtual HRESULT SetPrivateData(const GUID& refguid, const void* pData, DWORD SizeOfData, DWORD Flags);

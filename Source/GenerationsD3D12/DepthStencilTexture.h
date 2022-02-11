@@ -7,15 +7,15 @@ class DepthStencilSurface;
 class DepthStencilTexture : public Texture
 {
     DXGI_FORMAT format;
-    ComPtr<ID3D12DescriptorHeap> d3dDescriptorHeap;
-    D3D12_CPU_DESCRIPTOR_HANDLE d3dCpuDescriptorHandle{};
-    ComPtr<DepthStencilSurface> d3dDepthStencilSurface;
+    ComPtr<ID3D12DescriptorHeap> descriptorHeap;
+    D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle{};
+    ComPtr<DepthStencilSurface> surface;
 
 public:
-    explicit DepthStencilTexture(const ComPtr<Device>& d3dDevice, const ComPtr<ID3D12Resource>& d3dResource, DXGI_FORMAT format);
+    explicit DepthStencilTexture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource);
 
     DXGI_FORMAT getFormat() const;
-    D3D12_CPU_DESCRIPTOR_HANDLE getD3DCpuDescriptorHandle() const;
+    D3D12_CPU_DESCRIPTOR_HANDLE getDescriptorHandle() const;
 
     HRESULT GetSurfaceLevel(UINT Level, Surface** ppSurfaceLevel) override;
 };

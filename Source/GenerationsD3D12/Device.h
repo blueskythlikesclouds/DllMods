@@ -26,30 +26,31 @@ struct PixelShaderConstants;
 
 class Device : public Unknown
 {
-    ComPtr<ID3D12Device> d3dDevice;
+    ComPtr<ID3D12Device> device;
     CommandQueue renderQueue;
     CommandQueue loadQueue;
-    ComPtr<IDXGISwapChain3> dxgiSwapChain;
-    ComPtr<RenderTargetTexture> d3dSwapChainRenderTargets[2];
-    size_t d3dSwapChainRenderTargetIndex{};
-    ComPtr<DepthStencilTexture> d3dSwapChainDepthStencil;
+    ComPtr<IDXGISwapChain3> swapChain;
+    ComPtr<RenderTargetTexture> backBufferRenderTargets[2];
+    size_t backBufferIndex{};
+    ComPtr<DepthStencilTexture> backBufferDepthStencil;
 
     // Root signature
-    ComPtr<ID3D12RootSignature> d3dRootSignature;
+    ComPtr<ID3D12RootSignature> rootSignature;
     ConstantBuffer<VertexShaderConstants> vertexShaderConstants;
     ConstantBuffer<PixelShaderConstants> pixelShaderConstants;
 
     // Pipeline states
-    std::map<size_t, ComPtr<ID3D12PipelineState>> d3dPipelineStates;
+    std::map<size_t, ComPtr<ID3D12PipelineState>> psoMap;
 
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc{};
-    D3D12_CPU_DESCRIPTOR_HANDLE d3dRenderTargets[4]{};
-    D3D12_CPU_DESCRIPTOR_HANDLE d3dDepthStencil{};
-    D3D12_VIEWPORT d3dViewport{};
-    D3D12_RECT d3dScissorRect{};
-    D3D_PRIMITIVE_TOPOLOGY d3dPrimitiveTopology{};
-    D3D12_INDEX_BUFFER_VIEW d3dIndexBufferView{};
-    D3D12_VERTEX_BUFFER_VIEW d3dVertexBufferViews[8]{};
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC pso{};
+    D3D12_CPU_DESCRIPTOR_HANDLE renderTargets[4]{};
+    D3D12_CPU_DESCRIPTOR_HANDLE depthStencil{};
+    D3D12_VIEWPORT viewport{};
+    D3D12_RECT scissorRect{};
+    D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
+    D3D12_INDEX_BUFFER_VIEW indexBufferView{};
+    D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[8]{};
+    UINT stencilRef{};
 
     void validateState();
 
@@ -57,7 +58,7 @@ public:
     explicit Device(D3DPRESENT_PARAMETERS* presentationParameters);
     ~Device() = default;
 
-    ID3D12Device* getD3DDevice() const;
+    ID3D12Device* getUnderlyingDevice() const;
     CommandQueue& getLoadQueue();
 
 #pragma region D3D9 Device

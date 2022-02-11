@@ -52,9 +52,6 @@
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>Base\Buffers</Filter>
     </ClCompile>
-    <ClCompile Include="Hash.cpp">
-      <Filter>Base</Filter>
-    </ClCompile>
     <ClCompile Include="RenderTargetSurface.cpp">
       <Filter>Base\Surfaces</Filter>
     </ClCompile>
@@ -117,9 +114,6 @@
     </ClInclude>
     <ClInclude Include="ConstantBuffer.h">
       <Filter>Base\Buffers</Filter>
-    </ClInclude>
-    <ClInclude Include="Hash.h">
-      <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="RenderTargetSurface.h">
       <Filter>Base\Surfaces</Filter>
