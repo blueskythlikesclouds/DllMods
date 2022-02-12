@@ -151,8 +151,4 @@
       <UniqueIdentifier>{f44a5115-c2ba-4831-89ea-7740a52069a1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl" />
-    <FxCompile Include="PixelShader.hlsl" />
-  </ItemGroup>
 </Project>

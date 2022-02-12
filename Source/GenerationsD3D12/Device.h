@@ -88,7 +88,19 @@ class Device : public Unknown
     ComPtr<VertexShader> vertexShader;
     ComPtr<PixelShader> pixelShader;
 
-    void validateState();
+    bool pendingDraw{};
+
+    void prepareDraw();
+    void requestDraw();
+    void submitDraw();
+
+    void updateMemoryAndNotify(void* dest, const void* src, size_t byteSize);
+
+    template<typename T>
+    void updateMemoryAndNotify(T& dest, const T src)
+    {
+        updateMemoryAndNotify(&dest, &src, sizeof(T));
+    }
 
     void reserveVertexBuffer(size_t length);
     void reserveIndexBuffer(size_t length);
