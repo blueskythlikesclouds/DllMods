@@ -26,6 +26,33 @@ struct PixelConstants
     BOOL b[16];
 };
 
+UINT calculateIndexCount(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount)
+{
+    UINT vertexCount = 0;
+    switch (PrimitiveType)
+    {
+    case D3DPT_POINTLIST:
+        vertexCount = PrimitiveCount;
+        break;
+    case D3DPT_LINELIST:
+        vertexCount = PrimitiveCount * 2;
+        break;
+    case D3DPT_LINESTRIP:
+        vertexCount = PrimitiveCount + 1;
+        break;
+    case D3DPT_TRIANGLELIST:
+        vertexCount = PrimitiveCount * 3;
+        break;
+    case D3DPT_TRIANGLESTRIP:
+        vertexCount = PrimitiveCount + 2;
+        break;
+    case D3DPT_TRIANGLEFAN:
+        vertexCount = PrimitiveCount + 2;
+        break;
+    }
+    return vertexCount;
+}
+
 void Device::prepareDraw()
 {
     if (renderTargets[0] == backBufferRenderTargets[!backBufferIndex])
@@ -905,7 +932,8 @@ HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, 
 
     requestDraw();
     renderQueue.getCommandList()->IASetPrimitiveTopology((D3D12_PRIMITIVE_TOPOLOGY)PrimitiveType);
-    renderQueue.getCommandList()->DrawInstanced(PrimitiveCount, 1, StartVertex, 0);
+    renderQueue.getCommandList()->DrawInstanced(calculateIndexCount(PrimitiveType, PrimitiveCount), 1, StartVertex, 0);
+    pendingDraw = true;
 
     return S_OK;
 }       
@@ -917,7 +945,7 @@ HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVer
 
     requestDraw();
     renderQueue.getCommandList()->IASetPrimitiveTopology((D3D12_PRIMITIVE_TOPOLOGY)PrimitiveType);
-    renderQueue.getCommandList()->DrawIndexedInstanced(primCount, 1, startIndex, BaseVertexIndex, 0);
+    renderQueue.getCommandList()->DrawIndexedInstanced(calculateIndexCount(PrimitiveType, primCount), 1, startIndex, BaseVertexIndex, 0);
     pendingDraw = true;
 
     return S_OK;
@@ -928,32 +956,10 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
     if (PrimitiveType > D3DPT_TRIANGLESTRIP)
         return S_OK;
 
-    // Calculate vertex count from primitive type
-    UINT vertexCount = 0;
-    switch (PrimitiveType)
-    {
-    case D3DPT_POINTLIST:
-        vertexCount = PrimitiveCount;
-        break;
-    case D3DPT_LINELIST:
-        vertexCount = PrimitiveCount * 2;
-        break;
-    case D3DPT_LINESTRIP:
-        vertexCount = PrimitiveCount + 1;
-        break;
-    case D3DPT_TRIANGLELIST:
-        vertexCount = PrimitiveCount * 3;
-        break;
-    case D3DPT_TRIANGLESTRIP:
-        vertexCount = PrimitiveCount + 2;
-        break;
-    case D3DPT_TRIANGLEFAN:
-        vertexCount = PrimitiveCount + 2;
-        break;
-    }
+    const UINT vertexCount = calculateIndexCount(PrimitiveType, PrimitiveCount); // index count == vertex count
 
     // Calculate total byte size
-    UINT totalSize = vertexCount * VertexStreamZeroStride;
+    const UINT totalSize = vertexCount * VertexStreamZeroStride;
     
     // Reserve space in the vertex buffer
     reserveVertexBuffer(totalSize);
