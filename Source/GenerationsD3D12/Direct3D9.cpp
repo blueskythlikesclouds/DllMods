@@ -1,4 +1,5 @@
 ﻿#include "Direct3D9.h"
+
 #include "Device.h"
 
 Direct3D9::Direct3D9(UINT SDKVersion)

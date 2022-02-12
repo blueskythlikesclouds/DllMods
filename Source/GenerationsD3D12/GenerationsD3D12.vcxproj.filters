@@ -61,6 +61,15 @@
     <ClCompile Include="..\..\Dependencies\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
       <Filter>Dependencies</Filter>
     </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>Base\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="DescriptorHeapPool.cpp">
+      <Filter>Base\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBufferPool.cpp">
+      <Filter>Base\Buffers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -126,6 +135,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h">
       <Filter>Dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="DescriptorHeapPool.h">
+      <Filter>Base\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferPool.h">
+      <Filter>Base\Buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

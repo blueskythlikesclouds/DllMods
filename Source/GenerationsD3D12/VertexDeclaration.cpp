@@ -1,4 +1,5 @@
 ﻿#include "VertexDeclaration.h"
+
 #include "TypeConverter.h"
 
 void VertexDeclaration::addIfMissing(LPCSTR semanticName, UINT semanticIndex)

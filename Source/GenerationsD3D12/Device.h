@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "Unknown.h"
-
 #include "CommandQueue.h"
-#include "ConstantBuffer.h"
+#include "ConstantBufferPool.h"
+#include "DescriptorHeapPool.h"
+#include "Unknown.h"
 
 class BaseTexture;
 class CubeTexture;
@@ -21,8 +21,19 @@ class VertexDeclaration;
 typedef Shader VertexShader;
 typedef Shader PixelShader;
 
-struct VertexConstants;
-struct PixelConstants;
+struct VertexConstants
+{
+    FLOAT c[256][4];
+    INT i[16][4];
+    BOOL b[16];
+};
+
+struct PixelConstants
+{
+    FLOAT c[224][4];
+    INT i[16][4];
+    BOOL b[16];
+};
 
 class Device : public Unknown
 {
@@ -36,23 +47,17 @@ class Device : public Unknown
 
     // Root signature
     ComPtr<ID3D12RootSignature> rootSignature;
-    ConstantBuffer<VertexConstants> vertexConstants;
-    ConstantBuffer<PixelConstants> pixelConstants;
 
-    ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap;
-    D3D12_CPU_DESCRIPTOR_HANDLE srvCpuDescriptorHandle;
-    D3D12_GPU_DESCRIPTOR_HANDLE srvGpuDescriptorHandle;
+    VertexConstants vertexConstants{};
+    ConstantBufferPool vertexConstantsPool;
 
-    ComPtr<ID3D12DescriptorHeap> samplerDescriptorHeap;
-    D3D12_CPU_DESCRIPTOR_HANDLE samplerCpuDescriptorHandle;
-    D3D12_GPU_DESCRIPTOR_HANDLE samplerGpuDescriptorHandle;
+    PixelConstants pixelConstants{};
+    ConstantBufferPool pixelConstantsPool;
 
-    ComPtr<D3D12MA::Allocation> vertexUploadBuffer;
-    ComPtr<D3D12MA::Allocation> indexUploadBuffer;
-    void* vertexUploadBufferData{};
-    size_t vertexUploadBufferSize{};
-    void* indexUploadBufferData{};
-    size_t indexUploadBufferSize{};
+    DescriptorHeapPool srvPool;
+    DescriptorHeapPool samplerPool;
+
+    std::vector<ComPtr<D3D12MA::Allocation>> uploadVertexBuffers;
 
     struct PipelineStateCache
     {
@@ -74,7 +79,6 @@ class Device : public Unknown
 
     D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
     ComPtr<IndexBuffer> indexBuffer;
-    D3D12_INDEX_BUFFER_VIEW indexBufferView{};
 
     ComPtr<VertexBuffer> vertexBuffers[8];
     D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[8]{};
@@ -89,22 +93,38 @@ class Device : public Unknown
     ComPtr<VertexShader> vertexShader;
     ComPtr<PixelShader> pixelShader;
 
-    bool pendingDraw{};
+    enum class DirtyStateIndex
+    {
+        RootSignature,
+        RenderTarget,
+        Viewport,
+        PipelineState,
+        Texture,
+        Sampler,
+        ScissorRect,
+        PrimitiveTopology,
+        VertexDeclaration,
+        VertexShader,
+        VertexConstant,
+        VertexBuffer,
+        IndexBuffer,
+        PixelShader,
+        PixelConstant,
+        Count
+    };
 
-    void prepareDraw();
-    void requestDraw();
-    void submitDraw();
+    std::bitset<(size_t)DirtyStateIndex::Count> dirtyState;
 
-    void updateMemoryAndNotify(void* dest, const void* src, size_t byteSize);
+    void updatePipelineState();
+    void updateDirty(void* dest, const void* src, size_t byteSize, DirtyStateIndex dirtyStateIndex);
 
     template<typename T>
-    void updateMemoryAndNotify(T& dest, const T src)
+    void updateDirty(T& dest, const T src, const DirtyStateIndex dirtyStateIndex)
     {
-        updateMemoryAndNotify(&dest, &src, sizeof(T));
+        updateDirty(&dest, &src, sizeof(T), dirtyStateIndex);
     }
 
-    void reserveVertexBuffer(size_t length);
-    void reserveIndexBuffer(size_t length);
+    void submitAll();
 
 public:
     explicit Device(D3DPRESENT_PARAMETERS* presentationParameters);
@@ -112,6 +132,7 @@ public:
 
     ID3D12Device* getDevice() const;
     D3D12MA::Allocator* getAllocator() const;
+    ID3D12GraphicsCommandList* getCommandList() const;
     CommandQueue& getLoadQueue();
 
     HRESULT createResource(D3D12_HEAP_TYPE HeapType,

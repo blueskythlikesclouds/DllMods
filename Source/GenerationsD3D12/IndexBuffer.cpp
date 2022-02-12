@@ -1,4 +1,5 @@
 ﻿#include "IndexBuffer.h"
+
 #include "Device.h"
 
 IndexBuffer::IndexBuffer(Device* device, const size_t length, const DXGI_FORMAT format)
@@ -63,9 +64,7 @@ HRESULT IndexBuffer::Unlock()
             D3D12_RESOURCE_STATE_INDEX_BUFFER));
 
     // Execute command list before freeing upload heap.
-    queue.executeCommandList();
-    queue.waitForFenceEvent();
-    queue.resetCommandList();
+    queue.submitAll();
 
     // Free upload heap.
     uploadHeap = nullptr;

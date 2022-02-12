@@ -1,4 +1,5 @@
 ﻿#include "VertexBuffer.h"
+
 #include "Device.h"
 
 VertexBuffer::VertexBuffer(Device* device, const size_t length)
@@ -63,9 +64,7 @@ HRESULT VertexBuffer::Unlock()
             D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
 
     // Execute command list before freeing upload heap.
-    queue.executeCommandList();
-    queue.waitForFenceEvent();
-    queue.resetCommandList();
+    queue.submitAll();
 
     // Free upload heap.
     uploadHeap = nullptr;

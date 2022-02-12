@@ -102,6 +102,8 @@
     <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="BaseTexture.cpp" />
     <ClCompile Include="CommandQueue.cpp" />
+    <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="ConstantBufferPool.cpp" />
     <ClCompile Include="DepthStencilSurface.cpp" />
     <ClCompile Include="DepthStencilTexture.cpp" />
     <ClCompile Include="Device.cpp" />
@@ -110,6 +112,7 @@
     <ClCompile Include="RenderTargetSurface.cpp" />
     <ClCompile Include="RenderTargetTexture.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="DescriptorHeapPool.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
@@ -132,6 +135,7 @@
     <ClInclude Include="BaseTexture.h" />
     <ClInclude Include="CommandQueue.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="ConstantBufferPool.h" />
     <ClInclude Include="CriticalSection.h" />
     <ClInclude Include="DepthStencilSurface.h" />
     <ClInclude Include="DepthStencilTexture.h" />
@@ -141,6 +145,7 @@
     <ClInclude Include="RenderTargetSurface.h" />
     <ClInclude Include="RenderTargetTexture.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="DescriptorHeapPool.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexBuffer.h" />

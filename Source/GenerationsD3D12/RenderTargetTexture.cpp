@@ -1,4 +1,5 @@
 ﻿#include "RenderTargetTexture.h"
+
 #include "RenderTargetSurface.h"
 
 void RenderTargetTexture::initialize()

@@ -1,4 +1,5 @@
 ﻿#include "RenderTargetSurface.h"
+
 #include "RenderTargetTexture.h"
 
 RenderTargetSurface::RenderTargetSurface(Device* device, RenderTargetTexture* texture)

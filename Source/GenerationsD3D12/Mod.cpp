@@ -1,6 +1,6 @@
+#include "Device.h"
 #include "Direct3D9.h"
 #include "Texture.h"
-#include "Device.h"
 
 HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     hh::mr::CPictureData* pPictureData, const uint8_t* pData, size_t length, hh::mr::CRenderingInfrastructure* pRenderingInfrastructure)
@@ -52,7 +52,7 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
         // Set resource name.
         WCHAR pictureName[0x100];
         MultiByteToWideChar(CP_UTF8, 0, pPictureData->m_TypeAndName.c_str() + 15, -1, pictureName, _countof(pictureName));
-        texture->SetName(pictureName);
+        texture->GetResource()->SetName(pictureName);
 
         pPictureData->m_pD3DTexture = (DX_PATCH::IDirect3DBaseTexture9*)(new Texture(device.Get(), texture.Get()));
         pPictureData->m_Type = hh::mr::ePictureType_Texture;

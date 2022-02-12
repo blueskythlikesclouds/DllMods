@@ -1,4 +1,5 @@
 ﻿#include "Texture.h"
+
 #include "TypeConverter.h"
 
 void Texture::initialize()
