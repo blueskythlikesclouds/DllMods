@@ -3,7 +3,7 @@
 template<typename T>
 class ConstantBuffer
 {
-    ComPtr<ID3D12Resource> resource;
+    ComPtr<D3D12MA::Allocation> buffer;
     ComPtr<ID3D12DescriptorHeap> descriptorHeap;
     D3D12_CPU_DESCRIPTOR_HANDLE cpuDescriptorHandle{};
     D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle{};
@@ -12,13 +12,13 @@ class ConstantBuffer
 public:
     ~ConstantBuffer()
     {
-        if (resource)
-            resource->Unmap(0, nullptr);
+        if (buffer)
+            buffer->GetResource()->Unmap(0, nullptr);
     }
 
     ID3D12Resource* getResource() const
     {
-        return resource.Get();
+        return buffer->GetResource();
     }
 
     ID3D12DescriptorHeap* getDescriptorHeap() const
@@ -41,16 +41,20 @@ public:
         return data;
     }
 
-    void initialize(const ComPtr<ID3D12Device>& device)
+    void initialize(ID3D12Device* device, D3D12MA::Allocator* allocator)
     {
         // Create constant buffer.
-        device->CreateCommittedResource(
-            &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-            D3D12_HEAP_FLAG_NONE,
+        D3D12MA::ALLOCATION_DESC allocDesc{};
+        allocDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+
+        allocator->CreateResource(
+            &allocDesc,
             &CD3DX12_RESOURCE_DESC::Buffer((sizeof(T) + 255) & ~0xFF),
             D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
-            IID_PPV_ARGS(&resource));
+            &buffer,
+            __uuidof(ID3D12Resource),
+            nullptr);
 
         // Create descriptor heap.
         D3D12_DESCRIPTOR_HEAP_DESC desc = {};
@@ -64,11 +68,11 @@ public:
 
         // Create constant buffer view.
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-        cbvDesc.BufferLocation = resource->GetGPUVirtualAddress();
+        cbvDesc.BufferLocation = buffer->GetResource()->GetGPUVirtualAddress();
         cbvDesc.SizeInBytes = (sizeof(T) + 255) & ~0xFF;
         device->CreateConstantBufferView(&cbvDesc, cpuDescriptorHandle);
 
         // Map constant buffer.
-        resource->Map(0, nullptr, reinterpret_cast<void**>(&data));
+        buffer->GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&data));
     }
 };

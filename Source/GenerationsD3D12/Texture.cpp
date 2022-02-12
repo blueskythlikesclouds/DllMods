@@ -1,9 +1,9 @@
 ﻿#include "Texture.h"
 #include "TypeConverter.h"
 
-Texture::Texture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource)
-    : BaseTexture(device, resource)
+void Texture::initialize()
 {
+    ID3D12Resource* resource = getResource();
     if (!resource)
         return;
 
@@ -41,9 +41,21 @@ Texture::Texture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& res
     heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     heapDesc.NumDescriptors = 1;
 
-    device->getUnderlyingDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
+    device->getDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
     srvDescriptorHandle = srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    device->getUnderlyingDevice()->CreateShaderResourceView(resource.Get(), &desc, srvDescriptorHandle);
+    device->getDevice()->CreateShaderResourceView(resource, &desc, srvDescriptorHandle);
+}
+
+Texture::Texture(Device* device, ID3D12Resource* resource)
+    : BaseTexture(device, resource)
+{
+    initialize();
+}
+
+Texture::Texture(Device* device, D3D12MA::Allocation* allocation)
+    : BaseTexture(device, allocation)
+{
+    initialize();
 }
 
 DXGI_FORMAT Texture::getFormat() const
@@ -60,6 +72,10 @@ HRESULT Texture::GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc)
 {
     if (!pDesc)
         return E_INVALIDARG;
+
+    ID3D12Resource* resource = getResource();
+    if (!resource)
+        return E_FAIL;
 
     const D3D12_RESOURCE_DESC desc = resource->GetDesc();
     if (desc.Dimension != D3D12_RESOURCE_DIMENSION_TEXTURE2D)

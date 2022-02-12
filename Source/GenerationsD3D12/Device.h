@@ -27,6 +27,7 @@ struct PixelConstants;
 class Device : public Unknown
 {
     ComPtr<ID3D12Device> device;
+    ComPtr<D3D12MA::Allocator> allocator;
     CommandQueue renderQueue;
     CommandQueue loadQueue;
     ComPtr<IDXGISwapChain3> swapChain;
@@ -46,8 +47,8 @@ class Device : public Unknown
     D3D12_CPU_DESCRIPTOR_HANDLE samplerCpuDescriptorHandle;
     D3D12_GPU_DESCRIPTOR_HANDLE samplerGpuDescriptorHandle;
 
-    ComPtr<ID3D12Resource> vertexUploadBuffer;
-    ComPtr<ID3D12Resource> indexUploadBuffer;
+    ComPtr<D3D12MA::Allocation> vertexUploadBuffer;
+    ComPtr<D3D12MA::Allocation> indexUploadBuffer;
     void* vertexUploadBufferData{};
     size_t vertexUploadBufferSize{};
     void* indexUploadBufferData{};
@@ -109,8 +110,15 @@ public:
     explicit Device(D3DPRESENT_PARAMETERS* presentationParameters);
     ~Device() = default;
 
-    ID3D12Device* getUnderlyingDevice() const;
+    ID3D12Device* getDevice() const;
+    D3D12MA::Allocator* getAllocator() const;
     CommandQueue& getLoadQueue();
+
+    HRESULT createResource(D3D12_HEAP_TYPE HeapType,
+        const D3D12_RESOURCE_DESC* pResourceDesc,
+        D3D12_RESOURCE_STATES InitialResourceState,
+        const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+        D3D12MA::Allocation** ppAllocation) const;
 
 #pragma region D3D9 Device
     virtual HRESULT TestCooperativeLevel();

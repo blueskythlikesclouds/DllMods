@@ -1,16 +1,27 @@
 ﻿#include "Device.h"
 #include "Resource.h"
 
-Resource::Resource(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource)
+Resource::Resource(Device* device, ID3D12Resource* resource)
     : device(device), resource(resource)
+{
+}
+
+Resource::Resource(Device* device, D3D12MA::Allocation* allocation)
+    : device(device), resource(allocation ? allocation->GetResource() : nullptr), allocation(allocation)
 {
 }
 
 Resource::~Resource() = default;
 
+D3D12MA::Allocation* Resource::getAllocation() const
+{
+    return allocation.Get();
+}
+
 ID3D12Resource* Resource::getResource() const
 {
-    return resource.Get();
+    return resource ? resource.Get() :
+        allocation ? allocation->GetResource() : nullptr;
 }
 
 FUNCTION_STUB(HRESULT, Resource::GetDevice, Device** ppDevice)

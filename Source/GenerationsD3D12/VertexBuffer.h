@@ -4,11 +4,11 @@
 
 class VertexBuffer : public Resource
 {
-    ComPtr<ID3D12Resource> uploadHeap;
+    ComPtr<D3D12MA::Allocation> uploadHeap;
     size_t length;
 
 public:
-    explicit VertexBuffer(const ComPtr<Device>& device, size_t length);
+    explicit VertexBuffer(Device* device, size_t length);
     ~VertexBuffer() = default;
 
     D3D12_VERTEX_BUFFER_VIEW getVertexBufferView(size_t offsetInBytes, size_t stride) const;

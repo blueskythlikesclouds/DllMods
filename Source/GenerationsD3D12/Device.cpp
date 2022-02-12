@@ -183,13 +183,12 @@ void Device::reserveVertexBuffer(const size_t length)
     vertexUploadBufferSize = length;
 
     if (vertexUploadBuffer)
-        vertexUploadBuffer->Unmap(0, nullptr);
+        vertexUploadBuffer->GetResource()->Unmap(0, nullptr);
 
-    device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-                                    &CD3DX12_RESOURCE_DESC::Buffer(vertexUploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ,
-                                    nullptr, IID_PPV_ARGS(&vertexUploadBuffer));
+    createResource(D3D12_HEAP_TYPE_UPLOAD, &CD3DX12_RESOURCE_DESC::Buffer(vertexUploadBufferSize),
+                   D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, &vertexUploadBuffer);
 
-    vertexUploadBuffer->Map(0, &CD3DX12_RANGE(0, 0), &vertexUploadBufferData);
+    vertexUploadBuffer->GetResource()->Map(0, &CD3DX12_RANGE(0, 0), &vertexUploadBufferData);
 }
 
 void Device::reserveIndexBuffer(const size_t length)
@@ -202,15 +201,14 @@ void Device::reserveIndexBuffer(const size_t length)
     indexUploadBufferSize = length;
 
     if (indexUploadBuffer)
-        indexUploadBuffer->Unmap(0, nullptr);
+        indexUploadBuffer->GetResource()->Unmap(0, nullptr);
 
-    device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-                                    &CD3DX12_RESOURCE_DESC::Buffer(indexUploadBufferSize), D3D12_RESOURCE_STATE_GENERIC_READ,
-                                    nullptr, IID_PPV_ARGS(&indexUploadBuffer));
+    createResource(D3D12_HEAP_TYPE_UPLOAD, &CD3DX12_RESOURCE_DESC::Buffer(indexUploadBufferSize),
+                   D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, &indexUploadBuffer);
 
     assert(indexUploadBuffer != nullptr);
 
-    indexUploadBuffer->Map(0, &CD3DX12_RANGE(0, 0), &indexUploadBufferData);
+    indexUploadBuffer->GetResource()->Map(0, &CD3DX12_RANGE(0, 0), &indexUploadBufferData);
 }
 
 Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
@@ -224,16 +222,27 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     SetWindowPos(presentationParameters->hDeviceWindow, HWND_TOP, (1920 - 1600) / 2, (1080 - 900) / 2, 1600, 900, SWP_FRAMECHANGED);
 #endif
 
-    // Create device
-    D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
-
     // Create DXGI factory
     ComPtr<IDXGIFactory4> dxgiFactory;
     CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 
+    // Get first DXGI adapter
+    ComPtr<IDXGIAdapter> dxgiAdapter;
+    dxgiFactory->EnumAdapters(0, dxgiAdapter.GetAddressOf());
+
+    // Create device
+    D3D12CreateDevice(dxgiAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
+
+    // Create allocator
+    D3D12MA::ALLOCATOR_DESC allocatorDesc{};
+    allocatorDesc.pDevice = device.Get();
+    allocatorDesc.pAdapter = dxgiAdapter.Get();
+
+    D3D12MA::CreateAllocator(&allocatorDesc, allocator.GetAddressOf());
+
     // Create command queues
-    renderQueue.initialize(device, D3D12_COMMAND_LIST_TYPE_DIRECT);
-    loadQueue.initialize(device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    renderQueue.initialize(device.Get(), D3D12_COMMAND_LIST_TYPE_DIRECT);
+    loadQueue.initialize(device.Get(), D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     // Create swap chain
     ComPtr<IDXGISwapChain1> swapChain1;
@@ -298,8 +307,8 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     pso.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
     // Initialize constant buffers
-    vertexConstants.initialize(device);
-    pixelConstants.initialize(device);
+    vertexConstants.initialize(device.Get(), allocator.Get());
+    pixelConstants.initialize(device.Get(), allocator.Get());
 
     // Create SRV descriptor heap
     D3D12_DESCRIPTOR_HEAP_DESC srvDesc{};
@@ -337,7 +346,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     {
         ComPtr<ID3D12Resource> backBuffer;
         swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer));
-        backBufferRenderTargets[i] = new RenderTargetTexture(this, backBuffer);
+        backBufferRenderTargets[i] = new RenderTargetTexture(this, backBuffer.Get());
     }
 
     backBufferIndex = swapChain->GetCurrentBackBufferIndex();
@@ -349,14 +358,30 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
                                                        D3D12_RESOURCE_STATE_RENDER_TARGET));
 }
 
-ID3D12Device* Device::getUnderlyingDevice() const
+ID3D12Device* Device::getDevice() const
 {
     return device.Get();
+}
+
+D3D12MA::Allocator* Device::getAllocator() const
+{
+    return allocator.Get();
 }
 
 CommandQueue& Device::getLoadQueue()
 {
     return loadQueue;
+}
+
+HRESULT Device::createResource(D3D12_HEAP_TYPE HeapType, const D3D12_RESOURCE_DESC* pResourceDesc,
+    D3D12_RESOURCE_STATES InitialResourceState, const D3D12_CLEAR_VALUE* pOptimizedClearValue,
+    D3D12MA::Allocation** ppAllocation) const
+{
+    D3D12MA::ALLOCATION_DESC desc{};
+    desc.HeapType = HeapType;
+
+    return allocator->CreateResource(&desc, pResourceDesc, InitialResourceState, pOptimizedClearValue, ppAllocation,
+                                     __uuidof(ID3D12Resource), nullptr);
 }
 
 FUNCTION_STUB(HRESULT, Device::TestCooperativeLevel)
@@ -431,7 +456,7 @@ FUNCTION_STUB(void, Device::GetGammaRamp, UINT iSwapChain, D3DGAMMARAMP* pRamp)
 
 HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, Texture** ppTexture, HANDLE* pSharedHandle)
 {
-    ComPtr<ID3D12Resource> texture;
+    ComPtr<D3D12MA::Allocation> texture;
 
     const DXGI_FORMAT format = TypeConverter::makeUntypeless(TypeConverter::convert(Format), false);
 
@@ -443,11 +468,9 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
 
     const FLOAT black[4] = { 0, 0, 0, 1 };
 
-    const HRESULT hr = device->CreateCommittedResource
+    const HRESULT hr = createResource
     (
-        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-
-        D3D12_HEAP_FLAG_NONE,
+        D3D12_HEAP_TYPE_DEFAULT,
 
         &CD3DX12_RESOURCE_DESC::Tex2D(format, Width, Height, 1, Levels, 1, 0,
             Usage & D3DUSAGE_RENDERTARGET ? D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET : 
@@ -459,20 +482,20 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
         Usage & D3DUSAGE_RENDERTARGET ? &CD3DX12_CLEAR_VALUE(format, black) :
         Usage & D3DUSAGE_DEPTHSTENCIL ? &CD3DX12_CLEAR_VALUE(format, 1.0f, 0) : nullptr,
 
-        IID_PPV_ARGS(&texture)
+        &texture
     );
         
     if (FAILED(hr))
         return hr;
 
     if (Usage & D3DUSAGE_RENDERTARGET)
-        *ppTexture = new RenderTargetTexture(this, texture);
+        *ppTexture = new RenderTargetTexture(this, texture.Get());
 
     else if (Usage & D3DUSAGE_DEPTHSTENCIL)
-        *ppTexture = new DepthStencilTexture(this, texture);
+        *ppTexture = new DepthStencilTexture(this, texture.Get());
 
     else
-        *ppTexture = new Texture(this, texture);
+        *ppTexture = new Texture(this, texture.Get());
 
     return S_OK;
 }
@@ -969,7 +992,7 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
 
     // Initialize first vertex buffer view
     D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-    vertexBufferView.BufferLocation = vertexUploadBuffer->GetGPUVirtualAddress();
+    vertexBufferView.BufferLocation = vertexUploadBuffer->GetResource()->GetGPUVirtualAddress();
     vertexBufferView.SizeInBytes = totalSize;
     vertexBufferView.StrideInBytes = VertexStreamZeroStride;
 

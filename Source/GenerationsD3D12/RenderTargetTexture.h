@@ -10,8 +10,11 @@ class RenderTargetTexture : public Texture
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptorHandle{};
     ComPtr<RenderTargetSurface> surface;
 
+    void initialize();
+
 public:
-    explicit RenderTargetTexture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource);
+    explicit RenderTargetTexture(Device* device, ID3D12Resource* resource);
+    explicit RenderTargetTexture(Device* device, D3D12MA::Allocation* allocation);
 
     D3D12_CPU_DESCRIPTOR_HANDLE getRtvDescriptorHandle() const;
         

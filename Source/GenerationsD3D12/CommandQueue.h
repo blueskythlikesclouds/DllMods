@@ -23,7 +23,7 @@ public:
 
     std::lock_guard<CriticalSection> lock();
 
-    void initialize(const ComPtr<ID3D12Device>& device, D3D12_COMMAND_LIST_TYPE type);
+    void initialize(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type);
 
     void waitForFenceEvent();
     void executeCommandList() const;

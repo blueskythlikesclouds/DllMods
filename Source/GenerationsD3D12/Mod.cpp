@@ -10,35 +10,34 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
 
     const ComPtr<Device> device = (Device*)pRenderingInfrastructure->m_RenderingDevice.m_pD3DDevice;
 
-    ComPtr<ID3D12Resource> texture;
+    ComPtr<D3D12MA::Allocation> texture;
     std::vector<D3D12_SUBRESOURCE_DATA> subResources;
 
-    const HRESULT result = DirectX::LoadDDSTextureFromMemory(device->getUnderlyingDevice(), pData, length, texture.GetAddressOf(), subResources);
+    const HRESULT result = DirectX::LoadDDSTextureFromMemory(device->getDevice(), pData, length, device->getAllocator(), texture.GetAddressOf(), subResources);
 
     if (SUCCEEDED(result) && texture != nullptr)
     {
         // Create upload buffer.
-        ComPtr<ID3D12Resource> uploadHeap;
+        ComPtr<D3D12MA::Allocation> uploadHeap;
 
-        device->getUnderlyingDevice()->CreateCommittedResource(
-            &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-            D3D12_HEAP_FLAG_NONE,
-            &CD3DX12_RESOURCE_DESC::Buffer(GetRequiredIntermediateSize(texture.Get(), 0, subResources.size())),
+        device->createResource(
+            D3D12_HEAP_TYPE_UPLOAD,
+            &CD3DX12_RESOURCE_DESC::Buffer(GetRequiredIntermediateSize(texture->GetResource(), 0, subResources.size())),
             D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
-            IID_PPV_ARGS(&uploadHeap));
+            uploadHeap.GetAddressOf());
 
         // Update subresources.
         auto& queue = device->getLoadQueue();
         const auto lock = queue.lock();
 
-        UpdateSubresources(queue.getCommandList(), texture.Get(), uploadHeap.Get(), 0, 0, subResources.size(), subResources.data());
+        UpdateSubresources(queue.getCommandList(), texture->GetResource(), uploadHeap->GetResource(), 0, 0, subResources.size(), subResources.data());
 
         // Transition the texture to a shader resource.
         queue.getCommandList()->ResourceBarrier(
             1,
             &CD3DX12_RESOURCE_BARRIER::Transition(
-                texture.Get(),
+                texture->GetResource(),
                 D3D12_RESOURCE_STATE_COPY_DEST,
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
@@ -55,7 +54,7 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
         MultiByteToWideChar(CP_UTF8, 0, pPictureData->m_TypeAndName.c_str() + 15, -1, pictureName, _countof(pictureName));
         texture->SetName(pictureName);
 
-        pPictureData->m_pD3DTexture = (DX_PATCH::IDirect3DBaseTexture9*)(new Texture(device, texture));
+        pPictureData->m_pD3DTexture = (DX_PATCH::IDirect3DBaseTexture9*)(new Texture(device.Get(), texture.Get()));
         pPictureData->m_Type = hh::mr::ePictureType_Texture;
     }
     else

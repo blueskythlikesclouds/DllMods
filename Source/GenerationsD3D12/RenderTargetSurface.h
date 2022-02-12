@@ -7,7 +7,7 @@ class RenderTargetSurface : public Surface
     ComPtr<RenderTargetTexture> texture;
 
 public:
-    explicit RenderTargetSurface(const ComPtr<Device>& device, const ComPtr<RenderTargetTexture>& texture);
+    explicit RenderTargetSurface(Device* device, RenderTargetTexture* texture);
 
     RenderTargetTexture* getTexture() const;
 };

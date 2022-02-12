@@ -20,7 +20,7 @@ std::lock_guard<CriticalSection> CommandQueue::lock()
     return std::lock_guard(criticalSection);
 }
 
-void CommandQueue::initialize(const ComPtr<ID3D12Device>& device, D3D12_COMMAND_LIST_TYPE type)
+void CommandQueue::initialize(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
 {
     // Create command queue description.
     D3D12_COMMAND_QUEUE_DESC desc;

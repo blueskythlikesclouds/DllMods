@@ -10,8 +10,11 @@ class Texture : public BaseTexture
     ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap;
     D3D12_CPU_DESCRIPTOR_HANDLE srvDescriptorHandle{};
 
+    void initialize();
+
 public:
-    explicit Texture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource);
+    explicit Texture(Device* device, ID3D12Resource* resource);
+    explicit Texture(Device* device, D3D12MA::Allocation* allocation);
 
     DXGI_FORMAT getFormat() const;
     D3D12_CPU_DESCRIPTOR_HANDLE getSrvDescriptorHandle() const;

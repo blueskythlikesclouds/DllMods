@@ -11,7 +11,7 @@ class DepthStencilTexture : public Texture
     ComPtr<DepthStencilSurface> surface;
 
 public:
-    explicit DepthStencilTexture(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource);
+    explicit DepthStencilTexture(Device* device, D3D12MA::Allocation* allocation);
 
     D3D12_CPU_DESCRIPTOR_HANDLE getDsvDescriptorHandle() const;
 

@@ -1,6 +1,10 @@
 ﻿#include "Surface.h"
 
-Surface::Surface(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource) : Resource(device, resource)
+Surface::Surface(Device* device, ID3D12Resource* resource) : Resource(device, resource)
+{
+}
+
+Surface::Surface(Device* device, D3D12MA::Allocation* allocation) : Resource(device, allocation)
 {
 }
 
@@ -8,6 +12,10 @@ FUNCTION_STUB(HRESULT, Surface::GetContainer, REFIID riid, void** ppContainer)
 
 HRESULT Surface::GetDesc(D3DSURFACE_DESC *pDesc)
 {
+    ID3D12Resource* resource = getResource();
+    if (!resource)
+        return E_FAIL;
+
     const D3D12_RESOURCE_DESC desc = resource->GetDesc();
     if (desc.Dimension != D3D12_RESOURCE_DIMENSION_TEXTURE2D)
         return E_FAIL;

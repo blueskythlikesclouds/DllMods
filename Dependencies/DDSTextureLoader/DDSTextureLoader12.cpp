@@ -1203,7 +1203,8 @@ namespace
         DXGI_FORMAT format,
         D3D12_RESOURCE_FLAGS resFlags,
         DDS_LOADER_FLAGS loadFlags,
-        _Outptr_ ID3D12Resource** texture) noexcept
+        _In_ D3D12MA::Allocator* allocator,
+        _Outptr_ D3D12MA::Allocation** texture) noexcept
     {
         if (!d3dDevice)
             return E_POINTER;
@@ -1226,21 +1227,22 @@ namespace
         desc.SampleDesc.Quality = 0;
         desc.Dimension = resDim;
 
-        CD3DX12_HEAP_PROPERTIES defaultHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+        D3D12MA::ALLOCATION_DESC allocDesc = {};
+        allocDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
 
-        hr = d3dDevice->CreateCommittedResource(
-            &defaultHeapProperties,
-            D3D12_HEAP_FLAG_NONE,
+        hr = allocator->CreateResource(
+            &allocDesc,
             &desc,
             D3D12_RESOURCE_STATE_COPY_DEST,
             nullptr,
-            IID_ID3D12Resource, reinterpret_cast<void**>(texture));
+            texture,
+            IID_ID3D12Resource, nullptr);
         if (SUCCEEDED(hr))
         {
             assert(texture != nullptr && *texture != nullptr);
             _Analysis_assume_(texture != nullptr && *texture != nullptr);
 
-            SetDebugObjectName(*texture, L"DDSTextureLoader");
+            SetDebugObjectName((*texture)->GetResource(), L"DDSTextureLoader");
         }
 
         return hr;
@@ -1254,7 +1256,8 @@ namespace
         size_t maxsize,
         D3D12_RESOURCE_FLAGS resFlags,
         DDS_LOADER_FLAGS loadFlags,
-        _Outptr_ ID3D12Resource** texture,
+        _In_ D3D12MA::Allocator* allocator,
+        _Outptr_ D3D12MA::Allocation** texture,
         std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
         _Out_opt_ bool* outIsCubeMap) noexcept(false)
     {
@@ -1471,7 +1474,7 @@ namespace
             }
 
             hr = CreateTextureResource(d3dDevice, resDim, twidth, theight, tdepth, reservedMips - skipMip, arraySize,
-                format, resFlags, loadFlags, texture);
+                format, resFlags, loadFlags, allocator, texture);
 
             if (FAILED(hr) && !maxsize && (mipCount > 1))
             {
@@ -1489,7 +1492,7 @@ namespace
                 if (SUCCEEDED(hr))
                 {
                     hr = CreateTextureResource(d3dDevice, resDim, twidth, theight, tdepth, mipCount - skipMip, arraySize,
-                        format, resFlags, loadFlags, texture);
+                        format, resFlags, loadFlags, allocator, texture);
                 }
             }
         }
@@ -1537,7 +1540,7 @@ namespace
     //--------------------------------------------------------------------------------------
     void SetDebugTextureInfo(
         _In_z_ const wchar_t* fileName,
-        _In_ ID3D12Resource** texture) noexcept
+        _In_ D3D12MA::Allocation** texture) noexcept
     {
 #if !defined(NO_D3D12_DEBUG_NAME) && ( defined(_DEBUG) || defined(PROFILE) )
         if (texture && *texture)
@@ -1552,7 +1555,7 @@ namespace
                 pstrName++;
             }
 
-            (*texture)->SetName(pstrName);
+            (*texture)->GetResource()->SetName(pstrName);
         }
 #else
         UNREFERENCED_PARAMETER(fileName);
@@ -1568,7 +1571,8 @@ HRESULT DirectX::LoadDDSTextureFromMemory(
     ID3D12Device* d3dDevice,
     const uint8_t* ddsData,
     size_t ddsDataSize,
-    ID3D12Resource** texture,
+    D3D12MA::Allocator* allocator,
+    D3D12MA::Allocation** texture,
     std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
     size_t maxsize,
     DDS_ALPHA_MODE* alphaMode,
@@ -1581,6 +1585,7 @@ HRESULT DirectX::LoadDDSTextureFromMemory(
         maxsize,
         D3D12_RESOURCE_FLAG_NONE,
         DDS_LOADER_DEFAULT,
+        allocator,
         texture,
         subresources,
         alphaMode,
@@ -1596,7 +1601,8 @@ HRESULT DirectX::LoadDDSTextureFromMemoryEx(
     size_t maxsize,
     D3D12_RESOURCE_FLAGS resFlags,
     DDS_LOADER_FLAGS loadFlags,
-    ID3D12Resource** texture,
+    D3D12MA::Allocator* allocator,
+    D3D12MA::Allocation** texture,
     std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
     DDS_ALPHA_MODE* alphaMode,
     bool* isCubeMap)
@@ -1637,13 +1643,13 @@ HRESULT DirectX::LoadDDSTextureFromMemoryEx(
 
     hr = CreateTextureFromDDS(d3dDevice,
         header, bitData, bitSize, maxsize,
-        resFlags, loadFlags,
+        resFlags, loadFlags, allocator,
         texture, subresources, isCubeMap);
     if (SUCCEEDED(hr))
     {
         if (texture && *texture)
         {
-            SetDebugObjectName(*texture, L"DDSTextureLoader");
+            SetDebugObjectName((*texture)->GetResource(), L"DDSTextureLoader");
         }
 
         if (alphaMode)
@@ -1659,7 +1665,8 @@ _Use_decl_annotations_
 HRESULT DirectX::LoadDDSTextureFromFile(
     ID3D12Device* d3dDevice,
     const wchar_t* fileName,
-    ID3D12Resource** texture,
+    D3D12MA::Allocator* allocator,
+    D3D12MA::Allocation** texture,
     std::unique_ptr<uint8_t[]>& ddsData,
     std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
     size_t maxsize,
@@ -1672,6 +1679,7 @@ HRESULT DirectX::LoadDDSTextureFromFile(
         maxsize,
         D3D12_RESOURCE_FLAG_NONE,
         DDS_LOADER_DEFAULT,
+        allocator,
         texture,
         ddsData,
         subresources,
@@ -1686,7 +1694,8 @@ HRESULT DirectX::LoadDDSTextureFromFileEx(
     size_t maxsize,
     D3D12_RESOURCE_FLAGS resFlags,
     DDS_LOADER_FLAGS loadFlags,
-    ID3D12Resource** texture,
+    D3D12MA::Allocator* allocator,
+    D3D12MA::Allocation** texture,
     std::unique_ptr<uint8_t[]>& ddsData,
     std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
     DDS_ALPHA_MODE* alphaMode,
@@ -1727,7 +1736,7 @@ HRESULT DirectX::LoadDDSTextureFromFileEx(
 
     hr = CreateTextureFromDDS(d3dDevice,
         header, bitData, bitSize, maxsize,
-        resFlags, loadFlags,
+        resFlags, loadFlags, allocator,
         texture, subresources, isCubeMap);
 
     if (SUCCEEDED(hr))

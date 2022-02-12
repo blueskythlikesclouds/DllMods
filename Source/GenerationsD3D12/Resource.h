@@ -9,12 +9,16 @@ class Resource : public Unknown
 
 protected:
     ComPtr<Device> device;
+    ComPtr<D3D12MA::Allocation> allocation;
     ComPtr<ID3D12Resource> resource;
 
 public:
-    explicit Resource(const ComPtr<Device>& device, const ComPtr<ID3D12Resource>& resource);
+    explicit Resource(Device* device, ID3D12Resource* resource);
+    explicit Resource(Device* device, D3D12MA::Allocation* allocation);
+
     ~Resource();
 
+    D3D12MA::Allocation* getAllocation() const;
     ID3D12Resource* getResource() const;
 
     virtual HRESULT GetDevice(Device** ppDevice);

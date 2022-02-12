@@ -58,6 +58,9 @@
     <ClCompile Include="DepthStencilSurface.cpp">
       <Filter>Base\Surfaces</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Dependencies\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -91,9 +94,6 @@
     <ClInclude Include="TypeConverter.h">
       <Filter>Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h">
-      <Filter>Dependencies</Filter>
-    </ClInclude>
     <ClInclude Include="RenderTargetTexture.h">
       <Filter>Base\Textures</Filter>
     </ClInclude>
@@ -120,6 +120,12 @@
     </ClInclude>
     <ClInclude Include="DepthStencilSurface.h">
       <Filter>Base\Surfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\D3D12MemoryAllocator\include\D3D12MemAlloc.h">
+      <Filter>Dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h">
+      <Filter>Dependencies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
