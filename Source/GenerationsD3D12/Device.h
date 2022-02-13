@@ -77,7 +77,8 @@ class Device : public Unknown
     ComPtr<VertexBuffer> vertexBuffers[8];
     D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[8]{};
 
-    UINT stencilRef{};
+    BOOL alphaTestEnable{};
+    FLOAT alphaRef{};
 
     ComPtr<Texture> textures[16];
     D3D12_SAMPLER_DESC samplers[16]{};
@@ -93,6 +94,7 @@ class Device : public Unknown
         RenderTarget,
         Viewport,
         PipelineState,
+        AlphaTest,
         Texture,
         Sampler,
         ScissorRect,

@@ -100,6 +100,9 @@ void Device::updatePipelineState()
     if (dirtyState[(size_t)DirtyStateIndex::Viewport])
         commandList->RSSetViewports(1, &viewport);
 
+    if (dirtyState[(size_t)DirtyStateIndex::AlphaTest])
+        commandList->SetGraphicsRoot32BitConstants(4, 2, &alphaTestEnable, 0);
+
     if (dirtyState[(size_t)DirtyStateIndex::Texture])
     {
         const DescriptorHeap descriptorHeap = viewPool.allocate(device.Get(), 16);
@@ -314,11 +317,12 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     descriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, _countof(textures), 0, 2);
     descriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, _countof(samplers), 0, 3);
 
-    CD3DX12_ROOT_PARAMETER rootParameters[4];
+    CD3DX12_ROOT_PARAMETER rootParameters[5];
     rootParameters[0].InitAsDescriptorTable(1, &descriptorRanges[0], D3D12_SHADER_VISIBILITY_VERTEX);
     rootParameters[1].InitAsDescriptorTable(1, &descriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
     rootParameters[2].InitAsDescriptorTable(1, &descriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
     rootParameters[3].InitAsDescriptorTable(1, &descriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL);
+    rootParameters[4].InitAsConstants(2, 0, 4, D3D12_SHADER_VISIBILITY_PIXEL);
 
     // Create root signature
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
@@ -764,6 +768,10 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
         updateDirty(pso.DepthStencilState.DepthWriteMask, (D3D12_DEPTH_WRITE_MASK)Value, DirtyStateIndex::PipelineState);
         break;
 
+    case D3DRS_ALPHATESTENABLE:
+        updateDirty(alphaTestEnable, (BOOL)Value, DirtyStateIndex::AlphaTest);
+        break;
+
     case D3DRS_SRCBLEND:
         updateDirty(pso.BlendState.RenderTarget[0].SrcBlend, (D3D12_BLEND)Value, DirtyStateIndex::PipelineState);
         break;
@@ -778,6 +786,10 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 
     case D3DRS_ZFUNC:
         updateDirty(pso.DepthStencilState.DepthFunc, (D3D12_COMPARISON_FUNC)Value, DirtyStateIndex::PipelineState);
+        break;
+
+    case D3DRS_ALPHAREF:
+        updateDirty(alphaRef, (float)Value / 255.0f, DirtyStateIndex::AlphaTest);
         break;
 
     case D3DRS_ALPHABLENDENABLE:
