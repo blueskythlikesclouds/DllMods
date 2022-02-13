@@ -91,6 +91,10 @@ extern "C" __declspec(dllexport) void Init()
     INSTALL_HOOK(FillTexture);
     INSTALL_HOOK(Direct3DCreate);
 
+    // Prevent half-pixel correction
+    WRITE_MEMORY(0x64F4C7, uintptr_t, 0x15C5858); // MTFx
+    WRITE_MEMORY(0x7866E2, uintptr_t, 0x15C5858); // FxPipeline
+
     // Ignore Devil's Details' fullscreen shader
     WRITE_CALL(0x64CF9E, 0x64F470);
 
