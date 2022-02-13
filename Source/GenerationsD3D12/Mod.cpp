@@ -2,6 +2,8 @@
 #include "Direct3D9.h"
 #include "Texture.h"
 
+#include "../GenerationsD3D9Ex/MemoryHandler.h"
+
 HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     hh::mr::CPictureData* pPictureData, const uint8_t* pData, size_t length, hh::mr::CRenderingInfrastructure* pRenderingInfrastructure)
 {
@@ -83,6 +85,8 @@ HOOK(void, WINAPI, MyOutputDebugStringA, &OutputDebugStringA, LPCSTR lpOutputStr
 
 extern "C" __declspec(dllexport) void Init()
 {
+    MemoryHandler::applyPatches();
+
     INSTALL_HOOK(LoadPictureData);
     INSTALL_HOOK(FillTexture);
     INSTALL_HOOK(Direct3DCreate);

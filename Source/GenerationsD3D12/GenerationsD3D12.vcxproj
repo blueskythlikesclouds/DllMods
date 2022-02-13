@@ -105,6 +105,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Dependencies\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp" />
     <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.cpp" />
+    <ClCompile Include="..\GenerationsD3D9Ex\MemoryHandler.cpp" />
     <ClCompile Include="BaseTexture.cpp" />
     <ClCompile Include="CommandQueue.cpp" />
     <ClCompile Include="DepthStencilSurface.cpp" />
@@ -136,6 +137,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Dependencies\D3D12MemoryAllocator\include\D3D12MemAlloc.h" />
     <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h" />
+    <ClInclude Include="..\GenerationsD3D9Ex\MemoryHandler.h" />
     <ClInclude Include="BaseTexture.h" />
     <ClInclude Include="CommandQueue.h" />
     <ClInclude Include="CriticalSection.h" />

@@ -10,7 +10,7 @@ class VertexDeclaration : public Unknown
     std::vector<D3D12_INPUT_ELEMENT_DESC> inputElements;
     size_t vertexElementCount{};
 
-    void addIfMissing(LPCSTR semanticName, UINT semanticIndex);
+    void addIfMissing(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format);
 
 public:
     VertexDeclaration(const D3DVERTEXELEMENT9* vertexElements);

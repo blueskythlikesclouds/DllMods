@@ -2,7 +2,7 @@
 
 #include "TypeConverter.h"
 
-void VertexDeclaration::addIfMissing(LPCSTR semanticName, UINT semanticIndex)
+void VertexDeclaration::addIfMissing(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format)
 {
     for (auto& element : inputElements)
     {
@@ -13,6 +13,8 @@ void VertexDeclaration::addIfMissing(LPCSTR semanticName, UINT semanticIndex)
     auto inputElement = inputElements[0];
     inputElement.SemanticName = semanticName;
     inputElement.SemanticIndex = semanticIndex;
+    inputElement.Format = format;
+
     inputElements.push_back(inputElement);
 }
 
@@ -50,12 +52,13 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
     vertexElementCount = inputElements.size();
 
     // TODO: Do this depending on the shader reflection
-    addIfMissing("TEXCOORD", 0);
-    addIfMissing("TEXCOORD", 1);
-    addIfMissing("TEXCOORD", 2);
-    addIfMissing("TEXCOORD", 3);
-    addIfMissing("BLENDWEIGHT", 0);
-    addIfMissing("BLENDINDICES", 0);
+    addIfMissing("TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT);
+    addIfMissing("TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT);
+    addIfMissing("TEXCOORD", 2, DXGI_FORMAT_R32G32_FLOAT);
+    addIfMissing("TEXCOORD", 3, DXGI_FORMAT_R32G32_FLOAT);
+    addIfMissing("COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM);
+    addIfMissing("BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+    addIfMissing("BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT);
 }
 
 D3D12_INPUT_LAYOUT_DESC VertexDeclaration::getInputLayoutDesc() const
