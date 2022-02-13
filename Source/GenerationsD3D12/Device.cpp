@@ -130,7 +130,15 @@ void Device::updatePipelineState()
         for (size_t i = 0; i < _countof(samplers); i++)
         {
             if (textures[i])
+            {
+                if (textures[i]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
+                    samplers[i].Filter = (D3D12_FILTER)(samplers[i].Filter | 0x80);
+
                 device->CreateSampler(&samplers[i], CD3DX12_CPU_DESCRIPTOR_HANDLE(descriptorHeap.cpuDescriptorHandle, i, descriptorHeap.incrementSize));
+
+                if (textures[i]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
+                    samplers[i].Filter = (D3D12_FILTER)(samplers[i].Filter & ~0x80);
+            }
         }
 
         commandList->SetDescriptorHeaps(1, &descriptorHeap.descriptorHeap);
@@ -659,11 +667,10 @@ HRESULT Device::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR 
 
     if (Flags & D3DCLEAR_TARGET)
     {
-        // Convert D3DCOLOR to FLOAT[4]
         FLOAT color[4];
-        color[0] = ((Color >> 16) & 0xFF) / 255.0f;
-        color[1] = ((Color >> 8) & 0xFF) / 255.0f;
         color[2] = (Color & 0xFF) / 255.0f;
+        color[1] = ((Color >> 8) & 0xFF) / 255.0f;
+        color[0] = ((Color >> 16) & 0xFF) / 255.0f;
         color[3] = ((Color >> 24) & 0xFF) / 255.0f;
 
         for (auto& renderTarget : renderTargets)
@@ -850,6 +857,7 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
         break;
 
     case D3DRS_DEPTHBIAS:
+        updateDirty(pso.RasterizerState.DepthBias, (INT)(*(float*)&Value * (1 << 24)), DirtyStateIndex::PipelineState);
         break;
 
     case D3DRS_SRCBLENDALPHA:
@@ -914,6 +922,16 @@ HRESULT Device::SetSamplerState(DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD V
 
     case D3DSAMP_ADDRESSW:
         updateDirty(samplers[Sampler].AddressW, (D3D12_TEXTURE_ADDRESS_MODE)Value, DirtyStateIndex::Sampler);
+        break;
+
+    case D3DSAMP_BORDERCOLOR:
+        FLOAT color[4];
+        color[2] = (Value & 0xFF) / 255.0f;
+        color[1] = ((Value >> 8) & 0xFF) / 255.0f;
+        color[0] = ((Value >> 16) & 0xFF) / 255.0f;
+        color[3] = ((Value >> 24) & 0xFF) / 255.0f;
+
+        updateDirty(samplers[Sampler].BorderColor, color, sizeof(samplers[Sampler].BorderColor), DirtyStateIndex::Sampler);
         break;
 
     case D3DSAMP_MAGFILTER:
