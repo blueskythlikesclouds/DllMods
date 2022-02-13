@@ -21,14 +21,14 @@ class VertexDeclaration;
 typedef Shader VertexShader;
 typedef Shader PixelShader;
 
-struct VertexConstants
+struct alignas(16) VertexConstants
 {
     FLOAT c[256][4];
     INT i[16][4];
     BOOL b[16];
 };
 
-struct PixelConstants
+struct alignas(16) PixelConstants
 {
     FLOAT c[224][4];
     INT i[16][4];
