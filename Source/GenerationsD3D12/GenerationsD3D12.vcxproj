@@ -87,6 +87,11 @@
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>false</ExceptionHandling>
+      <StringPooling>true</StringPooling>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -102,8 +107,6 @@
     <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.cpp" />
     <ClCompile Include="BaseTexture.cpp" />
     <ClCompile Include="CommandQueue.cpp" />
-    <ClCompile Include="ConstantBuffer.cpp" />
-    <ClCompile Include="ConstantBufferPool.cpp" />
     <ClCompile Include="DepthStencilSurface.cpp" />
     <ClCompile Include="DepthStencilTexture.cpp" />
     <ClCompile Include="Device.cpp" />
@@ -115,6 +118,7 @@
     <ClCompile Include="DescriptorHeapPool.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="UploadBufferPool.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexDeclaration.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -134,8 +138,6 @@
     <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader12.h" />
     <ClInclude Include="BaseTexture.h" />
     <ClInclude Include="CommandQueue.h" />
-    <ClInclude Include="ConstantBuffer.h" />
-    <ClInclude Include="ConstantBufferPool.h" />
     <ClInclude Include="CriticalSection.h" />
     <ClInclude Include="DepthStencilSurface.h" />
     <ClInclude Include="DepthStencilTexture.h" />
@@ -148,6 +150,7 @@
     <ClInclude Include="DescriptorHeapPool.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="UploadBufferPool.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDeclaration.h" />
     <ClInclude Include="Shader.h" />

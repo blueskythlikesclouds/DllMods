@@ -55,7 +55,7 @@ HRESULT VertexBuffer::Unlock()
         0,
         length);
 
-    // Transition default heap to index buffer state.
+    // Transition default heap to vertex buffer state.
     queue.getCommandList()->ResourceBarrier(
         1,
         &CD3DX12_RESOURCE_BARRIER::Transition(

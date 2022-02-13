@@ -65,12 +65,34 @@ void Device::updatePipelineState()
         {
             renderTargetDescriptorHandles[i] = renderTargets[i]->getRtvDescriptorHandle();
             renderTargets[i]->transition(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+            // See if this render target is bound to any textures (that's illegal!)
+            for (size_t j = 0; j < _countof(textures); j++)
+            {
+                if (textures[j] != renderTargets[i])
+                    continue;
+
+                textures[j] = nullptr;
+                dirtyState.set((size_t)DirtyStateIndex::Texture);
+            }
         }
 
         updateDirty(pso.NumRenderTargets, i, DirtyStateIndex::PipelineState);
 
         if (depthStencil)
+        {
             depthStencil->transition(D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+            // See if this depth stencil is bound to any textures (just like above)
+            for (size_t j = 0; j < _countof(textures); j++)
+            {
+                if (textures[j] != depthStencil)
+                    continue;
+
+                textures[j] = nullptr;
+                dirtyState.set((size_t)DirtyStateIndex::Texture);
+            }
+        }
 
         commandList->OMSetRenderTargets(i, renderTargetDescriptorHandles, FALSE, depthStencil ? &depthStencil->getDsvDescriptorHandle() : nullptr);
     }
@@ -80,10 +102,7 @@ void Device::updatePipelineState()
 
     if (dirtyState[(size_t)DirtyStateIndex::Texture])
     {
-        ID3D12DescriptorHeap* descriptorHeap = srvPool.allocate(device.Get());
-        D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-        const size_t srvIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        const DescriptorHeap descriptorHeap = viewPool.allocate(device.Get(), 16);
 
         for (size_t i = 0; i < _countof(textures); i++)
         {
@@ -94,29 +113,28 @@ void Device::updatePipelineState()
             textures[i]->transition(D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
             textures[i]->transition(D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-            device->CopyDescriptorsSimple(1, CD3DX12_CPU_DESCRIPTOR_HANDLE(descriptorHandle, i, srvIncrementSize),
-                textures[i]->getSrvDescriptorHandle(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+            device->CreateShaderResourceView(
+                textures[i]->getResource(),
+                &textures[i]->getSrvDesc(),
+                CD3DX12_CPU_DESCRIPTOR_HANDLE(descriptorHeap.cpuDescriptorHandle, i, descriptorHeap.incrementSize));
         }
 
-        commandList->SetDescriptorHeaps(1, &descriptorHeap);
-        commandList->SetGraphicsRootDescriptorTable(2, descriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        commandList->SetDescriptorHeaps(1, &descriptorHeap.descriptorHeap);
+        commandList->SetGraphicsRootDescriptorTable(2, descriptorHeap.gpuDescriptorHandle);
     }
 
     if (dirtyState[(size_t)DirtyStateIndex::Sampler])
     {
-        ID3D12DescriptorHeap* descriptorHeap = samplerPool.allocate(device.Get());
-        D3D12_CPU_DESCRIPTOR_HANDLE descriptorHandle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
-        const size_t samplerIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+        const DescriptorHeap descriptorHeap = samplerPool.allocate(device.Get(), 16);
 
         for (size_t i = 0; i < _countof(samplers); i++)
         {
             if (textures[i])
-                device->CreateSampler(&samplers[i], CD3DX12_CPU_DESCRIPTOR_HANDLE(descriptorHandle, i, samplerIncrementSize));
+                device->CreateSampler(&samplers[i], CD3DX12_CPU_DESCRIPTOR_HANDLE(descriptorHeap.cpuDescriptorHandle, i, descriptorHeap.incrementSize));
         }
 
-        commandList->SetDescriptorHeaps(1, &descriptorHeap);
-        commandList->SetGraphicsRootDescriptorTable(3, descriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        commandList->SetDescriptorHeaps(1, &descriptorHeap.descriptorHeap);
+        commandList->SetGraphicsRootDescriptorTable(3, descriptorHeap.gpuDescriptorHandle);
     }
 
     if (dirtyState[(size_t)DirtyStateIndex::ScissorRect])
@@ -133,12 +151,18 @@ void Device::updatePipelineState()
 
     if (dirtyState[(size_t)DirtyStateIndex::VertexConstant])
     {
-        const ConstantBuffer& constantBuffer = vertexConstantsPool.allocate(device.Get(), allocator.Get());
-        memcpy(constantBuffer.getData(), &vertexConstants, sizeof(vertexConstants));
+        const UploadBuffer uploadBuffer = uploadBufferPool.allocate(allocator.Get(), sizeof(vertexConstants));
+        memcpy(uploadBuffer.data, &vertexConstants, sizeof(vertexConstants));
 
-        ID3D12DescriptorHeap* descriptorHeap = constantBuffer.getDescriptorHeap();
-        commandList->SetDescriptorHeaps(1, &descriptorHeap);
-        commandList->SetGraphicsRootDescriptorTable(0, constantBuffer.getGpuDescriptorHandle());
+        D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+        cbvDesc.BufferLocation = uploadBuffer.gpuVirtualAddress;
+        cbvDesc.SizeInBytes = uploadBuffer.size;
+
+        const DescriptorHeap descriptorHeap = viewPool.allocate(device.Get(), 1);
+        device->CreateConstantBufferView(&cbvDesc, descriptorHeap.cpuDescriptorHandle);
+
+        commandList->SetDescriptorHeaps(1, &descriptorHeap.descriptorHeap);
+        commandList->SetGraphicsRootDescriptorTable(0, descriptorHeap.gpuDescriptorHandle);
     }
 
     if (dirtyState[(size_t)DirtyStateIndex::VertexBuffer])
@@ -158,12 +182,18 @@ void Device::updatePipelineState()
 
     if (dirtyState[(size_t)DirtyStateIndex::PixelConstant])
     {
-        const ConstantBuffer& constantBuffer = pixelConstantsPool.allocate(device.Get(), allocator.Get());
-        memcpy(constantBuffer.getData(), &pixelConstants, sizeof(pixelConstants));
+        const UploadBuffer uploadBuffer = uploadBufferPool.allocate(allocator.Get(), sizeof(pixelConstants));
+        memcpy(uploadBuffer.data, &pixelConstants, sizeof(pixelConstants));
 
-        ID3D12DescriptorHeap* descriptorHeap = constantBuffer.getDescriptorHeap();
-        commandList->SetDescriptorHeaps(1, &descriptorHeap);
-        commandList->SetGraphicsRootDescriptorTable(1, constantBuffer.getGpuDescriptorHandle());
+        D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+        cbvDesc.BufferLocation = uploadBuffer.gpuVirtualAddress;
+        cbvDesc.SizeInBytes = uploadBuffer.size;
+
+        const DescriptorHeap descriptorHeap = viewPool.allocate(device.Get(), 1);
+        device->CreateConstantBufferView(&cbvDesc, descriptorHeap.cpuDescriptorHandle);
+
+        commandList->SetDescriptorHeaps(1, &descriptorHeap.descriptorHeap);
+        commandList->SetGraphicsRootDescriptorTable(1, descriptorHeap.gpuDescriptorHandle);
     }
 
     if (dirtyState[(size_t)DirtyStateIndex::PipelineState])
@@ -210,17 +240,14 @@ void Device::submitAll()
     renderQueue.submitAll();
 
     // Reset everything
-    vertexConstantsPool.reset();
-    pixelConstantsPool.reset();
-    srvPool.reset();
+    uploadBufferPool.reset();
+    viewPool.reset();
     samplerPool.reset();
-    uploadVertexBuffers.clear();
     dirtyState.set();
 }
 
 Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
-    : vertexConstantsPool(sizeof(vertexConstants)), pixelConstantsPool(sizeof(pixelConstants)),
-      srvPool(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 16), samplerPool(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 16)
+    : viewPool(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV), samplerPool(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)
 {
 #if _DEBUG
     ComPtr<ID3D12Debug> debugInterface;
@@ -414,6 +441,13 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
 
     // Present
     swapChain->Present(1, 0);
+
+#if 0
+    WCHAR* stats;
+    allocator->BuildStatsString(&stats, FALSE);
+    printf("%ls\n", stats);
+    allocator->FreeStatsString(stats);
+#endif
 
     // Set render target index
     backBufferIndex = swapChain->GetCurrentBackBufferIndex();
@@ -974,27 +1008,17 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
     const UINT vertexCount = calculateIndexCount(PrimitiveType, PrimitiveCount); // index count == vertex count
 
     // Calculate total byte size
-    const UINT totalSize = vertexCount * VertexStreamZeroStride;
+    const UINT vertexSize = vertexCount * VertexStreamZeroStride;
 
-    // Create vertex buffer
-    ComPtr<D3D12MA::Allocation> vertexBuffer;
-
-    createResource(
-        D3D12_HEAP_TYPE_UPLOAD,
-        &CD3DX12_RESOURCE_DESC::Buffer(totalSize),
-        D3D12_RESOURCE_STATE_GENERIC_READ | D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
-        nullptr,
-        vertexBuffer.GetAddressOf());
+    // Allocate vertex buffer
+    const UploadBuffer vertexBuffer = uploadBufferPool.allocate(allocator.Get(), vertexSize);
 
     // Copy to vertex buffer
-    void* vertexData;
-    vertexBuffer->GetResource()->Map(0, &CD3DX12_RANGE(0, 0), &vertexData);
-    memcpy(vertexData, pVertexStreamZeroData, totalSize);
-    vertexBuffer->GetResource()->Unmap(0, nullptr);
+    memcpy(vertexBuffer.data, pVertexStreamZeroData, vertexSize);
 
     // Initialize first vertex buffer view
-    vertexBufferViews[0].BufferLocation = vertexBuffer->GetResource()->GetGPUVirtualAddress();
-    vertexBufferViews[0].SizeInBytes = totalSize;
+    vertexBufferViews[0].BufferLocation = vertexBuffer.gpuVirtualAddress;
+    vertexBufferViews[0].SizeInBytes = vertexSize;
     vertexBufferViews[0].StrideInBytes = VertexStreamZeroStride;
 
     // Notify that the vertex buffer is dirty
@@ -1004,9 +1028,6 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
     updateDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyStateIndex::PrimitiveTopology);
     updatePipelineState();
     renderQueue.getCommandList()->DrawInstanced(vertexCount, 1, 0, 0);
-
-    // Keep vertex buffer alive
-    uploadVertexBuffers.push_back(std::move(vertexBuffer));
 
     return S_OK;
 }       

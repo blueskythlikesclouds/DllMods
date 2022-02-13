@@ -11,40 +11,27 @@ void Texture::initialize()
     const auto resourceDesc = resource->GetDesc();
     format = resourceDesc.Format;
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
-    desc.Format = TypeConverter::makeColor(format);
-    desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Format = TypeConverter::makeColor(format);
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
     if (resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)
     {
         if (resourceDesc.DepthOrArraySize == 6)
         {
-            desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-            desc.TextureCube.MipLevels = resourceDesc.MipLevels;
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+            srvDesc.TextureCube.MipLevels = resourceDesc.MipLevels;
         }
         else
         {
-            desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-            desc.Texture2D.MipLevels = resourceDesc.MipLevels;
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srvDesc.Texture2D.MipLevels = resourceDesc.MipLevels;
         }
     }
     else if (resourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D)
     {
-        desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
-        desc.Texture3D.MipLevels = resourceDesc.MipLevels;
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
+        srvDesc.Texture3D.MipLevels = resourceDesc.MipLevels;
     }
-    else
-    {
-        return;
-    }
-
-    D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-    heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    heapDesc.NumDescriptors = 1;
-
-    device->getDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&srvDescriptorHeap));
-    srvDescriptorHandle = srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    device->getDevice()->CreateShaderResourceView(resource, &desc, srvDescriptorHandle);
 }
 
 Texture::Texture(Device* device, ID3D12Resource* resource)
@@ -64,9 +51,9 @@ DXGI_FORMAT Texture::getFormat() const
     return format;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE Texture::getSrvDescriptorHandle() const
+const D3D12_SHADER_RESOURCE_VIEW_DESC& Texture::getSrvDesc() const
 {
-    return srvDescriptorHandle;
+    return srvDesc;
 }
 
 HRESULT Texture::GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc)

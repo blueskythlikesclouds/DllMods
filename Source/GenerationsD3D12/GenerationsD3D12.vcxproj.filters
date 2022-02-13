@@ -61,13 +61,10 @@
     <ClCompile Include="..\..\Dependencies\D3D12MemoryAllocator\src\D3D12MemAlloc.cpp">
       <Filter>Dependencies</Filter>
     </ClCompile>
-    <ClCompile Include="ConstantBuffer.cpp">
-      <Filter>Base\Buffers</Filter>
-    </ClCompile>
     <ClCompile Include="DescriptorHeapPool.cpp">
       <Filter>Base\Buffers</Filter>
     </ClCompile>
-    <ClCompile Include="ConstantBufferPool.cpp">
+    <ClCompile Include="UploadBufferPool.cpp">
       <Filter>Base\Buffers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -121,9 +118,6 @@
     <ClInclude Include="VertexBuffer.h">
       <Filter>Base\Buffers</Filter>
     </ClInclude>
-    <ClInclude Include="ConstantBuffer.h">
-      <Filter>Base\Buffers</Filter>
-    </ClInclude>
     <ClInclude Include="RenderTargetSurface.h">
       <Filter>Base\Surfaces</Filter>
     </ClInclude>
@@ -139,7 +133,7 @@
     <ClInclude Include="DescriptorHeapPool.h">
       <Filter>Base\Buffers</Filter>
     </ClInclude>
-    <ClInclude Include="ConstantBufferPool.h">
+    <ClInclude Include="UploadBufferPool.h">
       <Filter>Base\Buffers</Filter>
     </ClInclude>
   </ItemGroup>

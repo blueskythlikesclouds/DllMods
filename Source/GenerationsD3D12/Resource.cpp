@@ -36,7 +36,7 @@ void Resource::transition(const D3D12_RESOURCE_STATES before, const D3D12_RESOUR
 {
     ID3D12Resource* resource = getResource();
 
-    if (!resource || currentState == after || currentState != before || (states[0] != before || states[1] != after) && (states[0] != after || states[1] != before))
+    if (!resource || currentState != before || currentState == after || ((states[0] != before || states[1] != after) && (states[0] != after || states[1] != before)))
         return;
 
     device->getCommandList()->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after));

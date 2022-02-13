@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include "CommandQueue.h"
-#include "ConstantBufferPool.h"
 #include "DescriptorHeapPool.h"
 #include "Unknown.h"
+#include "UploadBufferPool.h"
 
 class BaseTexture;
 class CubeTexture;
@@ -35,6 +35,14 @@ struct PixelConstants
     BOOL b[16];
 };
 
+struct PipelineStateCache
+{
+    ComPtr<ID3D12PipelineState> pipelineState;
+    ComPtr<VertexShader> vertexShader;
+    ComPtr<PixelShader> pixelShader;
+    ComPtr<VertexDeclaration> vertexDeclaration;
+};
+
 class Device : public Unknown
 {
     ComPtr<ID3D12Device> device;
@@ -44,28 +52,14 @@ class Device : public Unknown
     ComPtr<IDXGISwapChain3> swapChain;
     ComPtr<RenderTargetTexture> backBufferRenderTargets[2];
     size_t backBufferIndex{};
-
-    // Root signature
     ComPtr<ID3D12RootSignature> rootSignature;
 
-    VertexConstants vertexConstants{};
-    ConstantBufferPool vertexConstantsPool;
-
-    PixelConstants pixelConstants{};
-    ConstantBufferPool pixelConstantsPool;
-
-    DescriptorHeapPool srvPool;
+    UploadBufferPool uploadBufferPool;
+    DescriptorHeapPool viewPool;
     DescriptorHeapPool samplerPool;
 
-    std::vector<ComPtr<D3D12MA::Allocation>> uploadVertexBuffers;
-
-    struct PipelineStateCache
-    {
-        ComPtr<ID3D12PipelineState> pipelineState;
-        ComPtr<VertexShader> vertexShader;
-        ComPtr<PixelShader> pixelShader;
-        ComPtr<VertexDeclaration> vertexDeclaration;
-    };
+    VertexConstants vertexConstants{};
+    PixelConstants pixelConstants{};
 
     std::map<size_t, PipelineStateCache> psoMap;
 
