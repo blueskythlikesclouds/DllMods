@@ -246,13 +246,6 @@ bool Device::reserveUploadVertexBuffer(const void* data, const size_t size)
 Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     : syncInterval(presentationParameters->PresentationInterval == 1 ? 1 : 0)
 {
-#if _DEBUG || true
-    SetWindowLongPtr(presentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | WS_POPUP);
-    SetWindowPos(presentationParameters->hDeviceWindow, HWND_TOP, (1920 - presentationParameters->BackBufferWidth) / 2,
-                 (1080 - presentationParameters->BackBufferHeight) / 2, presentationParameters->BackBufferWidth,
-                 presentationParameters->BackBufferHeight, SWP_FRAMECHANGED);
-#endif
-
     DXGI_SWAP_CHAIN_DESC swapChainDesc{};
     swapChainDesc.BufferDesc.Width = presentationParameters->BackBufferWidth;
     swapChainDesc.BufferDesc.Height = presentationParameters->BackBufferHeight;
@@ -338,7 +331,7 @@ FUNCTION_STUB(UINT, Device::GetAvailableTextureMem)
 
 FUNCTION_STUB(HRESULT, Device::EvictManagedResources)
 
-FUNCTION_STUB(HRESULT, Device::GetDirect3D, Direct3D9** ppD3D9)
+FUNCTION_STUB(HRESULT, Device::GetDirect3D, D3D9** ppD3D9)
 
 FUNCTION_STUB(HRESULT, Device::GetDeviceCaps, D3DCAPS9* pCaps)
 

@@ -1,5 +1,6 @@
+#include "Configuration.h"
 #include "Device.h"
-#include "Direct3D9.h"
+#include "D3D9.h"
 #include "Texture.h"
 
 #include "../GenerationsD3D9Ex/MemoryHandler.h"
@@ -47,9 +48,9 @@ HOOK(HRESULT, __stdcall, FillTexture, 0xA55270, Texture* texture, void* function
     return S_OK;
 }
 
-HOOK(Direct3D9*, __cdecl, Direct3DCreate, 0xA5EDD0, UINT SDKVersion)
+HOOK(D3D9*, __cdecl, Direct3DCreate, 0xA5EDD0, UINT SDKVersion)
 {
-    return new Direct3D9(SDKVersion);
+    return new D3D9(SDKVersion);
 }
 
 HOOK(void, WINAPI, MyOutputDebugStringA, &OutputDebugStringA, LPCSTR lpOutputString)
@@ -57,8 +58,20 @@ HOOK(void, WINAPI, MyOutputDebugStringA, &OutputDebugStringA, LPCSTR lpOutputStr
     printf(lpOutputString);
 }
 
-extern "C" __declspec(dllexport) void Init()
+extern "C" __declspec(dllexport) void Init(ModInfo* info)
 {
+    std::string dir = info->CurrentMod->Path;
+
+    size_t pos = dir.find_last_of("\\/");
+    if (pos != std::string::npos)
+        dir.erase(pos + 1);
+
+    if (!Configuration::load(dir + "GenerationsD3D11.ini"))
+        MessageBox(NULL, L"Failed to parse GenerationsD3D11.ini", NULL, MB_ICONERROR);
+
+    // Hide window when it's first created because it's not a pleasant sight to see it centered/resized afterwards.
+    WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
+
     MemoryHandler::applyPatches();
 
     INSTALL_HOOK(LoadPictureData);

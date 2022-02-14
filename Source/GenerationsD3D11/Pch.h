@@ -35,6 +35,7 @@
 #include <BlueBlur.h>
 #include <Helpers.h>
 #include <INIReader.h>
+#include <LostCodeLoader.h>
 #include "../BetterFxPipeline/Hash.h"
 
 using Microsoft::WRL::ComPtr;

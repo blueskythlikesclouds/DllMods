@@ -22,10 +22,7 @@
     <ClCompile Include="Resource.cpp">
       <Filter>Base\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="Device.cpp">
-      <Filter>Base\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Direct3D9.cpp">
+    <ClCompile Include="D3D9.cpp">
       <Filter>Base</Filter>
     </ClCompile>
     <ClCompile Include="TypeConverter.cpp">
@@ -55,6 +52,10 @@
     <ClCompile Include="VertexShader.cpp">
       <Filter>Base\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="Configuration.cpp" />
+    <ClCompile Include="Device.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -76,10 +77,7 @@
     <ClInclude Include="Resource.h">
       <Filter>Base\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Device.h">
-      <Filter>Base\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D9.h">
+    <ClInclude Include="D3D9.h">
       <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="TypeConverter.h">
@@ -87,9 +85,6 @@
     </ClInclude>
     <ClInclude Include="RenderTargetTexture.h">
       <Filter>Base\Textures</Filter>
-    </ClInclude>
-    <ClInclude Include="CriticalSection.h">
-      <Filter>Base\Common</Filter>
     </ClInclude>
     <ClInclude Include="DepthStencilTexture.h">
       <Filter>Base\Textures</Filter>
@@ -112,6 +107,13 @@
     <ClInclude Include="VertexShader.h">
       <Filter>Base\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="CriticalSection.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Device.h">
+      <Filter>Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Base">
@@ -131,9 +133,6 @@
     </Filter>
     <Filter Include="Dependencies">
       <UniqueIdentifier>{b394c73c-561b-41cc-937f-54bb64ef2919}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Base\Common">
-      <UniqueIdentifier>{8fabe478-f593-4903-8250-633dc757761c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Base\Buffers">
       <UniqueIdentifier>{f44a5115-c2ba-4831-89ea-7740a52069a1}</UniqueIdentifier>

@@ -3,25 +3,25 @@
 class CriticalSection
 {
 public:
-	CRITICAL_SECTION criticalSection;
+    CRITICAL_SECTION criticalSection;
 
-	CriticalSection()
-	{
-		InitializeCriticalSection(&criticalSection);
-	}
+    CriticalSection()
+    {
+        InitializeCriticalSection(&criticalSection);
+    }
 
-	~CriticalSection()
-	{
-		DeleteCriticalSection(&criticalSection);
-	}
+    ~CriticalSection()
+    {
+        DeleteCriticalSection(&criticalSection);
+    }
 
-	void lock()
-	{
-		EnterCriticalSection(&criticalSection);
-	}
+    void lock()
+    {
+        EnterCriticalSection(&criticalSection);
+    }
 
-	void unlock()
-	{
-		LeaveCriticalSection(&criticalSection);
-	}
+    void unlock()
+    {
+        LeaveCriticalSection(&criticalSection);
+    }
 };

@@ -4,13 +4,13 @@
 
 class Device;
 
-class Direct3D9 : public Unknown
+class D3D9 : public Unknown
 {
     IDirect3D9* d3d9; // todo: replace with IDXGIFactory
 
 public:
-    Direct3D9(UINT SDKVersion);
-    ~Direct3D9();
+    D3D9(UINT SDKVersion);
+    ~D3D9();
 
     virtual HRESULT RegisterSoftwareDevice(void* pInitializeFunction);
     virtual UINT GetAdapterCount();

@@ -7,7 +7,7 @@ class Buffer;
 class BaseTexture;
 class CubeTexture;
 class DepthStencilTexture;
-class Direct3D9;
+class D3D9;
 class RenderTargetSurface;
 class RenderTargetTexture;
 class Surface;
@@ -123,7 +123,6 @@ class Device : public Unknown
 
 public:
     explicit Device(D3DPRESENT_PARAMETERS* presentationParameters);
-    ~Device() = default;
 
     ID3D11Device* getDevice() const;
     ID3D11DeviceContext* getDeviceContext() const;
@@ -134,7 +133,7 @@ public:
     virtual HRESULT TestCooperativeLevel();
     virtual UINT GetAvailableTextureMem();
     virtual HRESULT EvictManagedResources();
-    virtual HRESULT GetDirect3D(Direct3D9** ppD3D9);
+    virtual HRESULT GetDirect3D(D3D9** ppD3D9);
     virtual HRESULT GetDeviceCaps(D3DCAPS9* pCaps);
     virtual HRESULT GetDisplayMode(UINT iSwapChain, D3DDISPLAYMODE* pMode);
     virtual HRESULT GetCreationParameters(D3DDEVICE_CREATION_PARAMETERS* pParameters);

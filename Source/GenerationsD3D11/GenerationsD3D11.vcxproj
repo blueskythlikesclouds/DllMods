@@ -106,10 +106,11 @@
     <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader11.cpp" />
     <ClCompile Include="..\GenerationsD3D9Ex\MemoryHandler.cpp" />
     <ClCompile Include="BaseTexture.cpp" />
+    <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="DepthStencilSurface.cpp" />
     <ClCompile Include="DepthStencilTexture.cpp" />
     <ClCompile Include="Device.cpp" />
-    <ClCompile Include="Direct3D9.cpp" />
+    <ClCompile Include="D3D9.cpp" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="RenderTargetSurface.cpp" />
     <ClCompile Include="RenderTargetTexture.cpp" />
@@ -133,11 +134,12 @@
     <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader11.h" />
     <ClInclude Include="..\GenerationsD3D9Ex\MemoryHandler.h" />
     <ClInclude Include="BaseTexture.h" />
+    <ClInclude Include="Configuration.h" />
     <ClInclude Include="CriticalSection.h" />
     <ClInclude Include="DepthStencilSurface.h" />
     <ClInclude Include="DepthStencilTexture.h" />
     <ClInclude Include="Device.h" />
-    <ClInclude Include="Direct3D9.h" />
+    <ClInclude Include="D3D9.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="RenderTargetSurface.h" />
     <ClInclude Include="RenderTargetTexture.h" />
