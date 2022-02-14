@@ -77,45 +77,45 @@ class Device : public Unknown
     ComPtr<ID3D11Buffer> uploadVertexBuffer;
     size_t uploadVertexBufferSize{};
 
-    enum class DirtyStateIndex
+    enum DirtyStateIndex
     {
-        RenderTarget,
-        Viewport,
-        DepthStencilState,
-        RasterizerState,
-        AlphaTest,
-        BlendState,
-        Texture,
-        Sampler,
-        ScissorRect,
-        PrimitiveTopology,
-        VertexShader,
-        VertexConstant,
-        VertexBuffer,
-        IndexBuffer,
-        PixelShader,
-        PixelConstant,
-        Count
+        DSI_RenderTarget,
+        DSI_Viewport,
+        DSI_DepthStencilState,
+        DSI_RasterizerState,
+        DSI_AlphaTest,
+        DSI_BlendState,
+        DSI_Texture,
+        DSI_Sampler = DSI_Texture + _countof(textures),
+        DSI_ScissorRect = DSI_Sampler + _countof(samplers),
+        DSI_PrimitiveTopology,
+        DSI_VertexShader,
+        DSI_VertexConstant,
+        DSI_VertexBuffer,
+        DSI_IndexBuffer,
+        DSI_PixelShader,
+        DSI_PixelConstant,
+        DSI_Count,
     };
 
-    std::bitset<(size_t)DirtyStateIndex::Count> dirtyState;
+    std::bitset<DSI_Count> dirty;
 
     void updatePipelineState();
-    void updateDirty(void* dest, const void* src, size_t byteSize, DirtyStateIndex dirtyStateIndex);
+    void setDSI(void* dest, const void* src, size_t byteSize, size_t dirtyStateIndex);
 
     template<typename T>
-    void updateDirty(T& dest, const T src, const DirtyStateIndex dirtyStateIndex)
+    void setDSI(T& dest, const T src, const size_t dirtyStateIndex)
     {
-        updateDirty(&dest, &src, sizeof(T), dirtyStateIndex);
+        setDSI(&dest, &src, sizeof(T), dirtyStateIndex);
     }
 
     template<typename T>
-    void updateDirty(ComPtr<T>& dest, T* src, const DirtyStateIndex dirtyStateIndex)
+    void setDSI(ComPtr<T>& dest, T* src, const size_t dirtyStateIndex)
     {
         if (dest.Get() == src)
             return;
 
-        dirtyState.set((size_t)dirtyStateIndex);
+        dirty.set(dirtyStateIndex);
         dest = src;
     }
 

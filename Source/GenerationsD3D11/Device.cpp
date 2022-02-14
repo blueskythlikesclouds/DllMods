@@ -42,7 +42,7 @@ UINT calculateIndexCount(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount)
 
 void Device::updatePipelineState()
 {
-    if (dirtyState[(size_t)DirtyStateIndex::RenderTarget])
+    if (dirty[DSI_RenderTarget])
     {
         ID3D11RenderTargetView* renderTargetViews[_countof(renderTargets)];
 
@@ -53,10 +53,10 @@ void Device::updatePipelineState()
         deviceContext->OMSetRenderTargets(i, renderTargetViews, depthStencil ? depthStencil->getDSV() : nullptr);
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::Viewport])
+    if (dirty[DSI_Viewport])
         deviceContext->RSSetViewports(1, &viewport);
 
-    if (dirtyState[(size_t)DirtyStateIndex::DepthStencilState])
+    if (dirty[DSI_DepthStencilState])
     {
         const size_t hash = generateCrc32Hash(0, &depthStencilState, sizeof(depthStencilState));
         const auto pair = depthStencilStates.find(hash);
@@ -74,7 +74,7 @@ void Device::updatePipelineState()
         deviceContext->OMSetDepthStencilState(depthStencilStateObj, 0);
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::RasterizerState])
+    if (dirty[DSI_RasterizerState])
     {
         const size_t hash = generateCrc32Hash(0, &rasterizerState, sizeof(rasterizerState));
         const auto pair = rasterizerStates.find(hash);
@@ -93,7 +93,7 @@ void Device::updatePipelineState()
         deviceContext->RSSetState(rasterizerStateObj);
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::AlphaTest])
+    if (dirty[DSI_AlphaTest])
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
         deviceContext->Map(alphaTestBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
@@ -103,7 +103,7 @@ void Device::updatePipelineState()
         deviceContext->PSSetConstantBuffers(1, 1, alphaTestBuffer.GetAddressOf());
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::BlendState])
+    if (dirty[DSI_BlendState])
     {
         const size_t hash = generateCrc32Hash(0, &blendState, sizeof(blendState));
         const auto pair = blendStates.find(hash);
@@ -118,63 +118,76 @@ void Device::updatePipelineState()
             blendStates.insert(std::make_pair(hash, blendStateObj));
         }
 
-        const FLOAT blendFactor[4]{ 1, 1, 1, 1 };
+        const FLOAT blendFactor[4] { 1, 1, 1, 1 };
         deviceContext->OMSetBlendState(blendStateObj, blendFactor, ~0);
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::Texture])
+    for (size_t i = 0; i < _countof(textures);)
     {
+        if (!dirty[DSI_Texture + i])
+        {
+            ++i;
+            continue;
+        }
+
         ID3D11ShaderResourceView* shaderResourceViews[_countof(textures)];
 
-        for (size_t i = 0; i < _countof(textures); i++)
-            shaderResourceViews[i] = textures[i] ? textures[i]->getSRV() : nullptr;
+        size_t j;
+        for (j = i; j < _countof(textures) && dirty[DSI_Texture + j]; j++)
+            shaderResourceViews[j - i] = textures[j] ? textures[j]->getSRV() : nullptr;
 
-        deviceContext->PSSetShaderResources(0, _countof(textures), shaderResourceViews);
+        deviceContext->PSSetShaderResources(i, j - i, shaderResourceViews);
+        i = j + 1;
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::Sampler])
+    for (size_t i = 0; i < _countof(samplers);)
     {
-        ID3D11SamplerState* samplerStateObjs[_countof(samplers)]{};
-
-        for (size_t i = 0; i < _countof(samplers); i++)
+        if (!dirty[DSI_Sampler + i])
         {
-            if (!textures[i])
-                continue;
+            ++i;
+            continue;
+        }
 
-            if (textures[i]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
-                samplers[i].Filter = (D3D11_FILTER)(samplers[i].Filter | 0x80);
+        ID3D11SamplerState* samplerStateObjs[_countof(samplers)];
 
-            const size_t hash = generateCrc32Hash(0, &samplers[i], sizeof(samplers[i]));
+        size_t j;
+        for (j = i; j < _countof(samplers) && dirty[DSI_Sampler + j]; j++)
+        {
+            if (textures[j] && textures[j]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
+                samplers[j].Filter = (D3D11_FILTER)(samplers[j].Filter | 0x80);
+
+            const size_t hash = generateCrc32Hash(0, &samplers[j], sizeof(samplers[j]));
             const auto pair = samplerStates.find(hash);
 
             if (pair != samplerStates.end())
-                samplerStateObjs[i] = pair->second.Get();
+                samplerStateObjs[j - i] = pair->second.Get();
             else
             {
-                device->CreateSamplerState(&samplers[i], &samplerStateObjs[i]);
-                samplerStates.insert(std::make_pair(hash, samplerStateObjs[i]));
+                device->CreateSamplerState(&samplers[j], &samplerStateObjs[j - i]);
+                samplerStates.insert(std::make_pair(hash, samplerStateObjs[j - i]));
             }
 
-            if (textures[i]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
-                samplers[i].Filter = (D3D11_FILTER)(samplers[i].Filter & ~0x80);
+            if (textures[j] && textures[j]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
+                samplers[j].Filter = (D3D11_FILTER)(samplers[j].Filter & ~0x80);
         }
 
-        deviceContext->PSSetSamplers(0, _countof(samplerStateObjs), samplerStateObjs);
+        deviceContext->PSSetSamplers(i, j - i, samplerStateObjs);
+        i = j + 1;
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::ScissorRect])
+    if (dirty[DSI_ScissorRect])
         deviceContext->RSSetScissorRects(1, &scissorRect);
 
-    if (dirtyState[(size_t)DirtyStateIndex::PrimitiveTopology])
+    if (dirty[DSI_PrimitiveTopology])
         deviceContext->IASetPrimitiveTopology(primitiveTopology);
 
-    if (dirtyState[(size_t)DirtyStateIndex::VertexShader] && vertexShader && vertexDeclaration)
+    if (dirty[DSI_VertexShader] && vertexShader && vertexDeclaration)
     {
         deviceContext->VSSetShader(vertexShader->getVertexShader(), nullptr, 0);
         deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), vertexShader.Get()));
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::VertexConstant])
+    if (dirty[DSI_VertexConstant])
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
         deviceContext->Map(vertexConstantsBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
@@ -184,7 +197,7 @@ void Device::updatePipelineState()
         deviceContext->VSSetConstantBuffers(0, 1, vertexConstantsBuffer.GetAddressOf());
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::VertexBuffer])
+    if (dirty[DSI_VertexBuffer])
     {
         ID3D11Buffer* buffers[_countof(vertexBuffers)];
 
@@ -195,13 +208,13 @@ void Device::updatePipelineState()
         deviceContext->IASetVertexBuffers(0, i, buffers, vertexStrides, vertexOffsets);
     }
 
-    if (dirtyState[(size_t)DirtyStateIndex::IndexBuffer] && indexBuffer)
+    if (dirty[DSI_IndexBuffer] && indexBuffer)
         deviceContext->IASetIndexBuffer(reinterpret_cast<ID3D11Buffer*>(indexBuffer->getResource()), indexBuffer->getFormat(), 0);
 
-    if (dirtyState[(size_t)DirtyStateIndex::PixelShader] && pixelShader)
+    if (dirty[DSI_PixelShader] && pixelShader)
         deviceContext->PSSetShader(pixelShader.Get(), nullptr, 0);
 
-    if (dirtyState[(size_t)DirtyStateIndex::PixelConstant])
+    if (dirty[DSI_PixelConstant])
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
         deviceContext->Map(pixelConstantsBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
@@ -211,15 +224,15 @@ void Device::updatePipelineState()
         deviceContext->PSSetConstantBuffers(0, 1, pixelConstantsBuffer.GetAddressOf());
     }
 
-    dirtyState.reset();
+    dirty.reset();
 }
 
-void Device::updateDirty(void* dest, const void* src, const size_t byteSize, const DirtyStateIndex dirtyStateIndex)
+void Device::setDSI(void* dest, const void* src, const size_t byteSize, const size_t dirtyStateIndex)
 {
     if (memcmp(dest, src, byteSize) == 0)
         return;
 
-    dirtyState.set((size_t)dirtyStateIndex);
+    dirty.set(dirtyStateIndex);
     memcpy(dest, src, byteSize);
 }
 
@@ -310,7 +323,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     bufferDesc.ByteWidth = 16;
     device->CreateBuffer(&bufferDesc, nullptr, alphaTestBuffer.GetAddressOf());
 
-    dirtyState.set();
+    dirty.set();
 }
 
 ID3D11Device* Device::getDevice() const
@@ -361,12 +374,14 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
     LOCK_GUARD();
 
     swapChain->Present(syncInterval, 0);
+
     return S_OK;
 }
 
 HRESULT Device::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, Surface** ppBackBuffer)
 {
     backBufferRenderTarget->GetSurfaceLevel(0, ppBackBuffer);
+
     return S_OK;
 }
     
@@ -430,12 +445,14 @@ FUNCTION_STUB(HRESULT, Device::CreateCubeTexture, UINT EdgeLength, UINT Levels, 
 HRESULT Device::CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, VertexBuffer** ppVertexBuffer, HANDLE* pSharedHandle)
 {
     *ppVertexBuffer = new VertexBuffer(this, Length, D3D11_BIND_VERTEX_BUFFER);
+
     return S_OK;
 }
 
 HRESULT Device::CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IndexBuffer** ppIndexBuffer, HANDLE* pSharedHandle)
 {
     *ppIndexBuffer = new IndexBuffer(this, Length, D3D11_BIND_INDEX_BUFFER, TypeConverter::convert(Format));
+
     return S_OK;
 }
 
@@ -449,6 +466,7 @@ HRESULT Device::CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3
         return hr;
 
     renderTargetTex->GetSurfaceLevel(0, ppSurface);
+
     return S_OK;
 }
 
@@ -462,6 +480,7 @@ HRESULT Device::CreateDepthStencilSurface(UINT Width, UINT Height, D3DFORMAT For
         return hr;
 
     depthStencilTex->GetSurfaceLevel(0, ppSurface);
+
     return S_OK;
 }
 
@@ -486,22 +505,7 @@ HRESULT Device::SetRenderTarget(DWORD RenderTargetIndex, Surface* pRenderTarget)
 {
     LOCK_GUARD();
 
-    if (pRenderTarget)
-    {
-        const auto renderTargetTexture = ((RenderTargetSurface*)pRenderTarget)->getTexture();
-        if (renderTargets[RenderTargetIndex].Get() != renderTargetTexture)
-            dirtyState.set((size_t)DirtyStateIndex::RenderTarget);
-
-        renderTargets[RenderTargetIndex] = renderTargetTexture;
-    }
-
-    else
-    {
-        if (renderTargets[RenderTargetIndex] != nullptr)
-            dirtyState.set((size_t)DirtyStateIndex::RenderTarget);
-
-        renderTargets[RenderTargetIndex] = nullptr;
-    }
+    setDSI(renderTargets[RenderTargetIndex], pRenderTarget ? reinterpret_cast<RenderTargetSurface*>(pRenderTarget)->getTexture() : nullptr, DSI_RenderTarget);
 
     return S_OK;
 }
@@ -515,23 +519,7 @@ HRESULT Device::SetDepthStencilSurface(Surface* pNewZStencil)
 {
     LOCK_GUARD();
 
-    if (pNewZStencil)
-    {
-        const auto depthStencilTexture = ((DepthStencilSurface*)pNewZStencil)->getTexture();
-
-        if (depthStencil.Get() != depthStencilTexture)
-            dirtyState.set((size_t)DirtyStateIndex::RenderTarget);
-
-        depthStencil = depthStencilTexture;
-    }
-
-    else
-    {
-        if (depthStencil != nullptr)
-            dirtyState.set((size_t)DirtyStateIndex::RenderTarget);
-
-        depthStencil = nullptr;
-    }
+    setDSI(depthStencil, pNewZStencil ? reinterpret_cast<DepthStencilSurface*>(pNewZStencil)->getTexture() : nullptr, DSI_RenderTarget);
 
     return S_OK;
 }
@@ -573,9 +561,7 @@ HRESULT Device::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR 
         for (auto& renderTarget : renderTargets)
         {
             if (renderTarget)
-            {
                 deviceContext->ClearRenderTargetView(renderTarget->getRTV(), color);
-            }
         }
     }
 
@@ -613,7 +599,7 @@ HRESULT Device::SetViewport(CONST D3DVIEWPORT9* pViewport)
     newViewport.MinDepth = pViewport->MinZ;
     newViewport.MaxDepth = pViewport->MaxZ;
 
-    updateDirty(&viewport, &newViewport, sizeof(D3D11_VIEWPORT), DirtyStateIndex::Viewport);
+    setDSI(&viewport, &newViewport, sizeof(D3D11_VIEWPORT), DSI_Viewport);
 
     return S_OK;
 }
@@ -628,6 +614,7 @@ HRESULT Device::GetViewport(D3DVIEWPORT9* pViewport)
     pViewport->Height = (DWORD)viewport.Height;
     pViewport->MinZ = viewport.MinDepth;
     pViewport->MaxZ = viewport.MaxDepth;
+
     return S_OK;
 }
 
@@ -654,83 +641,83 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
     switch (State)
     {
     case D3DRS_ZENABLE:
-        updateDirty(depthStencilState.DepthEnable, (BOOL)Value, DirtyStateIndex::DepthStencilState);
+        setDSI(depthStencilState.DepthEnable, (BOOL)Value, DSI_DepthStencilState);
         break;
 
     case D3DRS_FILLMODE:
-        updateDirty(rasterizerState.FillMode, (D3D11_FILL_MODE)Value, DirtyStateIndex::RasterizerState);
+        setDSI(rasterizerState.FillMode, (D3D11_FILL_MODE)Value, DSI_RasterizerState);
         break;
 
     case D3DRS_ZWRITEENABLE:
-        updateDirty(depthStencilState.DepthWriteMask, (D3D11_DEPTH_WRITE_MASK)Value, DirtyStateIndex::DepthStencilState);
+        setDSI(depthStencilState.DepthWriteMask, (D3D11_DEPTH_WRITE_MASK)Value, DSI_DepthStencilState);
         break;
 
     case D3DRS_ALPHATESTENABLE:
-        updateDirty(alphaTestEnable, (BOOL)Value, DirtyStateIndex::AlphaTest);
+        setDSI(alphaTestEnable, (BOOL)Value, DSI_AlphaTest);
         break;
 
     case D3DRS_SRCBLEND:
-        updateDirty(blendState.RenderTarget[0].SrcBlend, (D3D11_BLEND)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[0].SrcBlend, (D3D11_BLEND)Value, DSI_BlendState);
         break;
 
     case D3DRS_DESTBLEND:
-        updateDirty(blendState.RenderTarget[0].DestBlend, (D3D11_BLEND)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[0].DestBlend, (D3D11_BLEND)Value, DSI_BlendState);
         break;
 
     case D3DRS_CULLMODE:
-        updateDirty(rasterizerState.CullMode, (D3D11_CULL_MODE)Value, DirtyStateIndex::RasterizerState);
+        setDSI(rasterizerState.CullMode, (D3D11_CULL_MODE)Value, DSI_RasterizerState);
         break;
 
     case D3DRS_ZFUNC:
-        updateDirty(depthStencilState.DepthFunc, (D3D11_COMPARISON_FUNC)Value, DirtyStateIndex::DepthStencilState);
+        setDSI(depthStencilState.DepthFunc, (D3D11_COMPARISON_FUNC)Value, DSI_DepthStencilState);
         break;
 
     case D3DRS_ALPHAREF:
-        updateDirty(alphaRef, (float)Value / 255.0f, DirtyStateIndex::AlphaTest);
+        setDSI(alphaRef, (float)Value / 255.0f, DSI_AlphaTest);
         break;
 
     case D3DRS_ALPHABLENDENABLE:
-        updateDirty(blendState.RenderTarget[0].BlendEnable, (BOOL)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[0].BlendEnable, (BOOL)Value, DSI_BlendState);
         break;
 
     case D3DRS_COLORWRITEENABLE:
-        updateDirty(blendState.RenderTarget[0].RenderTargetWriteMask, (UINT8)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[0].RenderTargetWriteMask, (UINT8)Value, DSI_BlendState);
         break;
 
     case D3DRS_BLENDOP:
-        updateDirty(blendState.RenderTarget[0].BlendOp, (D3D11_BLEND_OP)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[0].BlendOp, (D3D11_BLEND_OP)Value, DSI_BlendState);
         break;
 
     case D3DRS_SLOPESCALEDEPTHBIAS:
-        updateDirty(rasterizerState.SlopeScaledDepthBias, *(float*)&Value, DirtyStateIndex::RasterizerState);
+        setDSI(rasterizerState.SlopeScaledDepthBias, *(float*)&Value, DSI_RasterizerState);
         break;
 
     case D3DRS_COLORWRITEENABLE1:
-        updateDirty(blendState.RenderTarget[1].RenderTargetWriteMask, (UINT8)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[1].RenderTargetWriteMask, (UINT8)Value, DSI_BlendState);
         break;
 
     case D3DRS_COLORWRITEENABLE2:
-        updateDirty(blendState.RenderTarget[2].RenderTargetWriteMask, (UINT8)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[2].RenderTargetWriteMask, (UINT8)Value, DSI_BlendState);
         break;
 
     case D3DRS_COLORWRITEENABLE3: 
-        updateDirty(blendState.RenderTarget[3].RenderTargetWriteMask, (UINT8)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[3].RenderTargetWriteMask, (UINT8)Value, DSI_BlendState);
         break;
 
     case D3DRS_DEPTHBIAS:
-        updateDirty(rasterizerState.DepthBias, (INT)(*(float*)&Value * (1 << 24)), DirtyStateIndex::RasterizerState);
+        setDSI(rasterizerState.DepthBias, (INT)(*(float*)&Value * (1 << 24)), DSI_RasterizerState);
         break;
 
     case D3DRS_SRCBLENDALPHA:
-        updateDirty(blendState.RenderTarget[0].SrcBlendAlpha, (D3D11_BLEND)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[0].SrcBlendAlpha, (D3D11_BLEND)Value, DSI_BlendState);
         break;
 
     case D3DRS_DESTBLENDALPHA:
-        updateDirty(blendState.RenderTarget[0].DestBlendAlpha, (D3D11_BLEND)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[0].DestBlendAlpha, (D3D11_BLEND)Value, DSI_BlendState);
         break;
 
     case D3DRS_BLENDOPALPHA:
-        updateDirty(blendState.RenderTarget[0].BlendOpAlpha, (D3D11_BLEND_OP)Value, DirtyStateIndex::BlendState);
+        setDSI(blendState.RenderTarget[0].BlendOpAlpha, (D3D11_BLEND_OP)Value, DSI_BlendState);
         break;
     }
 
@@ -755,10 +742,8 @@ HRESULT Device::SetTexture(DWORD Stage, BaseTexture* pTexture)
 {
     LOCK_GUARD();
 
-    if (textures[Stage].Get() != pTexture)
-        dirtyState.set((size_t)DirtyStateIndex::Texture);
+    setDSI(textures[Stage], reinterpret_cast<Texture*>(pTexture), DSI_Texture + Stage);
 
-    textures[Stage] = reinterpret_cast<Texture*>(pTexture);
     return S_OK;
 }
 
@@ -778,15 +763,15 @@ HRESULT Device::SetSamplerState(DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD V
     switch (Type)
     {
     case D3DSAMP_ADDRESSU:
-        updateDirty(samplers[Sampler].AddressU, (D3D11_TEXTURE_ADDRESS_MODE)Value, DirtyStateIndex::Sampler);
+        setDSI(samplers[Sampler].AddressU, (D3D11_TEXTURE_ADDRESS_MODE)Value, DSI_Sampler + Sampler);
         break;
 
     case D3DSAMP_ADDRESSV:
-        updateDirty(samplers[Sampler].AddressV, (D3D11_TEXTURE_ADDRESS_MODE)Value, DirtyStateIndex::Sampler);
+        setDSI(samplers[Sampler].AddressV, (D3D11_TEXTURE_ADDRESS_MODE)Value, DSI_Sampler + Sampler);
         break;
 
     case D3DSAMP_ADDRESSW:
-        updateDirty(samplers[Sampler].AddressW, (D3D11_TEXTURE_ADDRESS_MODE)Value, DirtyStateIndex::Sampler);
+        setDSI(samplers[Sampler].AddressW, (D3D11_TEXTURE_ADDRESS_MODE)Value, DSI_Sampler + Sampler);
         break;
 
     case D3DSAMP_BORDERCOLOR:
@@ -796,30 +781,30 @@ HRESULT Device::SetSamplerState(DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD V
         color[0] = ((Value >> 16) & 0xFF) / 255.0f;
         color[3] = ((Value >> 24) & 0xFF) / 255.0f;
 
-        updateDirty(samplers[Sampler].BorderColor, color, sizeof(samplers[Sampler].BorderColor), DirtyStateIndex::Sampler);
+        setDSI(samplers[Sampler].BorderColor, color, sizeof(samplers[Sampler].BorderColor), DSI_Sampler + Sampler);
         break;
 
     case D3DSAMP_MAGFILTER:
         if (Value == D3DTEXF_LINEAR)
-            updateDirty(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x4), DirtyStateIndex::Sampler);
+            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x4), DSI_Sampler + Sampler);
         else
-            updateDirty(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x4), DirtyStateIndex::Sampler);
+            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x4), DSI_Sampler + Sampler);
 
         break;
 
     case D3DSAMP_MINFILTER:
         if (Value == D3DTEXF_LINEAR)
-            updateDirty(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x10), DirtyStateIndex::Sampler);
+            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x10), DSI_Sampler + Sampler);
         else
-            updateDirty(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x10), DirtyStateIndex::Sampler);
+            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x10), DSI_Sampler + Sampler);
 
         break;
 
     case D3DSAMP_MIPFILTER:
         if (Value == D3DTEXF_LINEAR)
-            updateDirty(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x1), DirtyStateIndex::Sampler);
+            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x1), DSI_Sampler + Sampler);
         else
-            updateDirty(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x1), DirtyStateIndex::Sampler);
+            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x1), DSI_Sampler + Sampler);
 
         break;
         
@@ -847,7 +832,8 @@ HRESULT Device::SetScissorRect(CONST RECT* pRect)
     newScissorRect.right = pRect->right;
     newScissorRect.bottom = pRect->bottom;
 
-    updateDirty(&scissorRect, &newScissorRect, sizeof(D3D11_RECT), DirtyStateIndex::ScissorRect);
+    setDSI(&scissorRect, &newScissorRect, sizeof(D3D11_RECT), DSI_ScissorRect);
+
     return S_OK;
 }
 
@@ -868,8 +854,9 @@ HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, 
 
     LOCK_GUARD();
 
-    updateDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyStateIndex::PrimitiveTopology);
+    setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
     updatePipelineState();
+
     deviceContext->DrawInstanced(calculateIndexCount(PrimitiveType, PrimitiveCount), 1, StartVertex, 0);
 
     return S_OK;
@@ -882,8 +869,9 @@ HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVer
 
     LOCK_GUARD();
 
-    updateDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyStateIndex::PrimitiveTopology);
+    setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
     updatePipelineState();
+
     deviceContext->DrawIndexedInstanced(calculateIndexCount(PrimitiveType, primCount), 1, startIndex, BaseVertexIndex, 0);
 
     return S_OK;
@@ -912,16 +900,14 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
     }
 
     // Set first vertex buffer
-    if (vertexBuffers[0] != uploadVertexBuffer)
-        dirtyState.set((size_t)DirtyStateIndex::VertexBuffer);
-
-    vertexBuffers[0] = uploadVertexBuffer;
-    updateDirty(vertexStrides[0], VertexStreamZeroStride, DirtyStateIndex::VertexBuffer);
-    updateDirty(vertexOffsets[0], 0u, DirtyStateIndex::VertexBuffer);
+    setDSI(vertexBuffers[0], uploadVertexBuffer.Get(), DSI_VertexBuffer);
+    setDSI(vertexStrides[0], VertexStreamZeroStride, DSI_VertexBuffer);
+    setDSI(vertexOffsets[0], 0u, DSI_VertexBuffer);
 
     // Draw
-    updateDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyStateIndex::PrimitiveTopology);
+    setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
     updatePipelineState();
+
     deviceContext->DrawInstanced(vertexCount, 1, 0, 0);
 
     return S_OK;
@@ -934,6 +920,7 @@ FUNCTION_STUB(HRESULT, Device::ProcessVertices, UINT SrcStartIndex, UINT DestInd
 HRESULT Device::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexElements, VertexDeclaration** ppDecl)
 {
     *ppDecl = new VertexDeclaration(device.Get(), pVertexElements);
+
     return S_OK;
 }
 
@@ -941,10 +928,8 @@ HRESULT Device::SetVertexDeclaration(VertexDeclaration* pDecl)
 {
     LOCK_GUARD();
 
-    if (vertexDeclaration.Get() != pDecl)
-        dirtyState.set((size_t)DirtyStateIndex::VertexShader);
+    setDSI(vertexDeclaration, pDecl, DSI_VertexShader);
 
-    vertexDeclaration = pDecl;
     return S_OK;
 }
 
@@ -962,6 +947,7 @@ HRESULT Device::CreateVertexShader(CONST DWORD* pFunction, VertexShader** ppShad
     LOCK_GUARD();
 
     *ppShader = new VertexShader(device.Get(), pFunction, FunctionSize);
+
     return S_OK;
 }
 
@@ -969,10 +955,8 @@ HRESULT Device::SetVertexShader(VertexShader* pShader)
 {
     LOCK_GUARD();
 
-    if (vertexShader.Get() != pShader)
-        dirtyState.set((size_t)DirtyStateIndex::VertexShader);
+    setDSI(vertexShader, pShader, DSI_VertexShader);
 
-    vertexShader = pShader;
     return S_OK;
 }
 
@@ -982,7 +966,8 @@ HRESULT Device::SetVertexShaderConstantF(UINT StartRegister, CONST float* pConst
 {
     LOCK_GUARD();
 
-    updateDirty(&vertexConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]), DirtyStateIndex::VertexConstant);
+    setDSI(&vertexConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]), DSI_VertexConstant);
+
     return S_OK;
 }
 
@@ -992,7 +977,8 @@ HRESULT Device::SetVertexShaderConstantI(UINT StartRegister, CONST int* pConstan
 {
     LOCK_GUARD();
 
-    updateDirty(&vertexConstants.i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]), DirtyStateIndex::VertexConstant);
+    setDSI(&vertexConstants.i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]), DSI_VertexConstant);
+
     return S_OK;
 }
 
@@ -1002,7 +988,8 @@ HRESULT Device::SetVertexShaderConstantB(UINT StartRegister, CONST BOOL* pConsta
 {
     LOCK_GUARD();
 
-    updateDirty(&vertexConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL), DirtyStateIndex::VertexConstant);
+    setDSI(&vertexConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL), DSI_VertexConstant);
+
     return S_OK;
 }
 
@@ -1012,9 +999,10 @@ HRESULT Device::SetStreamSource(UINT StreamNumber, VertexBuffer* pStreamData, UI
 {
     LOCK_GUARD();
 
-    updateDirty(vertexBuffers[StreamNumber], pStreamData ? reinterpret_cast<ID3D11Buffer*>(pStreamData->getResource()) : nullptr, DirtyStateIndex::VertexBuffer);
-    updateDirty(vertexStrides[StreamNumber], Stride, DirtyStateIndex::VertexBuffer);
-    updateDirty(vertexOffsets[StreamNumber], OffsetInBytes, DirtyStateIndex::VertexBuffer);
+    setDSI(vertexBuffers[StreamNumber], pStreamData ? reinterpret_cast<ID3D11Buffer*>(pStreamData->getResource()) : nullptr, DSI_VertexBuffer);
+    setDSI(vertexStrides[StreamNumber], Stride, DSI_VertexBuffer);
+    setDSI(vertexOffsets[StreamNumber], OffsetInBytes, DSI_VertexBuffer);
+
     return S_OK;
 }
 
@@ -1031,10 +1019,8 @@ HRESULT Device::SetIndices(IndexBuffer* pIndexData)
 {
     LOCK_GUARD();
 
-    if (indexBuffer.Get() != pIndexData)
-        dirtyState.set((size_t)DirtyStateIndex::IndexBuffer);
+    setDSI(indexBuffer, pIndexData, DSI_IndexBuffer);
 
-    indexBuffer = pIndexData;
     return S_OK;
 }
 
@@ -1045,6 +1031,7 @@ HRESULT Device::CreatePixelShader(CONST DWORD* pFunction, PixelShader** ppShader
     LOCK_GUARD();
 
     device->CreatePixelShader(pFunction, FunctionSize, nullptr, ppShader);
+
     return S_OK;
 }
 
@@ -1052,10 +1039,8 @@ HRESULT Device::SetPixelShader(PixelShader* pShader)
 {
     LOCK_GUARD();
 
-    if (pixelShader.Get() != pShader)
-        dirtyState.set((size_t)DirtyStateIndex::PixelShader);
+    setDSI(pixelShader, pShader, DSI_PixelShader);
 
-    pixelShader = pShader;
     return S_OK;
 }
 
@@ -1065,7 +1050,8 @@ HRESULT Device::SetPixelShaderConstantF(UINT StartRegister, CONST float* pConsta
 {
     LOCK_GUARD();
 
-    updateDirty(&pixelConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]), DirtyStateIndex::PixelConstant);
+    setDSI(&pixelConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]), DSI_PixelConstant);
+
     return S_OK;
 }
 
@@ -1075,7 +1061,8 @@ HRESULT Device::SetPixelShaderConstantI(UINT StartRegister, CONST int* pConstant
 {
     LOCK_GUARD();
 
-    updateDirty(&pixelConstants.i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]), DirtyStateIndex::PixelConstant);
+    setDSI(&pixelConstants.i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]), DSI_PixelConstant);
+
     return S_OK;
 }
 
@@ -1085,7 +1072,8 @@ HRESULT Device::SetPixelShaderConstantB(UINT StartRegister, CONST BOOL* pConstan
 {
     LOCK_GUARD();
 
-    updateDirty(&pixelConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL), DirtyStateIndex::PixelConstant);
+    setDSI(&pixelConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL), DSI_PixelConstant);
+
     return S_OK;
 }
 
