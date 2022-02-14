@@ -13,7 +13,6 @@ protected:
 
 public:
     explicit Resource(Device* device, ID3D11Resource* resource);
-    ~Resource();
 
     ID3D11Resource* getResource() const;
 

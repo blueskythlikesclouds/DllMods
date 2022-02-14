@@ -244,19 +244,22 @@ bool Device::reserveUploadVertexBuffer(const void* data, const size_t size)
 }
 
 Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
+    : syncInterval(presentationParameters->PresentationInterval == 1 ? 1 : 0)
 {
-#if _DEBUG
-    SetWindowLongPtr(presentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | WS_OVERLAPPEDWINDOW);
-    SetWindowPos(presentationParameters->hDeviceWindow, HWND_TOP, (1920 - 1600) / 2, (1080 - 900) / 2, 1600, 900, SWP_FRAMECHANGED);
+#if _DEBUG || true
+    SetWindowLongPtr(presentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | WS_POPUP);
+    SetWindowPos(presentationParameters->hDeviceWindow, HWND_TOP, (1920 - presentationParameters->BackBufferWidth) / 2,
+                 (1080 - presentationParameters->BackBufferHeight) / 2, presentationParameters->BackBufferWidth,
+                 presentationParameters->BackBufferHeight, SWP_FRAMECHANGED);
 #endif
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc{};
     swapChainDesc.BufferDesc.Width = presentationParameters->BackBufferWidth;
     swapChainDesc.BufferDesc.Height = presentationParameters->BackBufferHeight;
-    swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.BufferDesc.Format = TypeConverter::convert(presentationParameters->BackBufferFormat);
     swapChainDesc.SampleDesc.Count = 1;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.BufferCount = 2;
+    swapChainDesc.BufferCount = presentationParameters->BackBufferCount;
     swapChainDesc.OutputWindow = presentationParameters->hDeviceWindow;
     swapChainDesc.Windowed = TRUE;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -361,7 +364,7 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
 {
     LOCK_GUARD();
 
-    swapChain->Present(1, 0);
+    swapChain->Present(syncInterval, 0);
     return S_OK;
 }
 

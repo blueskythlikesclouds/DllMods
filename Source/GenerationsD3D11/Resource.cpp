@@ -7,8 +7,6 @@ Resource::Resource(Device* device, ID3D11Resource* resource)
 {
 }
 
-Resource::~Resource() = default;
-
 ID3D11Resource* Resource::getResource() const
 {
     return resource.Get();

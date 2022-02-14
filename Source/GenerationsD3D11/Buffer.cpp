@@ -2,7 +2,7 @@
 #include "Device.h"
 
 Buffer::Buffer(Device* device, const size_t length, const D3D11_BIND_FLAG bindFlags, const DXGI_FORMAT format)
-    : Resource(device, nullptr), length(length), format(format), bindFlags(bindFlags)
+    : Resource(device, nullptr), length(length), bindFlags(bindFlags), format(format)
 {
 }
 

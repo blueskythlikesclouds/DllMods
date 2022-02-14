@@ -25,6 +25,11 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
 
     if (SUCCEEDED(hr))
     {
+#if _DEBUG
+        const char* name = pPictureData->m_TypeAndName.c_str() + 15;
+        texture->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
+#endif
+
         pPictureData->m_pD3DTexture = (DX_PATCH::IDirect3DBaseTexture9*)(new Texture(device.Get(), texture.Get(), srv.Get()));
         pPictureData->m_Type = hh::mr::ePictureType_Texture;
     }
@@ -77,7 +82,7 @@ extern "C" __declspec(dllexport) void Init()
         AllocConsole();
 
     freopen("CONOUT$", "w", stdout);
+#endif
 
     WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
-#endif
 }

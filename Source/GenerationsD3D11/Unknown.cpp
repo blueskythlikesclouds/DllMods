@@ -1,8 +1,7 @@
 ﻿#include "Unknown.h"
 
-Unknown::Unknown()
+Unknown::Unknown() : refCount(1)
 {
-    refCount = 1;
 }
 
 HRESULT Unknown::QueryInterface(const IID& riid, void** ppvObj)
@@ -13,12 +12,12 @@ HRESULT Unknown::QueryInterface(const IID& riid, void** ppvObj)
 
 ULONG Unknown::AddRef()
 {
-    return ++refCount;
+    return InterlockedIncrement(&refCount);
 }
 
 ULONG Unknown::Release()
 {
-    const ULONG result = --refCount;
+    const ULONG result = InterlockedDecrement(&refCount);
     if (result == 0)
         delete this;
 

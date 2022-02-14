@@ -40,6 +40,7 @@ class Device : public Unknown
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> deviceContext;
     ComPtr<IDXGISwapChain> swapChain;
+    UINT syncInterval;
     ComPtr<RenderTargetTexture> backBufferRenderTarget;
 
     ComPtr<RenderTargetTexture> renderTargets[4]{};

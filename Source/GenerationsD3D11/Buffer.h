@@ -11,7 +11,6 @@ class Buffer : public Resource
 
 public:
     explicit Buffer(Device* device, size_t length, D3D11_BIND_FLAG bindFlags, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN);
-    ~Buffer() = default;
 
     DXGI_FORMAT getFormat() const;
 
