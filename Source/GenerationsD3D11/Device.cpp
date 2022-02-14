@@ -278,6 +278,9 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
         deviceContext.GetAddressOf()
     );
 
+    SetForegroundWindow(presentationParameters->hDeviceWindow);
+    SetFocus(presentationParameters->hDeviceWindow);
+
     // Init backbuffer
     ComPtr<ID3D11Texture2D> backBuffer;
     swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
