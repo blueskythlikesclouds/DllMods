@@ -12,7 +12,7 @@ class VertexDeclaration : public Unknown
     std::vector<D3D11_INPUT_ELEMENT_DESC> inputElements;
     std::map<const VertexShader*, ComPtr<ID3D11InputLayout>> inputLayouts;
 
-    void addIfMissing(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format);
+    void addIfNotExist(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format);
 
 public:
     VertexDeclaration(ID3D11Device* device, const D3DVERTEXELEMENT9* vertexElements);

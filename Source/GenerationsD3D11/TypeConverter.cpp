@@ -147,6 +147,8 @@ DXGI_FORMAT TypeConverter::makeTypeless(DXGI_FORMAT format)
     case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
         return DXGI_FORMAT_B8G8R8X8_TYPELESS;
     }
+
+    return format;
 }
 
 DXGI_FORMAT TypeConverter::makeColor(DXGI_FORMAT format)

@@ -2,7 +2,7 @@
 #include "TypeConverter.h"
 #include "VertexShader.h"
 
-void VertexDeclaration::addIfMissing(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format)
+void VertexDeclaration::addIfNotExist(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format)
 {
     for (auto& element : inputElements)
     {
@@ -51,16 +51,18 @@ VertexDeclaration::VertexDeclaration(ID3D11Device* device, const D3DVERTEXELEMEN
     vertexElements[inputElements.size() - 1] = D3DDECL_END();
     vertexElementCount = inputElements.size();
 
-#if 0
     // TODO: Do this depending on the shader reflection
-    addIfMissing("TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT);
-    addIfMissing("TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT);
-    addIfMissing("TEXCOORD", 2, DXGI_FORMAT_R32G32_FLOAT);
-    addIfMissing("TEXCOORD", 3, DXGI_FORMAT_R32G32_FLOAT);
-    addIfMissing("COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM);
-    addIfMissing("BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM);
-    addIfMissing("BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT);
-#endif
+    addIfNotExist("POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT);
+    addIfNotExist("NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT);
+    addIfNotExist("TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT);
+    addIfNotExist("BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT);
+    addIfNotExist("TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT);
+    addIfNotExist("TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT);
+    addIfNotExist("TEXCOORD", 2, DXGI_FORMAT_R32G32_FLOAT);
+    addIfNotExist("TEXCOORD", 3, DXGI_FORMAT_R32G32_FLOAT);
+    addIfNotExist("COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM);
+    addIfNotExist("BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+    addIfNotExist("BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT);
 }
 
 ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader)
