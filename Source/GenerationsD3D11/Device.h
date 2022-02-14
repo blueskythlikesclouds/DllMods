@@ -61,6 +61,7 @@ class Device : public Unknown
     ComPtr<ID3D11Buffer> vertexBuffers[8];
     UINT vertexStrides[_countof(vertexBuffers)]{};
     UINT vertexOffsets[_countof(vertexBuffers)]{};
+    UINT instanceCount{1};
     ComPtr<IndexBuffer> indexBuffer;
     ComPtr<PixelShader> pixelShader;
     PixelConstants pixelConstants{};

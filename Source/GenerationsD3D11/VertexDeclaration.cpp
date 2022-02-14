@@ -25,30 +25,21 @@ VertexDeclaration::VertexDeclaration(ID3D11Device* device, const D3DVERTEXELEMEN
         if (pVertexElements[i].Stream == 0xFF)
             break;
 
-        // Sloppily validate declaration, some declarations passed by game don't have D3DDECL_END()
-        bool stop = false;
-
-        for (int j = 0; j < i; j++)
-            stop |= pVertexElements[i].Usage == pVertexElements[j].Usage && pVertexElements[i].UsageIndex == pVertexElements[j].UsageIndex;
-
-        if (stop)
-            break;
-
         D3D11_INPUT_ELEMENT_DESC desc;
         desc.SemanticName = TypeConverter::getDeclUsage((D3DDECLUSAGE)pVertexElements[i].Usage);
         desc.SemanticIndex = pVertexElements[i].UsageIndex;
         desc.Format = TypeConverter::getDeclType((D3DDECLTYPE)pVertexElements[i].Type);
         desc.InputSlot = pVertexElements[i].Stream;
         desc.AlignedByteOffset = pVertexElements[i].Offset;
-        desc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-        desc.InstanceDataStepRate = 0;
+        desc.InputSlotClass = pVertexElements[i].Stream >= 1 ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+        desc.InstanceDataStepRate = pVertexElements[i].Stream >= 1 ? 1 : 0;
 
         inputElements.push_back(desc);
     }
 
     vertexElements = std::make_unique<D3DVERTEXELEMENT9[]>(inputElements.size() + 1);
     memcpy(vertexElements.get(), pVertexElements, sizeof(D3DVERTEXELEMENT9) * inputElements.size());
-    vertexElements[inputElements.size() - 1] = D3DDECL_END();
+    vertexElements[inputElements.size()] = D3DDECL_END();
     vertexElementCount = inputElements.size();
 
     // TODO: Do this depending on the shader reflection
@@ -81,8 +72,8 @@ FUNCTION_STUB(HRESULT, VertexDeclaration::GetDevice, Device** ppDevice)
 
 HRESULT VertexDeclaration::GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements)
 {
-    memcpy(pElement, vertexElements.get(), vertexElementCount * sizeof(D3DVERTEXELEMENT9));
-    *pNumElements = vertexElementCount;
+    memcpy(pElement, vertexElements.get(), (vertexElementCount + 1) * sizeof(D3DVERTEXELEMENT9));
+    *pNumElements = vertexElementCount + 1;
 
     return S_OK;
 }

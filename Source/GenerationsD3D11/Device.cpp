@@ -857,7 +857,7 @@ HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, 
     setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
     updatePipelineState();
 
-    deviceContext->DrawInstanced(calculateIndexCount(PrimitiveType, PrimitiveCount), 1, StartVertex, 0);
+    deviceContext->DrawInstanced(calculateIndexCount(PrimitiveType, PrimitiveCount), instanceCount, StartVertex, 0);
 
     return S_OK;
 }       
@@ -872,7 +872,7 @@ HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVer
     setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
     updatePipelineState();
 
-    deviceContext->DrawIndexedInstanced(calculateIndexCount(PrimitiveType, primCount), 1, startIndex, BaseVertexIndex, 0);
+    deviceContext->DrawIndexedInstanced(calculateIndexCount(PrimitiveType, primCount), instanceCount, startIndex, BaseVertexIndex, 0);
 
     return S_OK;
 }       
@@ -908,7 +908,7 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
     setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
     updatePipelineState();
 
-    deviceContext->DrawInstanced(vertexCount, 1, 0, 0);
+    deviceContext->DrawInstanced(vertexCount, instanceCount, 0, 0);
 
     return S_OK;
 }       
@@ -1010,6 +1010,9 @@ FUNCTION_STUB(HRESULT, Device::GetStreamSource, UINT StreamNumber, VertexBuffer*
 
 HRESULT Device::SetStreamSourceFreq(UINT StreamNumber, UINT Setting)
 {
+    if (StreamNumber == 0)
+        setDSI(instanceCount, Setting & 0x3FFFFFFF, DSI_VertexBuffer);
+
     return S_OK;
 }
 
