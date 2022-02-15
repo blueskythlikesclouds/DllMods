@@ -373,9 +373,6 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
 {
     LOCK_GUARD();
 
-    deviceContext->ClearState();
-    dirty.set();
-
     swapChain->Present(syncInterval, 0);
 
     return S_OK;
@@ -922,7 +919,7 @@ FUNCTION_STUB(HRESULT, Device::ProcessVertices, UINT SrcStartIndex, UINT DestInd
 
 HRESULT Device::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexElements, VertexDeclaration** ppDecl)
 {
-    *ppDecl = new VertexDeclaration(device.Get(), pVertexElements);
+    *ppDecl = new VertexDeclaration(pVertexElements);
 
     return S_OK;
 }
@@ -940,6 +937,20 @@ FUNCTION_STUB(HRESULT, Device::GetVertexDeclaration, VertexDeclaration** ppDecl)
 
 HRESULT Device::SetFVF(DWORD FVF)
 {
+    ComPtr<VertexDeclaration> fvf;
+
+    const auto pair = fvfMap.find(FVF);
+    if (pair != fvfMap.end())
+        fvf = pair->second;
+
+    else
+    {
+        fvf = new VertexDeclaration(FVF);
+        fvfMap.insert(std::make_pair(FVF, fvf));
+    }
+
+    setDSI(vertexDeclaration, fvf.Get(), DSI_VertexShader);
+
     return S_OK;
 }
 

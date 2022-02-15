@@ -18,7 +18,7 @@ void VertexDeclaration::addIfNotExist(LPCSTR semanticName, UINT semanticIndex, D
     inputElements.push_back(inputElement);
 }
 
-VertexDeclaration::VertexDeclaration(ID3D11Device* device, const D3DVERTEXELEMENT9* pVertexElements)
+VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
 {
     for (int i = 0; ; i++)
     {
@@ -54,6 +54,29 @@ VertexDeclaration::VertexDeclaration(ID3D11Device* device, const D3DVERTEXELEMEN
     addIfNotExist("COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM);
     addIfNotExist("BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM);
     addIfNotExist("BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT);
+}
+
+VertexDeclaration::VertexDeclaration(DWORD FVF)
+{
+    size_t offset = 0;
+
+    if (FVF & D3DFVF_XYZRHW)
+    {
+        inputElements.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+        offset += 16;
+    }
+
+    if (FVF & D3DFVF_DIFFUSE)
+    {
+        inputElements.push_back({ "COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+        offset += 4;
+    }
+
+    if (FVF & D3DFVF_TEX1)
+    {
+        inputElements.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+        offset += 8;
+    }
 }
 
 ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader)

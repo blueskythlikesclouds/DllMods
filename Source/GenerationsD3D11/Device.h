@@ -70,6 +70,7 @@ class Device : public Unknown
     std::map<uint32_t, ComPtr<ID3D11RasterizerState>> rasterizerStates;
     std::map<uint32_t, ComPtr<ID3D11BlendState>> blendStates;
     std::map<uint32_t, ComPtr<ID3D11SamplerState>> samplerStates;
+    std::map<uint32_t, ComPtr<VertexDeclaration>> fvfMap;
 
     ComPtr<ID3D11Buffer> vertexConstantsBuffer;
     ComPtr<ID3D11Buffer> pixelConstantsBuffer;

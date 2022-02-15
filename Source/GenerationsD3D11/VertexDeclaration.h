@@ -15,7 +15,8 @@ class VertexDeclaration : public Unknown
     void addIfNotExist(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format);
 
 public:
-    VertexDeclaration(ID3D11Device* device, const D3DVERTEXELEMENT9* vertexElements);
+    VertexDeclaration(const D3DVERTEXELEMENT9* vertexElements);
+    VertexDeclaration(DWORD FVF);
 
     ID3D11InputLayout* getInputLayout(ID3D11Device* device, const VertexShader* vertexShader);
 
