@@ -31,8 +31,8 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
         desc.Format = TypeConverter::getDeclType((D3DDECLTYPE)pVertexElements[i].Type);
         desc.InputSlot = pVertexElements[i].Stream;
         desc.AlignedByteOffset = pVertexElements[i].Offset;
-        desc.InputSlotClass = pVertexElements[i].Stream >= 1 ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
-        desc.InstanceDataStepRate = pVertexElements[i].Stream >= 1 ? 1 : 0;
+        desc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        desc.InstanceDataStepRate = 0;
 
         inputElements.push_back(desc);
     }
@@ -79,14 +79,23 @@ VertexDeclaration::VertexDeclaration(DWORD FVF)
     }
 }
 
-ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader)
+ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader, bool instance)
 {
-    const auto pair = inputLayouts.find(vertexShader);
+    const auto pair = inputLayouts.find({ vertexShader, instance });
     if (pair != inputLayouts.end())
         return pair->second.Get();
 
+    for (auto& element : inputElements)
+    {
+        if (element.InputSlot == 0)
+            continue;
+
+        element.InputSlotClass = instance ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+        element.InstanceDataStepRate = instance ? 1 : 0;
+    }
+
     ID3D11InputLayout* inputLayout = vertexShader->createInputLayout(device, inputElements.data(), inputElements.size());
-    inputLayouts.insert(std::make_pair(vertexShader, inputLayout));
+    inputLayouts.insert(std::make_pair(std::make_pair(vertexShader, instance), inputLayout));
 
     return inputLayout;
 }

@@ -184,7 +184,7 @@ void Device::updatePipelineState()
     if (dirty[DSI_VertexShader] && vertexShader && vertexDeclaration)
     {
         deviceContext->VSSetShader(vertexShader->getVertexShader(), nullptr, 0);
-        deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), vertexShader.Get()));
+        deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), vertexShader.Get(), instanceCount > 1));
     }
 
     if (dirty[DSI_VertexConstant])
