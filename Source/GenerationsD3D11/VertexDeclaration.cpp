@@ -96,6 +96,7 @@ ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const
 
     ID3D11InputLayout* inputLayout = vertexShader->createInputLayout(device, inputElements.data(), inputElements.size());
     inputLayouts.insert(std::make_pair(std::make_pair(vertexShader, instance), inputLayout));
+    inputLayout->Release();
 
     return inputLayout;
 }

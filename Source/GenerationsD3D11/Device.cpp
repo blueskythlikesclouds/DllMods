@@ -69,6 +69,7 @@ void Device::updatePipelineState()
         {
             device->CreateDepthStencilState(&depthStencilState, &depthStencilStateObj);
             depthStencilStates.insert(std::make_pair(hash, depthStencilStateObj));
+            depthStencilStateObj->Release();
         }
 
         deviceContext->OMSetDepthStencilState(depthStencilStateObj, 0);
@@ -87,6 +88,7 @@ void Device::updatePipelineState()
         {
             device->CreateRasterizerState(&rasterizerState, &rasterizerStateObj);
             rasterizerStates.insert(std::make_pair(hash, rasterizerStateObj));
+            rasterizerStateObj->Release();
         }
 
         deviceContext->RSSetState(rasterizerStateObj);
@@ -115,6 +117,7 @@ void Device::updatePipelineState()
         {
             device->CreateBlendState(&blendState, &blendStateObj);
             blendStates.insert(std::make_pair(hash, blendStateObj));
+            blendStateObj->Release();
         }
 
         const FLOAT blendFactor[4] { 1, 1, 1, 1 };
@@ -168,6 +171,7 @@ void Device::updatePipelineState()
             {
                 device->CreateSamplerState(&samplers[j], &samplerStateObjs[j - i]);
                 samplerStates.insert(std::make_pair(hash, samplerStateObjs[j - i]));
+                samplerStateObjs[j - i]->Release();
             }
         }
 
@@ -250,7 +254,7 @@ bool Device::reserveUploadVertexBuffer(const void* data, const size_t size)
     D3D11_SUBRESOURCE_DATA initialData{};
     initialData.pSysMem = data;
 
-    device->CreateBuffer(&desc, &initialData, &uploadVertexBuffer);
+    device->CreateBuffer(&desc, &initialData, uploadVertexBuffer.ReleaseAndGetAddressOf());
     uploadVertexBufferSize = size;
 
     return true;
@@ -298,7 +302,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     ComPtr<ID3D11Texture2D> backBuffer;
     swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
 
-    backBufferRenderTarget = new RenderTargetTexture(this, backBuffer.Get(), DXGI_FORMAT_UNKNOWN);
+    backBufferRenderTarget.Attach(new RenderTargetTexture(this, backBuffer.Get(), DXGI_FORMAT_UNKNOWN));
 
     depthStencilState = CD3D11_DEPTH_STENCIL_DESC(CD3D11_DEFAULT());
     rasterizerState = CD3D11_RASTERIZER_DESC(CD3D11_DEFAULT());
@@ -945,7 +949,7 @@ HRESULT Device::SetFVF(DWORD FVF)
 
     else
     {
-        fvf = new VertexDeclaration(FVF);
+        fvf.Attach(new VertexDeclaration(FVF));
         fvfMap.insert(std::make_pair(FVF, fvf));
     }
 
