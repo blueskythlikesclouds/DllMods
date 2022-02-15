@@ -85,8 +85,7 @@ void Device::updatePipelineState()
             rasterizerStateObj = pair->second.Get();
         else
         {
-            HRESULT hr = device->CreateRasterizerState(&rasterizerState, &rasterizerStateObj);
-            assert(SUCCEEDED(hr));
+            device->CreateRasterizerState(&rasterizerState, &rasterizerStateObj);
             rasterizerStates.insert(std::make_pair(hash, rasterizerStateObj));
         }
 
@@ -134,7 +133,10 @@ void Device::updatePipelineState()
 
         size_t j;
         for (j = i; j < _countof(textures) && dirty[DSI_Texture + j]; j++)
+        {
+            setDSI(samplers[j].Filter, (D3D11_FILTER)(samplers[j].Filter & ~0x80), DSI_Sampler + j); // Cleanse sampler state
             shaderResourceViews[j - i] = textures[j] ? textures[j]->getSRV() : nullptr;
+        }
 
         deviceContext->PSSetShaderResources(i, j - i, shaderResourceViews);
         i = j + 1;
@@ -153,7 +155,8 @@ void Device::updatePipelineState()
         size_t j;
         for (j = i; j < _countof(samplers) && dirty[DSI_Sampler + j]; j++)
         {
-            if (textures[j] && textures[j]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
+            // g_ShadowMapSampler/g_VerticalShadowMapSampler
+            if ((j == 7 || j == 13) && textures[j] && textures[j]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
                 samplers[j].Filter = (D3D11_FILTER)(samplers[j].Filter | 0x80);
 
             const size_t hash = generateCrc32Hash(0, &samplers[j], sizeof(samplers[j]));
@@ -166,9 +169,6 @@ void Device::updatePipelineState()
                 device->CreateSamplerState(&samplers[j], &samplerStateObjs[j - i]);
                 samplerStates.insert(std::make_pair(hash, samplerStateObjs[j - i]));
             }
-
-            if (textures[j] && textures[j]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
-                samplers[j].Filter = (D3D11_FILTER)(samplers[j].Filter & ~0x80);
         }
 
         deviceContext->PSSetSamplers(i, j - i, samplerStateObjs);
@@ -372,6 +372,9 @@ FUNCTION_STUB(HRESULT, Device::Reset, D3DPRESENT_PARAMETERS* pPresentationParame
 HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
     LOCK_GUARD();
+
+    deviceContext->ClearState();
+    dirty.set();
 
     swapChain->Present(syncInterval, 0);
 
