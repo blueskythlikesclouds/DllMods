@@ -188,7 +188,7 @@ void Device::updatePipelineState()
     if (dirty[DSI_VertexShader] && vertexShader && vertexDeclaration)
     {
         deviceContext->VSSetShader(vertexShader->getVertexShader(), nullptr, 0);
-        deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), vertexShader.Get(), instanceCount > 1));
+        deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), vertexShader.Get(), enableInstancing));
     }
 
     if (dirty[DSI_VertexConstant])
@@ -1028,8 +1028,13 @@ FUNCTION_STUB(HRESULT, Device::GetStreamSource, UINT StreamNumber, VertexBuffer*
 
 HRESULT Device::SetStreamSourceFreq(UINT StreamNumber, UINT Setting)
 {
-    if (StreamNumber == 0)
-        setDSI(instanceCount, Setting & 0x3FFFFFFF, DSI_VertexBuffer);
+    LOCK_GUARD();
+
+    if (StreamNumber != 0)
+        return S_OK;
+
+    setDSI(enableInstancing, (Setting & D3DSTREAMSOURCE_INDEXEDDATA) != 0, DSI_VertexShader);
+    instanceCount = Setting & 0x3FFFFFFF;
 
     return S_OK;
 }

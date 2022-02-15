@@ -62,6 +62,7 @@ class Device : public Unknown
     UINT vertexStrides[_countof(vertexBuffers)]{};
     UINT vertexOffsets[_countof(vertexBuffers)]{};
     UINT instanceCount{1};
+    bool enableInstancing{};
     ComPtr<IndexBuffer> indexBuffer;
     ComPtr<PixelShader> pixelShader;
     PixelConstants pixelConstants{};
