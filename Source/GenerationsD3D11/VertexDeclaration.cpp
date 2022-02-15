@@ -54,6 +54,8 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
     addIfNotExist("COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM);
     addIfNotExist("BLENDWEIGHT", 0, DXGI_FORMAT_R8G8B8A8_UNORM);
     addIfNotExist("BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT);
+
+    inputElements.shrink_to_fit();
 }
 
 VertexDeclaration::VertexDeclaration(DWORD FVF)
@@ -77,6 +79,8 @@ VertexDeclaration::VertexDeclaration(DWORD FVF)
         inputElements.push_back({ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offset, D3D11_INPUT_PER_VERTEX_DATA, 0 });
         offset += 8;
     }
+
+    inputElements.shrink_to_fit();
 }
 
 ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader, bool instance)
