@@ -60,6 +60,9 @@
     <ClCompile Include="D3D9.cpp">
       <Filter>Device</Filter>
     </ClCompile>
+    <ClCompile Include="SwapChainDefault.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -123,6 +126,9 @@
       <Filter>Device</Filter>
     </ClInclude>
     <ClInclude Include="CriticalSection.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapChainDefault.h">
       <Filter>Device</Filter>
     </ClInclude>
   </ItemGroup>

@@ -35,10 +35,6 @@ bool SwapChainWaitable::initialize(Device* device, D3DPRESENT_PARAMETERS* presen
     swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
-    DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullscreenDesc{};
-    fullscreenDesc.RefreshRate.Numerator = presentationParameters->FullScreen_RefreshRateInHz;
-    fullscreenDesc.Windowed = presentationParameters->Windowed;
-
     ComPtr<IDXGISwapChain1> swapChain1;
     dxgiFactory->CreateSwapChainForHwnd(
         device->get(),

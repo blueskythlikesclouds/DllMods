@@ -6,6 +6,7 @@
 #include "RenderTargetSurface.h"
 #include "RenderTargetTexture.h"
 #include "Surface.h"
+#include "SwapChainDefault.h"
 #include "SwapChainOn12.h"
 #include "SwapChainWaitable.h"
 #include "Texture.h"
@@ -281,7 +282,11 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
         nullptr,
         deviceContext.GetAddressOf());
 
-    swapChain = std::make_unique<SwapChainWaitable>();
+    if (presentationParameters->Windowed)
+        swapChain = std::make_unique<SwapChainWaitable>();
+    else
+        swapChain = std::make_unique<SwapChainDefault>();
+
     swapChain->initialize(this, presentationParameters, scaling);
 
     depthStencilState = CD3D11_DEPTH_STENCIL_DESC(CD3D11_DEFAULT());
