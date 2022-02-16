@@ -120,8 +120,20 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
     if (displayMode == DisplayMode::Windowed)
         ShowCursor(true);
 
+    const DXGI_SCALING scaling = 
+        Configuration::allowResizeInWindowed || 
+        width != pPresentationParameters->BackBufferWidth ||
+        height != pPresentationParameters->BackBufferHeight ? DXGI_SCALING_STRETCH : DXGI_SCALING_NONE;
+
+    pPresentationParameters->Windowed = TRUE;
+
+    *ppReturnedDeviceInterface = new Device(pPresentationParameters, scaling);
+    (*ppReturnedDeviceInterface)->Present(nullptr, nullptr, nullptr, nullptr);
+
     SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | windowStyle);
     SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_TOP, x, y, width, height, SWP_FRAMECHANGED);
+    SetForegroundWindow(pPresentationParameters->hDeviceWindow);
+    SetFocus(pPresentationParameters->hDeviceWindow);
 
     // In windowed, title bar and border are included when setting width/height. Let's fix that and not be like Lost World/Forces.
     if (displayMode == DisplayMode::Windowed)
@@ -148,8 +160,5 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
         SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_TOP, x, y, width, height, SWP_FRAMECHANGED);
     }
 
-    pPresentationParameters->Windowed = TRUE;
-
-    *ppReturnedDeviceInterface = new Device(pPresentationParameters);
     return S_OK;
 }

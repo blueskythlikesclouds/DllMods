@@ -9,7 +9,7 @@ DepthStencilTexture::DepthStencilTexture(Device* device, ID3D11Resource* resourc
     desc.Format = format;
     desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 
-    device->getDevice()->CreateDepthStencilView(resource, format != DXGI_FORMAT_UNKNOWN ? &desc : nullptr, dsv.GetAddressOf());
+    device->get()->CreateDepthStencilView(resource, format != DXGI_FORMAT_UNKNOWN ? &desc : nullptr, dsv.GetAddressOf());
 }
 
 ID3D11DepthStencilView* DepthStencilTexture::getDSV() const

@@ -6,6 +6,8 @@
 #include "RenderTargetSurface.h"
 #include "RenderTargetTexture.h"
 #include "Surface.h"
+#include "SwapChainOn12.h"
+#include "SwapChainWaitable.h"
 #include "Texture.h"
 #include "TypeConverter.h"
 #include "VertexDeclaration.h"
@@ -260,23 +262,10 @@ bool Device::reserveUploadVertexBuffer(const void* data, const size_t size)
     return true;
 }
 
-Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
+Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scaling)
     : syncInterval(presentationParameters->PresentationInterval == 1 ? 1 : 0)
 {
-    DXGI_SWAP_CHAIN_DESC swapChainDesc{};
-    swapChainDesc.BufferDesc.Width = presentationParameters->BackBufferWidth;
-    swapChainDesc.BufferDesc.Height = presentationParameters->BackBufferHeight;
-    swapChainDesc.BufferDesc.Format = TypeConverter::convert(presentationParameters->BackBufferFormat);
-    swapChainDesc.SampleDesc.Count = 1;
-    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.BufferCount = presentationParameters->BackBufferCount;
-    swapChainDesc.OutputWindow = presentationParameters->hDeviceWindow;
-    swapChainDesc.Windowed = TRUE;
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-
-    // Create device
-    D3D11CreateDeviceAndSwapChain
-    (
+    D3D11CreateDevice(
         nullptr,
         D3D_DRIVER_TYPE_HARDWARE,
         nullptr,
@@ -288,21 +277,12 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
         nullptr,
         0,
         D3D11_SDK_VERSION,
-        &swapChainDesc,
-        swapChain.GetAddressOf(),
         device.GetAddressOf(),
         nullptr,
-        deviceContext.GetAddressOf()
-    );
+        deviceContext.GetAddressOf());
 
-    SetForegroundWindow(presentationParameters->hDeviceWindow);
-    SetFocus(presentationParameters->hDeviceWindow);
-
-    // Init backbuffer
-    ComPtr<ID3D11Texture2D> backBuffer;
-    swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
-
-    backBufferRenderTarget.Attach(new RenderTargetTexture(this, backBuffer.Get(), DXGI_FORMAT_UNKNOWN));
+    swapChain = std::make_unique<SwapChainWaitable>();
+    swapChain->initialize(this, presentationParameters, scaling);
 
     depthStencilState = CD3D11_DEPTH_STENCIL_DESC(CD3D11_DEFAULT());
     rasterizerState = CD3D11_RASTERIZER_DESC(CD3D11_DEFAULT());
@@ -330,12 +310,12 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters)
     dirty.set();
 }
 
-ID3D11Device* Device::getDevice() const
+ID3D11Device* Device::get() const
 {
     return device.Get();
 }
 
-ID3D11DeviceContext* Device::getDeviceContext() const
+ID3D11DeviceContext* Device::getContext() const
 {
     return deviceContext.Get();
 }
@@ -377,14 +357,15 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
 {
     LOCK_GUARD();
 
-    swapChain->Present(syncInterval, 0);
+    swapChain->present(this, syncInterval);
 
     return S_OK;
 }
 
 HRESULT Device::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, Surface** ppBackBuffer)
 {
-    backBufferRenderTarget->GetSurfaceLevel(0, ppBackBuffer);
+    *ppBackBuffer = swapChain->getRenderTargetSurface();
+    (*ppBackBuffer)->AddRef();
 
     return S_OK;
 }

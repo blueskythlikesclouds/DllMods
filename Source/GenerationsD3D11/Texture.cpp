@@ -56,7 +56,7 @@ Texture::Texture(Device* device, ID3D11Resource* resource, DXGI_FORMAT format)
 
     }
 
-    device->getDevice()->CreateShaderResourceView(resource, &srvDesc, srv.GetAddressOf());
+    device->get()->CreateShaderResourceView(resource, &srvDesc, srv.GetAddressOf());
 }
 
 Texture::Texture(Device* device, ID3D11Resource* resource, ID3D11ShaderResourceView* srv)

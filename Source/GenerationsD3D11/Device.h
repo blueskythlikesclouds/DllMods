@@ -3,14 +3,15 @@
 #include "CriticalSection.h"
 #include "Unknown.h"
 
-class Buffer;
 class BaseTexture;
+class Buffer;
 class CubeTexture;
-class DepthStencilTexture;
 class D3D9;
+class DepthStencilTexture;
 class RenderTargetSurface;
 class RenderTargetTexture;
 class Surface;
+class SwapChain;
 class Texture;
 class VertexDeclaration;
 class VertexShader;
@@ -39,9 +40,9 @@ class Device : public Unknown
     CriticalSection criticalSection;
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> deviceContext;
-    ComPtr<IDXGISwapChain> swapChain;
+
+    std::unique_ptr<SwapChain> swapChain;
     UINT syncInterval;
-    ComPtr<RenderTargetTexture> backBufferRenderTarget;
 
     ComPtr<RenderTargetTexture> renderTargets[4]{};
     ComPtr<DepthStencilTexture> depthStencil{};
@@ -82,6 +83,7 @@ class Device : public Unknown
 
     enum DirtyStateIndex
     {
+        DSI_Present,
         DSI_RenderTarget,
         DSI_Viewport,
         DSI_DepthStencilState,
@@ -125,10 +127,10 @@ class Device : public Unknown
     bool reserveUploadVertexBuffer(const void* data, size_t size);
 
 public:
-    explicit Device(D3DPRESENT_PARAMETERS* presentationParameters);
+    explicit Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scaling);
 
-    ID3D11Device* getDevice() const;
-    ID3D11DeviceContext* getDeviceContext() const;
+    ID3D11Device* get() const;
+    ID3D11DeviceContext* getContext() const;
 
     std::lock_guard<CriticalSection> lock();
 

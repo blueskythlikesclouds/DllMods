@@ -56,6 +56,12 @@
     <ClCompile Include="Device.cpp">
       <Filter>Base</Filter>
     </ClCompile>
+    <ClCompile Include="SwapChainOn12.cpp">
+      <Filter>Base\Present</Filter>
+    </ClCompile>
+    <ClCompile Include="SwapChainWaitable.cpp">
+      <Filter>Base\Present</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -114,6 +120,15 @@
     <ClInclude Include="Device.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="SwapChainOn12.h">
+      <Filter>Base\Present</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapChain.h">
+      <Filter>Base\Present</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapChainWaitable.h">
+      <Filter>Base\Present</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Base">
@@ -139,6 +154,9 @@
     </Filter>
     <Filter Include="Base\Shaders">
       <UniqueIdentifier>{1e38a7de-11b8-4094-a889-40e5aa2b407d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Present">
+      <UniqueIdentifier>{8472baa1-06f2-4b84-9ef8-520f0520e663}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

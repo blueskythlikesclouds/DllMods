@@ -31,7 +31,7 @@ HRESULT Buffer::Unlock()
         D3D11_SUBRESOURCE_DATA data{};
         data.pSysMem = uploadBuffer.get();
 
-        device->getDevice()->CreateBuffer(&desc, &data, reinterpret_cast<ID3D11Buffer**>(resource.ReleaseAndGetAddressOf()));
+        device->get()->CreateBuffer(&desc, &data, reinterpret_cast<ID3D11Buffer**>(resource.ReleaseAndGetAddressOf()));
     }
 
     uploadBuffer = nullptr;

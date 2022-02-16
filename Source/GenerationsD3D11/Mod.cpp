@@ -20,7 +20,7 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     {
         const auto lock = device->lock();
 
-        hr = DirectX::CreateDDSTextureFromMemory(device->getDevice(), device->getDeviceContext(),
+        hr = DirectX::CreateDDSTextureFromMemory(device->get(), device->getContext(),
             pData, length, texture.GetAddressOf(), srv.GetAddressOf());
     }
 

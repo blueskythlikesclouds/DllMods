@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d9.lib;d3d11.lib;dxgi.lib;detours.lib;syelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3d12.lib;dxgi.lib;detours.lib;syelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Dependencies\Detours\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -98,7 +98,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d9.lib;d3d11.lib;dxgi.lib;detours.lib;syelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3d12.lib;dxgi.lib;detours.lib;syelog.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\Dependencies\Detours\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -116,6 +116,8 @@
     <ClCompile Include="RenderTargetTexture.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="SwapChainOn12.cpp" />
+    <ClCompile Include="SwapChainWaitable.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VertexDeclaration.cpp" />
     <ClCompile Include="DllMain.cpp" />
@@ -141,10 +143,13 @@
     <ClInclude Include="Device.h" />
     <ClInclude Include="D3D9.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="SwapChain.h" />
     <ClInclude Include="RenderTargetSurface.h" />
     <ClInclude Include="RenderTargetTexture.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Surface.h" />
+    <ClInclude Include="SwapChainOn12.h" />
+    <ClInclude Include="SwapChainWaitable.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexDeclaration.h" />
     <ClInclude Include="TypeConverter.h" />

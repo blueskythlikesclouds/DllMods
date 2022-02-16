@@ -9,7 +9,7 @@ RenderTargetTexture::RenderTargetTexture(Device* device, ID3D11Resource* resourc
     desc.Format = format;
     desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-    device->getDevice()->CreateRenderTargetView(resource, format != DXGI_FORMAT_UNKNOWN ? &desc : nullptr, rtv.GetAddressOf());
+    device->get()->CreateRenderTargetView(resource, format != DXGI_FORMAT_UNKNOWN ? &desc : nullptr, rtv.GetAddressOf());
 }
 
 ID3D11RenderTargetView* RenderTargetTexture::getRTV() const
