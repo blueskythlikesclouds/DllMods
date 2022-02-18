@@ -22,12 +22,6 @@
     <ClCompile Include="DepthStencilTexture.cpp">
       <Filter>Textures</Filter>
     </ClCompile>
-    <ClCompile Include="..\GenerationsD3D9Ex\MemoryHandler.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader11.cpp">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
     <ClCompile Include="VertexShader.cpp">
       <Filter>Shaders</Filter>
     </ClCompile>
@@ -63,6 +57,12 @@
     <ClCompile Include="SwapChainDefault.cpp">
       <Filter>Device</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\GenerationsD3D9Ex\MemoryHandler.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\DDSTextureLoader\DDSTextureLoader11.cpp">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -83,12 +83,6 @@
     </ClInclude>
     <ClInclude Include="DepthStencilTexture.h">
       <Filter>Textures</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GenerationsD3D9Ex\MemoryHandler.h">
-      <Filter>Dependencies</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Dependencies\DDSTextureLoader\DDSTextureLoader11.h">
-      <Filter>Dependencies</Filter>
     </ClInclude>
     <ClInclude Include="VertexShader.h">
       <Filter>Shaders</Filter>

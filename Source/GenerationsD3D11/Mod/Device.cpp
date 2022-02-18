@@ -985,10 +985,6 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantF, UINT StartRegister, flo
 
 HRESULT Device::SetVertexShaderConstantI(UINT StartRegister, CONST int* pConstantData, UINT Vector4iCount)
 {
-    LOCK_GUARD();
-
-    setDSI(&vertexConstants.i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]), DSI_VertexConstant);
-
     return S_OK;
 }
 
@@ -1077,10 +1073,6 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShaderConstantF, UINT StartRegister, floa
 
 HRESULT Device::SetPixelShaderConstantI(UINT StartRegister, CONST int* pConstantData, UINT Vector4iCount)
 {
-    LOCK_GUARD();
-
-    setDSI(&pixelConstants.i[StartRegister], pConstantData, Vector4iCount * sizeof(INT[4]), DSI_PixelConstant);
-
     return S_OK;
 }
 

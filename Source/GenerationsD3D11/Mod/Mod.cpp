@@ -3,7 +3,7 @@
 #include "D3D9.h"
 #include "Texture.h"
 
-#include "../GenerationsD3D9Ex/MemoryHandler.h"
+#include "../../GenerationsD3D9Ex/MemoryHandler.h"
 
 HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     hh::mr::CPictureData* pPictureData, const uint8_t* pData, size_t length, hh::mr::CRenderingInfrastructure* pRenderingInfrastructure)
