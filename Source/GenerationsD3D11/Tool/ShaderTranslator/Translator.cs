@@ -48,6 +48,7 @@ namespace ShaderTranslator
             var samplers = new Dictionary<string, string>();
 
             var definitions = new Dictionary<int, string>();
+            var definitionsInt = new Dictionary<int, string>();
 
             for (i = 0; i < lines.Length; i++)
             {
@@ -63,6 +64,12 @@ namespace ShaderTranslator
                 {
                     PopulateSemantics(inSemantics);
                     isPixelShader = true;
+                }
+
+                else if (line.StartsWith("defi"))
+                {
+                    int firstSeparatorIndex = line.IndexOf(',');
+                    definitionsInt.Add(int.Parse(line.Substring(6, firstSeparatorIndex - 6)), line.Substring(firstSeparatorIndex + 2));
                 }
 
                 else if (line.StartsWith("def"))
@@ -266,6 +273,12 @@ namespace ShaderTranslator
                     stringBuilder.AppendFormat("\tC[{0}] = float4({1});\n", definition.Key, definition.Value);
 
                 stringBuilder.AppendLine();
+            }
+
+            if (definitionsInt.Count > 0)
+            {
+                foreach (var definition in definitionsInt)
+                    stringBuilder.AppendFormat("\tint4 i{0} = int4({1});\n", definition.Key, definition.Value);
             }
 
             for (int j = 0; j < 32; j++)

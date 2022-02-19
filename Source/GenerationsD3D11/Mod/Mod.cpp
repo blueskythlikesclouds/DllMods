@@ -1,7 +1,7 @@
 #include "Configuration.h"
 #include "D3D9.h"
 #include "Device.h"
-#include "ShaderTranslator.h"
+#include "ShaderCache.h"
 #include "Texture.h"
 
 #include "../../GenerationsD3D9Ex/MemoryHandler.h"
@@ -44,6 +44,14 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     pPictureData->m_Flags |= hh::db::eDatabaseDataFlags_IsMadeOne;
 }
 
+HOOK(void, __fastcall, GameplayFlowDebugInitExit, 0xD0BA70, void* This)
+{
+    originalGameplayFlowDebugInitExit(This);
+
+    ShaderCache::save();
+    ShaderCache::clean();
+}
+
 HOOK(HRESULT, __stdcall, FillTexture, 0xA55270, Texture* texture, void* function, void* data)
 {
     return S_OK;
@@ -68,6 +76,10 @@ HOOK(void, WINAPI, MyOutputDebugStringW, &OutputDebugStringW, LPCWSTR lpOutputSt
 
 extern "C" __declspec(dllexport) void Init(ModInfo* info)
 {
+#if _DEBUG
+    MessageBox(nullptr, TEXT("Attach to Debugger"), TEXT("GenerationsD3D11"), MB_ICONWARNING);
+#endif
+
     std::string dir = info->CurrentMod->Path;
 
     size_t pos = dir.find_last_of("\\/");
@@ -77,12 +89,16 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
     if (!Configuration::load(dir + "GenerationsD3D11.ini"))
         MessageBox(NULL, L"Failed to parse GenerationsD3D11.ini", NULL, MB_ICONERROR);
 
+    ShaderCache::init(dir);
+    ShaderCache::load();
+
     // Hide window when it's first created because it's not a pleasant sight to see it centered/resized afterwards.
     WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
 
     MemoryHandler::applyPatches();
 
     INSTALL_HOOK(LoadPictureData);
+    INSTALL_HOOK(GameplayFlowDebugInitExit);
     INSTALL_HOOK(FillTexture);
     INSTALL_HOOK(Direct3DCreate);
 
@@ -107,6 +123,4 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
 #endif
 
     WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
-
-    ShaderTranslatorService::init();
 }

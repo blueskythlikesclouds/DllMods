@@ -26,6 +26,7 @@
 
 #include <DDSTextureLoader11.h>
 #include <xxhash.h>
+#include <lz4.h>
 
 #include <bitset>
 #include <cstdint>

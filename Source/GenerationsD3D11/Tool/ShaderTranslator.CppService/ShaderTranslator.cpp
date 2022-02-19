@@ -19,7 +19,7 @@ void ShaderTranslatorService::init()
 
 void* ShaderTranslatorService::translate(void* function, int functionSize, int& translatedSize)
 {
-#define CATCH_ANYWAY 1
+#define CATCH_ANYWAY 0
 
 #if !_DEBUG || CATCH_ANYWAY
     try
