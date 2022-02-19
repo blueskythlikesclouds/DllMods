@@ -232,7 +232,7 @@ void Device::updatePipelineState()
         deviceContext->PSSetConstantBuffers(0, 1, pixelConstantsBuffer.GetAddressOf());
     }
 
-    dirty.reset();
+    memset(dirty, 0, sizeof(dirty));
 }
 
 void Device::setDSI(void* dest, const void* src, const size_t byteSize, const size_t dirtyStateIndex)
@@ -240,7 +240,7 @@ void Device::setDSI(void* dest, const void* src, const size_t byteSize, const si
     if (memcmp(dest, src, byteSize) == 0)
         return;
 
-    dirty.set(dirtyStateIndex);
+    dirty[dirtyStateIndex] = true;
     memcpy(dest, src, byteSize);
 }
 
@@ -313,7 +313,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
     bufferDesc.ByteWidth = 16;
     device->CreateBuffer(&bufferDesc, nullptr, alphaTestBuffer.GetAddressOf());
 
-    dirty.set();
+    memset(dirty, ~0, sizeof(dirty));
 }
 
 ID3D11Device* Device::get() const

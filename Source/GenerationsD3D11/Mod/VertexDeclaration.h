@@ -10,7 +10,16 @@ class VertexDeclaration : public Unknown
     std::unique_ptr<D3DVERTEXELEMENT9[]> vertexElements;
     size_t vertexElementCount{};
     std::vector<D3D11_INPUT_ELEMENT_DESC> inputElements;
-    std::map<std::pair<const VertexShader*, bool>, ComPtr<ID3D11InputLayout>> inputLayouts;
+
+    struct InputLayoutHash
+    {
+        std::size_t operator()(const std::pair<const VertexShader*, bool>& value) const noexcept
+        {
+            return XXH32(&value, sizeof(value), 0);
+        }
+    };
+
+    std::unordered_map<std::pair<const VertexShader*, bool>, ComPtr<ID3D11InputLayout>, InputLayoutHash> inputLayouts;
 
     void addIfNotExist(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format);
 
