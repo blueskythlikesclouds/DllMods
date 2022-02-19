@@ -136,8 +136,17 @@ void ShaderCache::init(const std::string& dir)
 
 void ShaderCache::load()
 {
-    loadSingle(directoryPath + "/global.shadercache");
-    loadSingle(directoryPath + "/user.shadercache");
+    for (auto& file : std::filesystem::directory_iterator(directoryPath))
+    {
+        if (!file.is_regular_file())
+            continue;
+
+        std::string extension = file.path().extension().string();
+        std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
+
+        if (extension == ".shadercache")
+            loadSingle(file.path().string());
+    }
 }
 
 void ShaderCache::save()
@@ -172,7 +181,7 @@ void ShaderCache::save()
         shader = shader->next();
     }
 
-    FILE* file = fopen((directoryPath + "/user.shadercache").c_str(), "w+b");
+    FILE* file = fopen((directoryPath + "/user.shadercache").c_str(), "ab");
 
     uint8_t* src = data.get();
 

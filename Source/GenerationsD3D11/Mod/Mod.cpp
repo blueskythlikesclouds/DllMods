@@ -92,15 +92,15 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
     ShaderCache::init(dir);
     ShaderCache::load();
 
-    // Hide window when it's first created because it's not a pleasant sight to see it centered/resized afterwards.
-    WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
-
     MemoryHandler::applyPatches();
 
     INSTALL_HOOK(LoadPictureData);
     INSTALL_HOOK(GameplayFlowDebugInitExit);
     INSTALL_HOOK(FillTexture);
     INSTALL_HOOK(Direct3DCreate);
+
+    // Hide window when it's first created because it's not a pleasant sight to see it centered/resized afterwards.
+    WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
 
     // Prevent half-pixel correction
     WRITE_MEMORY(0x64F4C7, uintptr_t, 0x15C5858); // MTFx
@@ -121,6 +121,4 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
 
     freopen("CONOUT$", "w", stdout);
 #endif
-
-    WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
 }
