@@ -283,6 +283,30 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
         nullptr,
         deviceContext.GetAddressOf());
 
+#if _DEBUG
+    ComPtr<ID3D11Debug> debug;
+    device.As(&debug);
+
+    ComPtr<ID3D11InfoQueue> infoQueue;
+    debug.As(&infoQueue);
+
+    // Disable messages we're aware of and okay with
+    D3D11_MESSAGE_ID ids[] =
+    {
+        D3D11_MESSAGE_ID_DEVICE_PSSETSHADERRESOURCES_HAZARD,
+        D3D11_MESSAGE_ID_DEVICE_OMSETRENDERTARGETS_HAZARD,
+        D3D11_MESSAGE_ID_OMSETRENDERTARGETS_INVALIDVIEW,
+        D3D11_MESSAGE_ID_DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET,
+        D3D11_MESSAGE_ID_DEVICE_DRAW_SAMPLER_MISMATCH,
+    };
+
+    D3D11_INFO_QUEUE_FILTER filter {};
+    filter.DenyList.NumIDs = _countof(ids);
+    filter.DenyList.pIDList = ids;
+
+    infoQueue->AddStorageFilterEntries(&filter);
+#endif
+
     if (presentationParameters->Windowed)
         swapChain = std::make_unique<SwapChainWaitable>();
     else
