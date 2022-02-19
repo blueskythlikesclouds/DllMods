@@ -15,7 +15,7 @@ class VertexDeclaration : public Unknown
     {
         std::size_t operator()(const std::pair<const VertexShader*, bool>& value) const noexcept
         {
-            return XXH32(&value, sizeof(value), 0);
+            return XXH32(&value, (size_t)&value.second + sizeof(value.second) - (size_t)&value, 0);
         }
     };
 
