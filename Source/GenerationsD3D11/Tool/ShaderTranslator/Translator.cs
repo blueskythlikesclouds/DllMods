@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -270,10 +269,10 @@ namespace ShaderTranslator
             }
 
             for (int j = 0; j < 32; j++)
-                stringBuilder.AppendFormat("\tfloat4 r{0};\n", j);
+                stringBuilder.AppendFormat("\tfloat4 r{0} = float4(0, 0, 0, 0);\n", j);
 
             if (!isPixelShader)
-                stringBuilder.AppendLine("\tuint4 a0;");
+                stringBuilder.AppendLine("\tuint4 a0 = uint4(0, 0, 0, 0);");
 
             stringBuilder.AppendLine();
 
@@ -285,7 +284,10 @@ namespace ShaderTranslator
                 {
                     foreach (var argument in instruction.Arguments)
                     {
-                        if (constantMap.TryGetValue(argument.Token, out string constantName))
+                        if (argument.Token == "vPos")
+                            argument.Token = "(vPos - float4(0.5, 0.5, 0.0, 0.0))";
+
+                        else if (constantMap.TryGetValue(argument.Token, out string constantName))
                             argument.Token = constantName;
 
                         else if (argument.Token[0] == 'c')

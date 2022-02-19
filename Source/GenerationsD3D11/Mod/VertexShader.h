@@ -3,6 +3,7 @@
 #include "Unknown.h"
 
 class Device;
+class ShaderData;
 
 class VertexShader : public Unknown
 {
@@ -11,7 +12,7 @@ class VertexShader : public Unknown
     size_t byteSize;
 
 public:
-    VertexShader(ID3D11Device* device, const void* function, size_t functionSize);
+    VertexShader(ID3D11Device* device, const ShaderData& data);
 
     ID3D11VertexShader* getVertexShader() const;
 

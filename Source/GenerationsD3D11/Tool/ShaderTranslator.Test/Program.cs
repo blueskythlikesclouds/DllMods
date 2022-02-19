@@ -1,5 +1,11 @@
 ﻿using ShaderTranslator;
 
+if (args.Length > 0)
+{
+    File.WriteAllBytes(args[0] + ".dxbc", Translator.Translate(File.ReadAllBytes(args[0])));
+    return;
+}
+
 var archiveFileNames = new[]
 {
     "shader_r",

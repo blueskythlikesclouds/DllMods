@@ -1,6 +1,7 @@
 #include "Configuration.h"
-#include "Device.h"
 #include "D3D9.h"
+#include "Device.h"
+#include "ShaderTranslator.h"
 #include "Texture.h"
 
 #include "../../GenerationsD3D9Ex/MemoryHandler.h"
@@ -56,6 +57,13 @@ HOOK(D3D9*, __cdecl, Direct3DCreate, 0xA5EDD0, UINT SDKVersion)
 HOOK(void, WINAPI, MyOutputDebugStringA, &OutputDebugStringA, LPCSTR lpOutputString)
 {
     printf(lpOutputString);
+    originalMyOutputDebugStringA(lpOutputString);
+}
+
+HOOK(void, WINAPI, MyOutputDebugStringW, &OutputDebugStringW, LPCWSTR lpOutputString)
+{
+    wprintf(lpOutputString);
+    originalMyOutputDebugStringW(lpOutputString);
 }
 
 extern "C" __declspec(dllexport) void Init(ModInfo* info)
@@ -90,6 +98,7 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
 
 #if _DEBUG
     INSTALL_HOOK(MyOutputDebugStringA);
+    INSTALL_HOOK(MyOutputDebugStringW);
 
     if (!GetConsoleWindow())
         AllocConsole();
@@ -98,4 +107,6 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
 #endif
 
     WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
+
+    ShaderTranslatorService::init();
 }

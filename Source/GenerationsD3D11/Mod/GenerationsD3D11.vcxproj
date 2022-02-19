@@ -41,7 +41,6 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
@@ -60,9 +59,11 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -83,7 +84,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>false</ExceptionHandling>
@@ -92,6 +93,8 @@
       <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,6 +118,7 @@
     <ClCompile Include="RenderTargetSurface.cpp" />
     <ClCompile Include="RenderTargetTexture.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="ShaderCache.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainDefault.cpp" />
     <ClCompile Include="SwapChainOn12.cpp" />
@@ -142,6 +146,7 @@
     <ClInclude Include="Device.h" />
     <ClInclude Include="D3D9.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="ShaderCache.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="RenderTargetSurface.h" />
     <ClInclude Include="RenderTargetTexture.h" />
@@ -156,6 +161,14 @@
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Unknown.h" />
     <ClInclude Include="VertexShader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tool\ShaderTranslator.CppService\ShaderTranslator.CppService.vcxproj">
+      <Project>{a5f30b48-ba5e-4186-bcfb-100f573e8bac}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Tool\ShaderTranslator\ShaderTranslator.csproj">
+      <Project>{72407155-a56d-416e-a369-73f64334d5e9}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

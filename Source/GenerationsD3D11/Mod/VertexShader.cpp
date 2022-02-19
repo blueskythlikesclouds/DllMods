@@ -1,10 +1,12 @@
 ﻿#include "VertexShader.h"
 
-VertexShader::VertexShader(ID3D11Device* device, const void* function, size_t functionSize)
-    : byteCode(std::make_unique<uint8_t[]>(functionSize)), byteSize(functionSize)
+#include "ShaderCache.h"
+
+VertexShader::VertexShader(ID3D11Device* device, const ShaderData& data)
+    : byteCode(std::make_unique<uint8_t[]>(data.getLength())), byteSize(data.getLength())
 {
-    memcpy(byteCode.get(), function, functionSize);
-    device->CreateVertexShader(function, functionSize, nullptr, vertexShader.GetAddressOf());
+    memcpy(byteCode.get(), data.getBytes(), data.getLength());
+    device->CreateVertexShader(data.getBytes(), data.getLength(), nullptr, vertexShader.GetAddressOf());
 }
 
 ID3D11VertexShader* VertexShader::getVertexShader() const

@@ -5,6 +5,7 @@
 #include "DepthStencilTexture.h"
 #include "RenderTargetSurface.h"
 #include "RenderTargetTexture.h"
+#include "ShaderCache.h"
 #include "Surface.h"
 #include "SwapChainDefault.h"
 #include "SwapChainOn12.h"
@@ -956,7 +957,7 @@ HRESULT Device::CreateVertexShader(CONST DWORD* pFunction, VertexShader** ppShad
 {
     LOCK_GUARD();
 
-    *ppShader = new VertexShader(device.Get(), pFunction, FunctionSize);
+    *ppShader = new VertexShader(device.Get(), ShaderCache::get(const_cast<DWORD*>(pFunction), FunctionSize));
 
     return S_OK;
 }
@@ -1044,7 +1045,8 @@ HRESULT Device::CreatePixelShader(CONST DWORD* pFunction, PixelShader** ppShader
 {
     LOCK_GUARD();
 
-    device->CreatePixelShader(pFunction, FunctionSize, nullptr, ppShader);
+    const auto data = ShaderCache::get(const_cast<DWORD*>(pFunction), FunctionSize);
+    device->CreatePixelShader(data.getBytes(), data.getLength(), nullptr, ppShader);
 
     return S_OK;
 }
