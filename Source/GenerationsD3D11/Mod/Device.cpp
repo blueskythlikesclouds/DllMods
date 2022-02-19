@@ -62,7 +62,7 @@ void Device::updatePipelineState()
 
     if (dirty[DSI_DepthStencilState])
     {
-        const size_t hash = generateCrc32Hash(0, &depthStencilState, sizeof(depthStencilState));
+        const XXH32_hash_t hash = XXH32(&depthStencilState, sizeof(depthStencilState), 0);
         const auto pair = depthStencilStates.find(hash);
 
         ID3D11DepthStencilState* depthStencilStateObj = nullptr;
@@ -81,7 +81,7 @@ void Device::updatePipelineState()
 
     if (dirty[DSI_RasterizerState])
     {
-        const size_t hash = generateCrc32Hash(0, &rasterizerState, sizeof(rasterizerState));
+        const XXH32_hash_t hash = XXH32(&rasterizerState, sizeof(rasterizerState), 0);
         const auto pair = rasterizerStates.find(hash);
 
         ID3D11RasterizerState* rasterizerStateObj = nullptr;
@@ -110,7 +110,7 @@ void Device::updatePipelineState()
 
     if (dirty[DSI_BlendState])
     {
-        const size_t hash = generateCrc32Hash(0, &blendState, sizeof(blendState));
+        const XXH32_hash_t hash = XXH32(&blendState, sizeof(blendState), 0);
         const auto pair = blendStates.find(hash);
 
         ID3D11BlendState* blendStateObj = nullptr;
@@ -166,7 +166,7 @@ void Device::updatePipelineState()
             if ((j == 7 || j == 13) && textures[j] && textures[j]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
                 samplers[j].Filter = (D3D11_FILTER)(samplers[j].Filter | 0x80);
 
-            const size_t hash = generateCrc32Hash(0, &samplers[j], sizeof(samplers[j]));
+            const XXH32_hash_t hash = XXH32(&samplers[j], sizeof(samplers[j]), 0);
             const auto pair = samplerStates.find(hash);
 
             if (pair != samplerStates.end())

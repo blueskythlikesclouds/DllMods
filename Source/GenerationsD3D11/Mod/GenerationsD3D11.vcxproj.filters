@@ -64,7 +64,10 @@
       <Filter>Dependencies</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
-      <Filter>Resources</Filter>
+      <Filter>Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\xxHash\xxhash.c">
+      <Filter>Dependencies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

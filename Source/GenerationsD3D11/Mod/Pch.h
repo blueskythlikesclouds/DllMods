@@ -25,10 +25,12 @@
 #include <dxgi1_4.h>
 
 #include <DDSTextureLoader11.h>
+#include <xxHash.h>
 
 #include <bitset>
 #include <cstdint>
 #include <cstdio>
+#include <filesystem>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -37,6 +39,5 @@
 #include <Helpers.h>
 #include <INIReader.h>
 #include <LostCodeLoader.h>
-#include "../../BetterFxPipeline/Hash.h"
 
 using Microsoft::WRL::ComPtr;

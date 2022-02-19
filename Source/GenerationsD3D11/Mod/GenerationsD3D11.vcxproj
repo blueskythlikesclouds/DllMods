@@ -59,7 +59,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>
@@ -84,7 +84,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>false</ExceptionHandling>
@@ -106,7 +106,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Dependencies\DDSTextureLoader\DDSTextureLoader11.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\DDSTextureLoader\DDSTextureLoader11.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\xxHash\xxhash.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ForcedIncludeFiles>
+    </ClCompile>
     <ClCompile Include="..\..\GenerationsD3D9Ex\MemoryHandler.cpp" />
     <ClCompile Include="BaseTexture.cpp" />
     <ClCompile Include="Configuration.cpp" />

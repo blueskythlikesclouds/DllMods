@@ -66,10 +66,10 @@ class Device : public Unknown
     ComPtr<PixelShader> pixelShader;
     PixelConstants pixelConstants{};
 
-    std::map<uint32_t, ComPtr<ID3D11DepthStencilState>> depthStencilStates;
-    std::map<uint32_t, ComPtr<ID3D11RasterizerState>> rasterizerStates;
-    std::map<uint32_t, ComPtr<ID3D11BlendState>> blendStates;
-    std::map<uint32_t, ComPtr<ID3D11SamplerState>> samplerStates;
+    std::map<XXH32_hash_t, ComPtr<ID3D11DepthStencilState>> depthStencilStates;
+    std::map<XXH32_hash_t, ComPtr<ID3D11RasterizerState>> rasterizerStates;
+    std::map<XXH32_hash_t, ComPtr<ID3D11BlendState>> blendStates;
+    std::map<XXH32_hash_t, ComPtr<ID3D11SamplerState>> samplerStates;
     std::map<uint32_t, ComPtr<VertexDeclaration>> fvfMap;
 
     ComPtr<ID3D11Buffer> vertexConstantsBuffer;
