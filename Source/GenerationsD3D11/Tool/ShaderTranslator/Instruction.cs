@@ -29,6 +29,13 @@ namespace ShaderTranslator
                     stringBuilder.AppendFormat("{0} = {1} + {2};", Arguments[0], Arguments[1], Arguments[2]);
                     break;
 
+                case "break":
+                    if (Arguments != null) 
+                        EmitIfCondition(stringBuilder);
+
+                    stringBuilder.Append("break;");
+                    break;
+
                 case "cmp":
                     Arguments[1].Swizzle.Convert(Arguments[0].Swizzle);
                     Arguments[2].Swizzle.Convert(Arguments[0].Swizzle);
@@ -152,6 +159,12 @@ namespace ShaderTranslator
                     stringBuilder.AppendFormat("{0} = min(1.0 / {1}, FLT_MAX);", Arguments[0], Arguments[1]);
                     break;
 
+                case "rep":
+                    Arguments[0].Swizzle.Resize(1);
+
+                    stringBuilder.AppendFormat("rep({0}) {{", Arguments[0]);
+                    break;
+
                 case "rsq":
                     Arguments[1].Swizzle.Resize(1);
 
@@ -206,34 +219,9 @@ namespace ShaderTranslator
                     break;
 
                 case "if":
-                    stringBuilder.Append("if (");
+                    EmitIfCondition(stringBuilder);
 
-                    switch (ComparisonType)
-                    {
-                        case ComparisonType.GreaterThan:
-                            stringBuilder.AppendFormat("{0} > {1}", Arguments[0], Arguments[1]);
-                            break;
-                        case ComparisonType.LessThan:
-                            stringBuilder.AppendFormat("{0} < {1}", Arguments[0], Arguments[1]);
-                            break;
-                        case ComparisonType.GreaterThanOrEqual:
-                            stringBuilder.AppendFormat("{0} >= {1}", Arguments[0], Arguments[1]);
-                            break;
-                        case ComparisonType.LessThanOrEqual:
-                            stringBuilder.AppendFormat("{0} <= {1}", Arguments[0], Arguments[1]);
-                            break;
-                        case ComparisonType.Equal:
-                            stringBuilder.AppendFormat("{0} == {1}", Arguments[0], Arguments[1]);
-                            break;
-                        case ComparisonType.NotEqual:
-                            stringBuilder.AppendFormat("{0} != {1}", Arguments[0], Arguments[1]);
-                            break;
-                        default:
-                            stringBuilder.Append(Arguments[0]);
-                            break;
-                    }
-
-                    stringBuilder.Append(") {");
+                    stringBuilder.Append("{");
                     break;
 
                 case "else":
@@ -241,6 +229,7 @@ namespace ShaderTranslator
                     break;
 
                 case "endif":
+                case "endrep":
                     stringBuilder.Append("}");
                     break;
 
@@ -268,6 +257,38 @@ namespace ShaderTranslator
                 stringBuilder.AppendFormat(" {0} = saturate({0});", Arguments[0]);
 
             return stringBuilder.ToString();
+        }
+
+        public void EmitIfCondition(StringBuilder stringBuilder)
+        {
+            stringBuilder.Append("if (");
+
+            switch (ComparisonType)
+            {
+                case ComparisonType.GreaterThan:
+                    stringBuilder.AppendFormat("{0} > {1}", Arguments[0], Arguments[1]);
+                    break;
+                case ComparisonType.LessThan:
+                    stringBuilder.AppendFormat("{0} < {1}", Arguments[0], Arguments[1]);
+                    break;
+                case ComparisonType.GreaterThanOrEqual:
+                    stringBuilder.AppendFormat("{0} >= {1}", Arguments[0], Arguments[1]);
+                    break;
+                case ComparisonType.LessThanOrEqual:
+                    stringBuilder.AppendFormat("{0} <= {1}", Arguments[0], Arguments[1]);
+                    break;
+                case ComparisonType.Equal:
+                    stringBuilder.AppendFormat("{0} == {1}", Arguments[0], Arguments[1]);
+                    break;
+                case ComparisonType.NotEqual:
+                    stringBuilder.AppendFormat("{0} != {1}", Arguments[0], Arguments[1]);
+                    break;
+                default:
+                    stringBuilder.Append(Arguments[0]);
+                    break;
+            }
+
+            stringBuilder.Append(") ");
         }
 
         public Instruction(string instruction)
