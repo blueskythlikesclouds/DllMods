@@ -8,6 +8,21 @@ namespace ShaderTranslator
 {
     public static class Translator
     {
+        private static unsafe uint GetHashCode(void* data, int length)
+        {
+            uint hash = 2166136261;
+            for (int i = 0; i < length; i++)
+                hash = (hash ^ ((byte*)data)[i]) * 16777619;
+
+            hash += hash << 13;
+            hash ^= hash >> 7;
+            hash += hash << 3;
+            hash ^= hash >> 17;
+            hash += hash << 5;
+
+            return hash;
+        }
+
         private static void PopulateSemantics(Dictionary<string, string> semantics)
         {
             semantics.Add("SV_Position", "svPos");
@@ -320,6 +335,18 @@ namespace ShaderTranslator
                 stringBuilder.AppendFormat("{0}\n", instrLine);
 
                 if (instrLine.Contains('{')) ++indent;
+            }
+
+            // Fix broken font shader
+            if (!isPixelShader && functionSize == 360)
+            {
+                uint hash = GetHashCode(function, functionSize);
+
+                if (hash == 4139437241 || hash == 111686199)
+                {
+                    stringBuilder.AppendLine("\to0.xy = v0.xy * g_ViewportSize.zw * float2(2, -2) + float2(-1, 1);");
+                    stringBuilder.AppendLine("\to0.zw = float2(0, 1);");
+                }
             }
 
             if (isPixelShader)

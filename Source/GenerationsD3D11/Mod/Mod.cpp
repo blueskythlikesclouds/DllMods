@@ -52,12 +52,13 @@ HOOK(void, __fastcall, GameplayFlowDebugInitExit, 0xD0BA70, void* This)
     ShaderCache::clean();
 }
 
-typedef VOID(WINAPI* LPD3DXFILL2D)(
+typedef VOID(WINAPI* LPD3DXFILL2D)
+(
     Eigen::Vector4f* pOut,
     CONST Eigen::Vector2f* pTexCoord,
     CONST Eigen::Vector2f* pTexelSize,
     LPVOID pData
-    );
+);
 
 HOOK(HRESULT, __stdcall, FillTexture, 0xA55270, Texture* pTexture, LPD3DXFILL2D pFunction, LPVOID pData)
 {
