@@ -514,7 +514,11 @@ HRESULT Device::StretchRect(Surface* pSourceSurface, CONST RECT* pSourceRect, Su
 
 FUNCTION_STUB(HRESULT, Device::ColorFill, Surface* pSurface, CONST RECT* pRect, D3DCOLOR color)
 
-FUNCTION_STUB(HRESULT, Device::CreateOffscreenPlainSurface, UINT Width, UINT Height, D3DFORMAT Format, D3DPOOL Pool, Surface** ppSurface, HANDLE* pSharedHandle)
+HRESULT Device::CreateOffscreenPlainSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DPOOL Pool, Surface** ppSurface, HANDLE* pSharedHandle)
+{
+    *ppSurface = nullptr;
+    return E_FAIL;
+}
 
 HRESULT Device::SetRenderTarget(DWORD RenderTargetIndex, Surface* pRenderTarget)
 {
@@ -981,7 +985,7 @@ HRESULT Device::CreateVertexShader(CONST DWORD* pFunction, VertexShader** ppShad
 {
     LOCK_GUARD();
 
-    *ppShader = new VertexShader(device.Get(), ShaderCache::get(const_cast<DWORD*>(pFunction), FunctionSize));
+    ShaderCache::getVertexShader(device.Get(), const_cast<DWORD*>(pFunction), FunctionSize, ppShader);
 
     return S_OK;
 }
@@ -1069,8 +1073,7 @@ HRESULT Device::CreatePixelShader(CONST DWORD* pFunction, PixelShader** ppShader
 {
     LOCK_GUARD();
 
-    const auto data = ShaderCache::get(const_cast<DWORD*>(pFunction), FunctionSize);
-    device->CreatePixelShader(data.getBytes(), data.getLength(), nullptr, ppShader);
+    ShaderCache::getPixelShader(device.Get(), const_cast<DWORD*>(pFunction), FunctionSize, ppShader);
 
     return S_OK;
 }
