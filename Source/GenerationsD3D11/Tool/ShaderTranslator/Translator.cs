@@ -145,6 +145,7 @@ namespace ShaderTranslator
             var constantMap = new Dictionary<string, string>();
 
             var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("#define FLT_MAX asfloat(0x7f7fffff)\n");
             stringBuilder.AppendLine("cbuffer global : register(b0) {");
 
             foreach (var constant in constants)
