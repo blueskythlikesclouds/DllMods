@@ -35,6 +35,9 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
         desc.InstanceDataStepRate = 0;
 
         inputElements.push_back(desc);
+
+        hasBone |= pVertexElements[i].Usage == D3DDECLUSAGE_BLENDWEIGHT || 
+            pVertexElements[i].Usage == D3DDECLUSAGE_BLENDINDICES;
     }
 
     vertexElements = std::make_unique<D3DVERTEXELEMENT9[]>(inputElements.size() + 1);
@@ -81,6 +84,11 @@ VertexDeclaration::VertexDeclaration(DWORD FVF)
     }
 
     inputElements.shrink_to_fit();
+}
+
+bool VertexDeclaration::getHasBone() const
+{
+    return hasBone;
 }
 
 ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader, bool instance)

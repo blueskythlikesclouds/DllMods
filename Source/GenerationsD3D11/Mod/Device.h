@@ -56,6 +56,7 @@ class Device : public Unknown
     D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
     ComPtr<VertexDeclaration> vertexDeclaration;
     VertexConstants vertexConstants{};
+    BOOL hasBone{};
     ComPtr<VertexShader> vertexShader;
     ComPtr<ID3D11Buffer> vertexBuffers[8];
     UINT vertexStrides[_countof(vertexBuffers)]{};

@@ -195,15 +195,23 @@ void Device::updatePipelineState()
         deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), vertexShader.Get(), enableInstancing));
     }
 
-    if (dirty[DSI_VertexConstant])
+    BOOL currHasBone = vertexConstants.b[0];
+    if (vertexDeclaration && enableInstancing)
+        currHasBone &= (BOOL)vertexDeclaration->getHasBone();
+
+    if (dirty[DSI_VertexConstant] || currHasBone != hasBone)
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
         deviceContext->Map(vertexConstantsBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
-        memcpy(mappedSubResource.pData, &vertexConstants, sizeof(vertexConstants));
-        deviceContext->Unmap(vertexConstantsBuffer.Get(), 0);
 
+        memcpy(mappedSubResource.pData, &vertexConstants, sizeof(vertexConstants));
+        *(BOOL*)((char*)mappedSubResource.pData + offsetof(VertexConstants, b[0])) = currHasBone;
+
+        deviceContext->Unmap(vertexConstantsBuffer.Get(), 0);
         deviceContext->VSSetConstantBuffers(0, 1, vertexConstantsBuffer.GetAddressOf());
     }
+
+    hasBone = currHasBone;
 
     if (dirty[DSI_VertexBuffer])
     {
