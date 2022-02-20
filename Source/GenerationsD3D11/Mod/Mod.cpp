@@ -52,8 +52,51 @@ HOOK(void, __fastcall, GameplayFlowDebugInitExit, 0xD0BA70, void* This)
     ShaderCache::clean();
 }
 
-HOOK(HRESULT, __stdcall, FillTexture, 0xA55270, Texture* texture, void* function, void* data)
+typedef VOID(WINAPI* LPD3DXFILL2D)(
+    Eigen::Vector4f* pOut,
+    CONST Eigen::Vector2f* pTexCoord,
+    CONST Eigen::Vector2f* pTexelSize,
+    LPVOID pData
+    );
+
+HOOK(HRESULT, __stdcall, FillTexture, 0xA55270, Texture* pTexture, LPD3DXFILL2D pFunction, LPVOID pData)
 {
+    D3DLOCKED_RECT lockedRect;
+
+    if (FAILED(pTexture->LockRect(0, &lockedRect, nullptr, 0)))
+        return E_FAIL;
+
+    ComPtr<ID3D11Texture2D> texture;
+
+    if (FAILED(pTexture->getResource()->QueryInterface(IID_PPV_ARGS(texture.GetAddressOf()))))
+        return E_FAIL;
+
+    D3D11_TEXTURE2D_DESC desc;
+    texture->GetDesc(&desc);
+
+    if (desc.Format != DXGI_FORMAT_B8G8R8A8_UNORM)
+        return E_FAIL;
+
+    const Eigen::Vector2f texelSize(1.0f / (float)desc.Width, 1.0f / (float)desc.Height);
+
+    for (size_t i = 0; i < desc.Width; i++)
+    {
+        for (size_t j = 0; j < desc.Height; j++)
+        {
+            Eigen::Vector4f out;
+            pFunction(&out, &Eigen::Vector2f((i + 0.5f) / desc.Width, (j + 0.5f) / desc.Height), &texelSize, pData);
+
+            uint8_t* dest = (uint8_t*)lockedRect.pBits + (lockedRect.Pitch * j) + (i * 4);
+
+            dest[0] = (uint8_t)(out.z() * 255.0f);
+            dest[1] = (uint8_t)(out.y() * 255.0f);
+            dest[2] = (uint8_t)(out.x() * 255.0f);
+            dest[3] = (uint8_t)(out.w() * 255.0f);
+        }
+    }
+
+    pTexture->UnlockRect(0);
+
     return S_OK;
 }
 

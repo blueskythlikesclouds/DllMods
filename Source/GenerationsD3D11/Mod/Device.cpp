@@ -425,12 +425,20 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
     desc.Height = Height;
     desc.MipLevels = Levels;
     desc.ArraySize = 1;
-    desc.Format = Usage != 0 ? TypeConverter::makeTypeless(format) : format;
+    desc.Format = Usage & (D3DUSAGE_RENDERTARGET | D3DUSAGE_DEPTHSTENCIL) ? TypeConverter::makeTypeless(format) : format;
     desc.SampleDesc.Count = 1;
     desc.Usage = D3D11_USAGE_DEFAULT;
     desc.BindFlags =
         Usage & D3DUSAGE_RENDERTARGET ? D3D11_BIND_RENDER_TARGET :
         Usage & D3DUSAGE_DEPTHSTENCIL ? D3D11_BIND_DEPTH_STENCIL : 0;
+
+    // Default usage textures are guaranteed to be modified on CPU
+    // as we load DDS textures using DDSTextureLoader11
+    if (!Usage)
+    {
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    }
 
     desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 

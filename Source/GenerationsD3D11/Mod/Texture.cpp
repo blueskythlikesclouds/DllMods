@@ -122,8 +122,23 @@ HRESULT Texture::GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc)
 
 FUNCTION_STUB(HRESULT, Texture::GetSurfaceLevel, UINT Level, Surface** ppSurfaceLevel)
 
-FUNCTION_STUB(HRESULT, Texture::LockRect, UINT Level, D3DLOCKED_RECT* pLockedRect, CONST RECT* pRect, DWORD Flags)
+HRESULT Texture::LockRect(UINT Level, D3DLOCKED_RECT* pLockedRect, CONST RECT* pRect, DWORD Flags)
+{
+    D3D11_MAPPED_SUBRESOURCE mappedSubResource;
 
-FUNCTION_STUB(HRESULT, Texture::UnlockRect, UINT Level)
+    if (FAILED(device->getContext()->Map(resource.Get(), Level, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource)))
+        return E_FAIL;
+
+    pLockedRect->pBits = mappedSubResource.pData;
+    pLockedRect->Pitch = (INT)mappedSubResource.RowPitch;
+
+    return S_OK;
+}
+
+HRESULT Texture::UnlockRect(UINT Level)
+{
+    device->getContext()->Unmap(resource.Get(), Level);
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Texture::AddDirtyRect, CONST RECT* pDirtyRect)
