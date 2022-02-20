@@ -228,11 +228,13 @@ namespace ShaderTranslator
 
             stringBuilder.AppendLine("void main(");
 
+            bool isMetaInstancer = !isPixelShader && constants.Any(x => x.Name == "g_InstanceTypes");
+
             foreach (var semantic in inSemantics)
             {
                 string type = "float";
 
-                if (semantic.Key == "BLENDINDICES")
+                if (semantic.Key == "BLENDINDICES" || (isMetaInstancer && semantic.Key == "TEXCOORD2"))
                     type = "uint";
 
                 stringBuilder.AppendFormat("\tin {0}4 {1} : {2},\n", type, semantic.Value, semantic.Key);
