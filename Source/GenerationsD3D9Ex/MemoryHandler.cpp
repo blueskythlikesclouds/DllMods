@@ -4,16 +4,6 @@ constexpr const char* ALLOC_SIGNATURE = " D3D9Ex ";
 
 HANDLE hHeap = GetProcessHeap();
 
-void* operator new(const size_t byteSize)
-{
-    return HeapAlloc(hHeap, 0, byteSize);
-}
-
-void operator delete(void* pMem)
-{
-    HeapFree(hHeap, 0, pMem);
-}
-
 HOOK(HANDLE*, __cdecl, GetHeapHandle, 0x660CF0, HANDLE& hHandle, size_t index)
 {
     hHandle = hHeap;
@@ -38,8 +28,16 @@ void __cdecl dealloc(void* pMem)
     if (!pMem)
         return;
 
-    const uintptr_t* pSignature = &((uintptr_t*)pMem)[-2];
-    HeapFree(hHeap, 0, (LPVOID)(memcmp(pSignature, ALLOC_SIGNATURE, 8) == 0 ? pSignature : pMem));
+    uintptr_t* pSignature = &((uintptr_t*)pMem)[-2];
+    if (memcmp(pSignature, ALLOC_SIGNATURE, 8) == 0)
+    {
+        memset(pSignature, 0, sizeof(*pSignature));
+        HeapFree(hHeap, 0, pSignature);
+    }
+    else
+    {
+        HeapFree(hHeap, 0, pMem);
+    }
 }
 
 void MemoryHandler::applyPatches()

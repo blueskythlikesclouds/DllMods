@@ -86,7 +86,7 @@ namespace ShaderTranslator
                 case "log":
                     Arguments[1].Swizzle.Resize(1);
 
-                    stringBuilder.AppendFormat("{0} = abs({1}) == 0.0 ? 0.0 : log2(abs({1}));", Arguments[0], Arguments[1]);
+                    stringBuilder.AppendFormat("{0} = max(log2(abs({1})), asfloat(0xff7fffff));", Arguments[0], Arguments[1]);
                     break;
 
                 case "lrp":
@@ -136,26 +136,26 @@ namespace ShaderTranslator
                 case "nrm":
                     Arguments[1].Swizzle.Convert(Arguments[0].Swizzle);
 
-                    stringBuilder.AppendFormat("{0} = normalize({1});", Arguments[0], Arguments[1]);
+                    stringBuilder.AppendFormat("{0} = {1} * min(1.0 / sqrt(dot(({1}).xyz, ({1}).xyz)), asfloat(0x7f7fffff));", Arguments[0], Arguments[1]);
                     break;
 
                 case "pow":
                     Arguments[1].Swizzle.Resize(1);
                     Arguments[2].Swizzle.Resize(1);
 
-                    stringBuilder.AppendFormat("{0} = abs({1}) == 0.0 ? 0.0 : pow(abs({1}), {2});", Arguments[0], Arguments[1], Arguments[2]);
+                    stringBuilder.AppendFormat("{0} = {2} != 0.0 ? pow(abs({1}), {2}) : 1.0;", Arguments[0], Arguments[1], Arguments[2]);
                     break;
 
                 case "rcp":
                     Arguments[1].Swizzle.Resize(1);
 
-                    stringBuilder.AppendFormat("{0} = abs({1}) == 0.0 ? 0.0 : rcp({1});", Arguments[0], Arguments[1]);
+                    stringBuilder.AppendFormat("{0} = min(1.0 / {1}, asfloat(0x7f7fffff));", Arguments[0], Arguments[1]);
                     break;
 
                 case "rsq":
                     Arguments[1].Swizzle.Resize(1);
 
-                    stringBuilder.AppendFormat("{0} = abs({1}) == 0.0 ? 0.0 : rsqrt(abs({1}));", Arguments[0], Arguments[1]);
+                    stringBuilder.AppendFormat("{0} = min(1.0 / sqrt(abs({1})), asfloat(0x7f7fffff));", Arguments[0], Arguments[1]);
                     break;
 
                 case "sge":
@@ -188,14 +188,20 @@ namespace ShaderTranslator
                     break;
 
                 case "texldb":
+                    Arguments[1].Swizzle.Resize(4);
+
                     stringBuilder.AppendFormat("{0} = {1}.SampleBias({1}_s, {2}, ({2}).w);", Arguments[0], Arguments[2], Arguments[1]);
                     break;
 
                 case "texldl":
+                    Arguments[1].Swizzle.Resize(4);
+
                     stringBuilder.AppendFormat("{0} = {1}.SampleLevel({1}_s, {2}, ({2}).w);", Arguments[0], Arguments[2], Arguments[1]);
                     break;
 
                 case "texldp":
+                    Arguments[1].Swizzle.Resize(4);
+
                     stringBuilder.AppendFormat("{0} = {1}.SampleCmp({1}_s, ({2}).xy / ({2}).w, ({2}).z / ({2}).w);", Arguments[0], Arguments[2], Arguments[1]);
                     break;
 

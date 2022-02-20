@@ -99,11 +99,20 @@ namespace ShaderTranslator
                     else
                         token = line.Substring(spaceIndex + 1, dotIndex - spaceIndex - 1);
 
-                    if (!isPixelShader && semantic == "POSITION" && token[0] == 'o')
-                        semantic = "SV_Position";
+                    switch (semantic)
+                    {
+                        case "POSITION" when !isPixelShader && token[0] == 'o':
+                            semantic = "SV_Position";
+                            break;
 
-                    if (semantic == "CUBE")
-                        semantic = "Cube";
+                        case "CUBE":
+                            semantic = "Cube";
+                            break;
+
+                        case "VOLUME":
+                            semantic = "3D";
+                            break;
+                    }
 
                     switch (token[0])
                     {
@@ -194,39 +203,27 @@ namespace ShaderTranslator
                     if (constant.Type != ConstantType.Sampler)
                         continue;
 
-                    string token = $"s{constant.Register}";
+                    for (int j = 0; j < constant.Size; j++)
+                    {
+                        string token = $"s{(constant.Register + j)}";
+                        string name = constant.Name;
 
-                    stringBuilder.AppendFormat("Texture{0}<float4> {1} : register(t{2});\n",
-                        samplers[token], constant.Name, constant.Register);
+                        if (j > 0)
+                            name += $"{j}";
+                        
+                        stringBuilder.AppendFormat("Texture{0}<float4> {1} : register(t{2});\n",
+                            samplers[token], name, constant.Register + j);
 
-                    string type = "SamplerState";
+                        string type = "SamplerState";
 
-                    if (instructions.Any(x => x.OpCode == "texldp" && x.Arguments[2].Token == token))
-                        type = "SamplerComparisonState";
+                        if (instructions.Any(x => x.OpCode == "texldp" && x.Arguments[2].Token == token))
+                            type = "SamplerComparisonState";
 
-                    stringBuilder.AppendFormat("{0} {1}_s : register({2});\n\n", type, constant.Name, token);
-                    constantMap.Add(token, constant.Name);
+                        stringBuilder.AppendFormat("{0} {1}_s : register({2});\n\n", type, name, token);
+                        constantMap.Add(token, name);
+                    }
                 }
             }
-
-            stringBuilder.AppendLine("float3 normalize(float3 value)");
-            stringBuilder.AppendLine("{");
-            stringBuilder.AppendLine("\tfloat lengthSqr = abs(dot(value.xyz, value.xyz));\n");
-            stringBuilder.AppendLine("\tif (lengthSqr != 0)");
-            stringBuilder.AppendLine("\t\tvalue *= rsqrt(lengthSqr);");
-            stringBuilder.AppendLine("\telse");
-            stringBuilder.AppendLine("\t\tvalue = 0.0;\n");
-            stringBuilder.AppendLine("\treturn value;");
-            stringBuilder.AppendLine("}\n");
-            stringBuilder.AppendLine("float4 normalize(float4 value)");
-            stringBuilder.AppendLine("{");
-            stringBuilder.AppendLine("\tfloat lengthSqr = abs(dot(value.xyz, value.xyz));\n");
-            stringBuilder.AppendLine("\tif (lengthSqr != 0)");
-            stringBuilder.AppendLine("\t\tvalue *= rsqrt(lengthSqr);");
-            stringBuilder.AppendLine("\telse");
-            stringBuilder.AppendLine("\t\tvalue = 0.0;\n");
-            stringBuilder.AppendLine("\treturn value;");
-            stringBuilder.AppendLine("}\n");
 
             stringBuilder.AppendLine("void main(");
 
