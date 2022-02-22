@@ -153,9 +153,6 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
     // Ignore Devil's Details' fullscreen shader
     WRITE_CALL(0x64CF9E, 0x64F470);
 
-    // Ignore SFD playback
-    WRITE_MEMORY(0x7F2630, uint8_t, 0xC3);
-
 #if _DEBUG
     INSTALL_HOOK(MyOutputDebugStringA);
     INSTALL_HOOK(MyOutputDebugStringW);

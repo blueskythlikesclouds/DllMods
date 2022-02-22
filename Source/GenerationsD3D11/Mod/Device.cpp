@@ -3,6 +3,7 @@
 #include "Buffer.h"
 #include "DepthStencilSurface.h"
 #include "DepthStencilTexture.h"
+#include "FVF.wvu.h"
 #include "RenderTargetSurface.h"
 #include "RenderTargetTexture.h"
 #include "ShaderCache.h"
@@ -189,10 +190,12 @@ void Device::updatePipelineState()
     if (dirty[DSI_PrimitiveTopology])
         deviceContext->IASetPrimitiveTopology(primitiveTopology);
 
-    if (dirty[DSI_VertexShader] && vertexShader && vertexDeclaration)
+    if (dirty[DSI_VertexShader] && vertexDeclaration)
     {
-        deviceContext->VSSetShader(vertexShader->getVertexShader(), nullptr, 0);
-        deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), vertexShader.Get(), enableInstancing));
+        const VertexShader* shader = !vertexShader || vertexDeclaration->getIsFVF() ? fvfVertexShader.Get() : vertexShader.Get();
+
+        deviceContext->VSSetShader(shader->getVertexShader(), nullptr, 0);
+        deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), shader, enableInstancing));
     }
 
     BOOL currHasBone = vertexConstants.b[0];
@@ -344,6 +347,8 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
 
     bufferDesc.ByteWidth = 16;
     device->CreateBuffer(&bufferDesc, nullptr, alphaTestBuffer.GetAddressOf());
+
+    fvfVertexShader.Attach(new VertexShader(device.Get(), ShaderData((void*)g_fvf_vs_main, sizeof(g_fvf_vs_main), 0)));
 
     memset(dirty, ~0, sizeof(dirty));
 }
@@ -978,6 +983,8 @@ FUNCTION_STUB(HRESULT, Device::GetVertexDeclaration, VertexDeclaration** ppDecl)
 
 HRESULT Device::SetFVF(DWORD FVF)
 {
+    LOCK_GUARD();
+
     ComPtr<VertexDeclaration> fvf;
 
     const auto pair = fvfMap.find(FVF);

@@ -155,4 +155,9 @@
       <UniqueIdentifier>{a239bd54-67a7-4d6b-8a6d-93a1d3aa2ea1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="FVF.wvu.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

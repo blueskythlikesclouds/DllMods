@@ -10,9 +10,9 @@ class ShaderData
     size_t length;
     XXH64_hash_t hash;
 
+public:
     ShaderData(void* handle, size_t length, XXH64_hash_t hash);
 
-public:
     bool isCached() const;
 
     void* getBytes() const;

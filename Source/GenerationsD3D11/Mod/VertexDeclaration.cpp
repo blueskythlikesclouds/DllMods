@@ -18,7 +18,7 @@ void VertexDeclaration::addIfNotExist(LPCSTR semanticName, UINT semanticIndex, D
     inputElements.push_back(inputElement);
 }
 
-VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
+VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements) : isFVF(false)
 {
     for (int i = 0; ; i++)
     {
@@ -61,7 +61,7 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements)
     inputElements.shrink_to_fit();
 }
 
-VertexDeclaration::VertexDeclaration(DWORD FVF)
+VertexDeclaration::VertexDeclaration(DWORD FVF) : isFVF(true)
 {
     size_t offset = 0;
 
@@ -89,6 +89,11 @@ VertexDeclaration::VertexDeclaration(DWORD FVF)
 bool VertexDeclaration::getHasBone() const
 {
     return hasBone;
+}
+
+bool VertexDeclaration::getIsFVF() const
+{
+    return isFVF;
 }
 
 ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader, bool instance)

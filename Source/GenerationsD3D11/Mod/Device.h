@@ -80,6 +80,8 @@ class Device : public Unknown
     ComPtr<ID3D11Buffer> uploadVertexBuffer;
     size_t uploadVertexBufferSize{};
 
+    ComPtr<VertexShader> fvfVertexShader;
+
     enum DirtyStateIndex
     {
         DSI_Present,

@@ -11,6 +11,7 @@ class VertexDeclaration : public Unknown
     size_t vertexElementCount{};
     std::vector<D3D11_INPUT_ELEMENT_DESC> inputElements;
     bool hasBone{};
+    bool isFVF;
 
     struct InputLayoutHash
     {
@@ -29,6 +30,7 @@ public:
     VertexDeclaration(DWORD FVF);
 
     bool getHasBone() const;
+    bool getIsFVF() const;
 
     ID3D11InputLayout* getInputLayout(ID3D11Device* device, const VertexShader* vertexShader, bool instance);
 
