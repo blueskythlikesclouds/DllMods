@@ -206,6 +206,14 @@ namespace ShaderTranslator
                     stringBuilder.AppendFormat("{0} = {1}.SampleBias({1}_s, {2}, ({2}).w);", Arguments[0], Arguments[2], Arguments[1]);
                     break;
 
+                case "texldd":
+                    Arguments[1].Swizzle.Resize(4);
+                    Arguments[3].Swizzle.Resize(4);
+                    Arguments[4].Swizzle.Resize(4);
+
+                    stringBuilder.AppendFormat("{0} = {1}.SampleGrad({1}_s, {2}, {3}, {4});", Arguments[0], Arguments[2], Arguments[1], Arguments[3], Arguments[4]);
+                    break;
+
                 case "texldl":
                     Arguments[1].Swizzle.Resize(4);
 
