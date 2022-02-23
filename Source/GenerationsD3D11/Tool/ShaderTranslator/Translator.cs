@@ -8,7 +8,19 @@ namespace ShaderTranslator
 {
     public static class Translator
     {
-        private static unsafe uint GetHashCode(void* data, int length)
+        private static void PopulateSemantics(Dictionary<string, string> semantics)
+        {
+            semantics.Add("SV_Position", "svPos");
+
+            semantics.Add("TEXCOORD", "texCoord");
+            for (int i = 1; i < 16; i++)
+                semantics.Add($"TEXCOORD{i}", $"texCoord{i}");
+
+            semantics.Add("COLOR", "color");
+            semantics.Add("COLOR1", "color1");
+        }
+
+        public static unsafe uint GetHashCode(void* data, int length)
         {
             uint hash = 2166136261;
             for (int i = 0; i < length; i++)
@@ -23,18 +35,16 @@ namespace ShaderTranslator
             return hash;
         }
 
-        private static void PopulateSemantics(Dictionary<string, string> semantics)
+        public static unsafe bool IsCsdShader(void* function, int functionSize)
         {
-            semantics.Add("SV_Position", "svPos");
+            uint hash;
 
-            semantics.Add("TEXCOORD", "texCoord");
-            for (int i = 1; i < 16; i++)
-                semantics.Add($"TEXCOORD{i}", $"texCoord{i}");
-
-            semantics.Add("COLOR", "color");
-            semantics.Add("COLOR1", "color1");
+            return (functionSize == 544 || functionSize == 508 || functionSize == 712 || functionSize == 676) &&
+                   ((hash = GetHashCode(function, functionSize)) == 1675967623u || hash == 1353058734u ||
+                    hash == 2754048365u || hash == 4044681422u || hash == 3025790305u || hash == 2388726924u ||
+                    hash == 602606931u || hash == 781526840u);
         }
-        
+
         public static unsafe byte[] Translate(byte[] function)
         {
             fixed (byte* ptr = function)
@@ -320,7 +330,7 @@ namespace ShaderTranslator
                     foreach (var argument in instruction.Arguments)
                     {
                         if (argument.Token == "vPos")
-                            argument.Token = "(vPos - float4(0.5, 0.5, 0.0, 0.0))";
+                            argument.Token = $"({argument.Token} - float4(0.5, 0.5, 0.0, 0.0))";
 
                         else if (constantMap.TryGetValue(argument.Token, out string constantName))
                             argument.Token = constantName;
@@ -344,24 +354,16 @@ namespace ShaderTranslator
                 if (instrLine.Contains('{')) ++indent;
             }
 
-            // Fix broken font shader
-            if (!isPixelShader && functionSize == 360)
-            {
-                uint hash = GetHashCode(function, functionSize);
-
-                if (hash == 4139437241 || hash == 111686199)
-                {
-                    stringBuilder.AppendLine("\to0.xy = v0.xy * g_ViewportSize.zw * float2(2, -2) + float2(-1, 1);");
-                    stringBuilder.AppendLine("\to0.zw = float2(0, 1);");
-                }
-            }
-
             if (isPixelShader)
             {
                 stringBuilder.AppendLine("\n\tif (enable_alpha_test) {");
                 stringBuilder.AppendLine("\t\tclip(oC0.w - alpha_threshold);");
                 stringBuilder.AppendLine("\t}");
             }
+
+            // Prevent half-pixel correction in CSD shaders
+            else if (IsCsdShader(function, functionSize))
+                stringBuilder.AppendLine("\to0.xy += float2(g_ViewportSize.z, -g_ViewportSize.w) * o0.w;");
 
             stringBuilder.AppendLine("}");
 
