@@ -105,8 +105,6 @@ void Device::updatePipelineState()
         deviceContext->Map(alphaTestBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
         memcpy(mappedSubResource.pData, &alphaTestEnable, 8);
         deviceContext->Unmap(alphaTestBuffer.Get(), 0);
-
-        deviceContext->PSSetConstantBuffers(1, 1, alphaTestBuffer.GetAddressOf());
     }
 
     if (dirty[DSI_BlendState])
@@ -211,7 +209,6 @@ void Device::updatePipelineState()
         *(BOOL*)((char*)mappedSubResource.pData + offsetof(VertexConstants, b[0])) = currHasBone;
 
         deviceContext->Unmap(vertexConstantsBuffer.Get(), 0);
-        deviceContext->VSSetConstantBuffers(0, 1, vertexConstantsBuffer.GetAddressOf());
     }
 
     hasBone = currHasBone;
@@ -239,8 +236,6 @@ void Device::updatePipelineState()
         deviceContext->Map(pixelConstantsBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
         memcpy(mappedSubResource.pData, &pixelConstants, sizeof(pixelConstants));
         deviceContext->Unmap(pixelConstantsBuffer.Get(), 0);
-
-        deviceContext->PSSetConstantBuffers(0, 1, pixelConstantsBuffer.GetAddressOf());
     }
 
     memset(dirty, 0, sizeof(dirty));
@@ -336,17 +331,21 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
     }
 
     D3D11_BUFFER_DESC bufferDesc{};
-    bufferDesc.ByteWidth = (sizeof(vertexConstants) + 255) & ~0xFF;
+    bufferDesc.ByteWidth = (sizeof(vertexConstants) + 16) & ~0xF;
     bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     device->CreateBuffer(&bufferDesc, nullptr, vertexConstantsBuffer.GetAddressOf());
 
-    bufferDesc.ByteWidth = (sizeof(pixelConstants) + 255) & ~0xFF;
+    bufferDesc.ByteWidth = (sizeof(pixelConstants) + 16) & ~0xF;
     device->CreateBuffer(&bufferDesc, nullptr, pixelConstantsBuffer.GetAddressOf());
 
     bufferDesc.ByteWidth = 16;
     device->CreateBuffer(&bufferDesc, nullptr, alphaTestBuffer.GetAddressOf());
+
+    deviceContext->VSSetConstantBuffers(0, 1, vertexConstantsBuffer.GetAddressOf());
+    deviceContext->PSSetConstantBuffers(0, 1, pixelConstantsBuffer.GetAddressOf());
+    deviceContext->PSSetConstantBuffers(1, 1, alphaTestBuffer.GetAddressOf());
 
     fvfVertexShader.Attach(new VertexShader(device.Get(), ShaderData((void*)g_fvf_vs_main, sizeof(g_fvf_vs_main), 0)));
 
@@ -398,10 +397,7 @@ FUNCTION_STUB(HRESULT, Device::Reset, D3DPRESENT_PARAMETERS* pPresentationParame
 
 HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
-    LOCK_GUARD();
-
     swapChain->present(this, syncInterval);
-
     return S_OK;
 }
 
@@ -423,8 +419,6 @@ FUNCTION_STUB(void, Device::GetGammaRamp, UINT iSwapChain, D3DGAMMARAMP* pRamp)
 
 HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, Texture** ppTexture, HANDLE* pSharedHandle)
 {
-    LOCK_GUARD();
-
     const DXGI_FORMAT format = TypeConverter::convert(Format);
 
     if (format == DXGI_FORMAT_UNKNOWN)
@@ -481,42 +475,34 @@ FUNCTION_STUB(HRESULT, Device::CreateCubeTexture, UINT EdgeLength, UINT Levels, 
 HRESULT Device::CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, VertexBuffer** ppVertexBuffer, HANDLE* pSharedHandle)
 {
     *ppVertexBuffer = new VertexBuffer(this, Length, D3D11_BIND_VERTEX_BUFFER);
-
     return S_OK;
 }
 
 HRESULT Device::CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IndexBuffer** ppIndexBuffer, HANDLE* pSharedHandle)
 {
     *ppIndexBuffer = new IndexBuffer(this, Length, D3D11_BIND_INDEX_BUFFER, TypeConverter::convert(Format));
-
     return S_OK;
 }
 
 HRESULT Device::CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, DWORD MultisampleQuality, BOOL Lockable, Surface** ppSurface, HANDLE* pSharedHandle)
 {
-    LOCK_GUARD();
-
     ComPtr<RenderTargetTexture> renderTargetTex;
     const HRESULT hr = CreateTexture(Width, Height, 1, D3DUSAGE_RENDERTARGET, Format, D3DPOOL_DEFAULT, reinterpret_cast<Texture**>(renderTargetTex.GetAddressOf()), pSharedHandle);
     if (FAILED(hr))
         return hr;
 
     renderTargetTex->GetSurfaceLevel(0, ppSurface);
-
     return S_OK;
 }
 
 HRESULT Device::CreateDepthStencilSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, DWORD MultisampleQuality, BOOL Discard, Surface** ppSurface, HANDLE* pSharedHandle)
 {
-    LOCK_GUARD();
-
     ComPtr<DepthStencilTexture> depthStencilTex;
     const HRESULT hr = CreateTexture(Width, Height, 1, D3DUSAGE_RENDERTARGET, Format, D3DPOOL_DEFAULT, reinterpret_cast<Texture**>(depthStencilTex.GetAddressOf()), pSharedHandle);
     if (FAILED(hr))
         return hr;
 
     depthStencilTex->GetSurfaceLevel(0, ppSurface);
-
     return S_OK;
 }
 
@@ -543,10 +529,7 @@ HRESULT Device::CreateOffscreenPlainSurface(UINT Width, UINT Height, D3DFORMAT F
 
 HRESULT Device::SetRenderTarget(DWORD RenderTargetIndex, Surface* pRenderTarget)
 {
-    LOCK_GUARD();
-
     setDSI(renderTargets[RenderTargetIndex], pRenderTarget ? reinterpret_cast<RenderTargetSurface*>(pRenderTarget)->getTexture() : nullptr, DSI_RenderTarget);
-
     return S_OK;
 }
 
@@ -557,17 +540,12 @@ HRESULT Device::GetRenderTarget(DWORD RenderTargetIndex, Surface** ppRenderTarge
 
 HRESULT Device::SetDepthStencilSurface(Surface* pNewZStencil)
 {
-    LOCK_GUARD();
-
     setDSI(depthStencil, pNewZStencil ? reinterpret_cast<DepthStencilSurface*>(pNewZStencil)->getTexture() : nullptr, DSI_RenderTarget);
-
     return S_OK;
 }
 
 HRESULT Device::GetDepthStencilSurface(Surface** ppZStencilSurface)
 {
-    LOCK_GUARD();
-
     if (depthStencil)
         depthStencil->GetSurfaceLevel(0, ppZStencilSurface);
     else
@@ -613,7 +591,7 @@ HRESULT Device::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR 
             clearFlag |= D3D11_CLEAR_DEPTH;
 
         if (Flags & D3DCLEAR_STENCIL)
-            clearFlag |= D3D11_CLEAR_DEPTH;
+            clearFlag |= D3D11_CLEAR_STENCIL;
 
         deviceContext->ClearDepthStencilView(depthStencil->getDSV(), clearFlag, Z, (UINT8)Stencil);
     }
@@ -629,8 +607,6 @@ FUNCTION_STUB(HRESULT, Device::MultiplyTransform, D3DTRANSFORMSTATETYPE, CONST D
 
 HRESULT Device::SetViewport(CONST D3DVIEWPORT9* pViewport)
 {
-    LOCK_GUARD();
-
     D3D11_VIEWPORT newViewport;
     newViewport.TopLeftX = (float)pViewport->X;
     newViewport.TopLeftY = (float)pViewport->Y;
@@ -640,14 +616,11 @@ HRESULT Device::SetViewport(CONST D3DVIEWPORT9* pViewport)
     newViewport.MaxDepth = pViewport->MaxZ;
 
     setDSI(&viewport, &newViewport, sizeof(D3D11_VIEWPORT), DSI_Viewport);
-
     return S_OK;
 }
 
 HRESULT Device::GetViewport(D3DVIEWPORT9* pViewport)
 {
-    LOCK_GUARD();
-
     pViewport->X = (DWORD)viewport.TopLeftX;
     pViewport->Y = (DWORD)viewport.TopLeftY;
     pViewport->Width = (DWORD)viewport.Width;
@@ -676,8 +649,6 @@ FUNCTION_STUB(HRESULT, Device::GetClipPlane, DWORD Index, float* pPlane)
 
 HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 {
-    LOCK_GUARD();
-
     switch (State)
     {
     case D3DRS_ZENABLE:
@@ -780,10 +751,7 @@ FUNCTION_STUB(HRESULT, Device::GetTexture, DWORD Stage, BaseTexture** ppTexture)
 
 HRESULT Device::SetTexture(DWORD Stage, BaseTexture* pTexture)
 {
-    LOCK_GUARD();
-
     setDSI(textures[Stage], reinterpret_cast<Texture*>(pTexture), DSI_Texture + Stage);
-
     return S_OK;
 }
 
@@ -798,8 +766,6 @@ FUNCTION_STUB(HRESULT, Device::GetSamplerState, DWORD Sampler, D3DSAMPLERSTATETY
 
 HRESULT Device::SetSamplerState(DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD Value)
 {
-    LOCK_GUARD();
-
     switch (Type)
     {
     case D3DSAMP_ADDRESSU:
@@ -864,8 +830,6 @@ FUNCTION_STUB(HRESULT, Device::GetCurrentTexturePalette, UINT *PaletteNumber)
 
 HRESULT Device::SetScissorRect(CONST RECT* pRect)
 {
-    LOCK_GUARD();
-
     D3D11_RECT newScissorRect;
     newScissorRect.left = pRect->left;
     newScissorRect.top = pRect->top;
@@ -873,7 +837,6 @@ HRESULT Device::SetScissorRect(CONST RECT* pRect)
     newScissorRect.bottom = pRect->bottom;
 
     setDSI(&scissorRect, &newScissorRect, sizeof(D3D11_RECT), DSI_ScissorRect);
-
     return S_OK;
 }
 
@@ -892,9 +855,9 @@ HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, 
     if (PrimitiveType > D3DPT_TRIANGLESTRIP)
         return S_OK;
 
-    LOCK_GUARD();
-
     setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
+
+    LOCK_GUARD();
     updatePipelineState();
 
     if (enableInstancing)
@@ -910,9 +873,9 @@ HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVer
     if (PrimitiveType > D3DPT_TRIANGLESTRIP)
         return S_OK;
 
-    LOCK_GUARD();
-
     setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
+
+    LOCK_GUARD();
     updatePipelineState();
 
     if (enableInstancing)
@@ -928,12 +891,15 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
     if (PrimitiveType > D3DPT_TRIANGLESTRIP)
         return S_OK;
 
-    LOCK_GUARD();
-
-    const UINT vertexCount = calculateIndexCount(PrimitiveType, PrimitiveCount); // index count == vertex count
+    setDSI(vertexStrides[0], VertexStreamZeroStride, DSI_VertexBuffer);
+    setDSI(vertexOffsets[0], 0u, DSI_VertexBuffer);
+    setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
 
     // Calculate total byte size
+    const UINT vertexCount = calculateIndexCount(PrimitiveType, PrimitiveCount); // index count == vertex count
     const UINT vertexSize = vertexCount * VertexStreamZeroStride;
+
+    LOCK_GUARD();
 
     // Reserve vertex buffer
     if (!reserveUploadVertexBuffer(pVertexStreamZeroData, vertexSize))
@@ -947,13 +913,9 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
 
     // Set first vertex buffer
     setDSI(vertexBuffers[0], uploadVertexBuffer.Get(), DSI_VertexBuffer);
-    setDSI(vertexStrides[0], VertexStreamZeroStride, DSI_VertexBuffer);
-    setDSI(vertexOffsets[0], 0u, DSI_VertexBuffer);
 
     // Draw
-    setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
     updatePipelineState();
-
     deviceContext->Draw(vertexCount, 0);
 
     return S_OK;
@@ -966,16 +928,12 @@ FUNCTION_STUB(HRESULT, Device::ProcessVertices, UINT SrcStartIndex, UINT DestInd
 HRESULT Device::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexElements, VertexDeclaration** ppDecl)
 {
     *ppDecl = new VertexDeclaration(pVertexElements);
-
     return S_OK;
 }
 
 HRESULT Device::SetVertexDeclaration(VertexDeclaration* pDecl)
 {
-    LOCK_GUARD();
-
     setDSI(vertexDeclaration, pDecl, DSI_VertexShader);
-
     return S_OK;
 }
 
@@ -983,8 +941,6 @@ FUNCTION_STUB(HRESULT, Device::GetVertexDeclaration, VertexDeclaration** ppDecl)
 
 HRESULT Device::SetFVF(DWORD FVF)
 {
-    LOCK_GUARD();
-
     ComPtr<VertexDeclaration> fvf;
 
     const auto pair = fvfMap.find(FVF);
@@ -998,7 +954,6 @@ HRESULT Device::SetFVF(DWORD FVF)
     }
 
     setDSI(vertexDeclaration, fvf.Get(), DSI_VertexShader);
-
     return S_OK;
 }
 
@@ -1006,19 +961,13 @@ FUNCTION_STUB(HRESULT, Device::GetFVF, DWORD* pFVF)
 
 HRESULT Device::CreateVertexShader(CONST DWORD* pFunction, VertexShader** ppShader, DWORD FunctionSize)
 {
-    LOCK_GUARD();
-
     ShaderCache::getVertexShader(device.Get(), const_cast<DWORD*>(pFunction), FunctionSize, ppShader);
-
     return S_OK;
 }
 
 HRESULT Device::SetVertexShader(VertexShader* pShader)
 {
-    LOCK_GUARD();
-
     setDSI(vertexShader, pShader, DSI_VertexShader);
-
     return S_OK;
 }
 
@@ -1026,9 +975,8 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShader, VertexShader** ppShader)
 
 HRESULT Device::SetVertexShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
 {
-    LOCK_GUARD();
-
-    setDSI(&vertexConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]), DSI_VertexConstant);
+    memcpy(&vertexConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
+    dirty[DSI_VertexConstant] = true;
 
     return S_OK;
 }
@@ -1044,9 +992,8 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantI, UINT StartRegister, int
 
 HRESULT Device::SetVertexShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT BoolCount)
 {
-    LOCK_GUARD();
-
-    setDSI(&vertexConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL), DSI_VertexConstant);
+    memcpy(&vertexConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL));
+    dirty[DSI_VertexConstant] = true;
 
     return S_OK;
 }
@@ -1055,8 +1002,6 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantB, UINT StartRegister, BOO
 
 HRESULT Device::SetStreamSource(UINT StreamNumber, VertexBuffer* pStreamData, UINT OffsetInBytes, UINT Stride)
 {
-    LOCK_GUARD();
-
     setDSI(vertexBuffers[StreamNumber], pStreamData ? reinterpret_cast<ID3D11Buffer*>(pStreamData->getResource()) : nullptr, DSI_VertexBuffer);
     setDSI(vertexStrides[StreamNumber], Stride, DSI_VertexBuffer);
     setDSI(vertexOffsets[StreamNumber], OffsetInBytes, DSI_VertexBuffer);
@@ -1068,8 +1013,6 @@ FUNCTION_STUB(HRESULT, Device::GetStreamSource, UINT StreamNumber, VertexBuffer*
 
 HRESULT Device::SetStreamSourceFreq(UINT StreamNumber, UINT Setting)
 {
-    LOCK_GUARD();
-
     if (StreamNumber != 0)
         return S_OK;
 
@@ -1083,10 +1026,7 @@ FUNCTION_STUB(HRESULT, Device::GetStreamSourceFreq, UINT StreamNumber, UINT* pSe
 
 HRESULT Device::SetIndices(IndexBuffer* pIndexData)
 {
-    LOCK_GUARD();
-
     setDSI(indexBuffer, pIndexData, DSI_IndexBuffer);
-
     return S_OK;
 }
 
@@ -1094,19 +1034,13 @@ FUNCTION_STUB(HRESULT, Device::GetIndices, IndexBuffer** ppIndexData)
 
 HRESULT Device::CreatePixelShader(CONST DWORD* pFunction, PixelShader** ppShader, DWORD FunctionSize)
 {
-    LOCK_GUARD();
-
     ShaderCache::getPixelShader(device.Get(), const_cast<DWORD*>(pFunction), FunctionSize, ppShader);
-
     return S_OK;
 }
 
 HRESULT Device::SetPixelShader(PixelShader* pShader)
 {
-    LOCK_GUARD();
-
     setDSI(pixelShader, pShader, DSI_PixelShader);
-
     return S_OK;
 }
 
@@ -1114,9 +1048,8 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShader, PixelShader** ppShader)
 
 HRESULT Device::SetPixelShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
 {
-    LOCK_GUARD();
-
-    setDSI(&pixelConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]), DSI_PixelConstant);
+    memcpy(&pixelConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
+    dirty[DSI_PixelConstant] = true;
 
     return S_OK;
 }
@@ -1132,9 +1065,8 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShaderConstantI, UINT StartRegister, int*
 
 HRESULT Device::SetPixelShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
 {
-    LOCK_GUARD();
-
-    setDSI(&pixelConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL), DSI_PixelConstant);
+    memcpy(&pixelConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL));
+    dirty[DSI_PixelConstant] = true;
 
     return S_OK;
 }

@@ -14,7 +14,7 @@ public:
 
     DXGI_FORMAT getFormat() const;
 
-    virtual HRESULT Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags);
-    virtual HRESULT Unlock();
-    virtual HRESULT GetDesc(D3DINDEXBUFFER_DESC* pDesc);
+    virtual HRESULT Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags) final;
+    virtual HRESULT Unlock() final;
+    virtual HRESULT GetDesc(D3DINDEXBUFFER_DESC* pDesc) final;
 };

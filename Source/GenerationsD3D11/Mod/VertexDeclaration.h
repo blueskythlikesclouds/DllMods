@@ -34,6 +34,6 @@ public:
 
     ID3D11InputLayout* getInputLayout(ID3D11Device* device, const VertexShader* vertexShader, bool instance);
 
-    virtual HRESULT GetDevice(Device** ppDevice);
-    virtual HRESULT GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements);
+    virtual HRESULT GetDevice(Device** ppDevice) final;
+    virtual HRESULT GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements) final;
 };

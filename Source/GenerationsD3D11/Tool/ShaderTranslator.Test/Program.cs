@@ -25,6 +25,7 @@ var cacheInfos = new Dictionary<string, string[]>
             @"D:\Steam\steamapps\common\Sonic Generations\mods\Better FxPipeline\disk\bb3\SWA.ar.00"
         }
     },
+    #if false
     {
         "pbr",
         new []
@@ -33,6 +34,7 @@ var cacheInfos = new Dictionary<string, string[]>
             @"D:\Steam\steamapps\common\Sonic Generations\mods\PBR Shaders\disk\bb3\shader_vanilla.ar.00"
         }
     }
+    #endif
 };
 
 foreach (var cacheInfo in cacheInfos)

@@ -16,9 +16,9 @@ public:
     DXGI_FORMAT getFormat() const;
     ID3D11ShaderResourceView* getSRV() const;
 
-    virtual HRESULT GetLevelDesc(UINT Level, D3DSURFACE_DESC* pDesc);
+    virtual HRESULT GetLevelDesc(UINT Level, D3DSURFACE_DESC* pDesc) final;
     virtual HRESULT GetSurfaceLevel(UINT Level, Surface** ppSurfaceLevel);
-    virtual HRESULT LockRect(UINT Level, D3DLOCKED_RECT* pLockedRect, const RECT* pRect, DWORD Flags);
-    virtual HRESULT UnlockRect(UINT Level);
-    virtual HRESULT AddDirtyRect(const RECT* pDirtyRect);
+    virtual HRESULT LockRect(UINT Level, D3DLOCKED_RECT* pLockedRect, const RECT* pRect, DWORD Flags) final;
+    virtual HRESULT UnlockRect(UINT Level) final;
+    virtual HRESULT AddDirtyRect(const RECT* pDirtyRect) final;
 };
