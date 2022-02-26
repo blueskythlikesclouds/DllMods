@@ -84,7 +84,7 @@ class Device : public Unknown
 
     enum DirtyStateIndex
     {
-        DSI_Present,
+        DSI_ConstantBuffer,
         DSI_RenderTarget,
         DSI_Viewport,
         DSI_DepthStencilState,
@@ -124,6 +124,8 @@ class Device : public Unknown
         dirty[dirtyStateIndex] = true;
         dest = src;
     }
+
+    void invalidateDirtyStates();
 
     bool reserveUploadVertexBuffer(const void* data, size_t size);
 

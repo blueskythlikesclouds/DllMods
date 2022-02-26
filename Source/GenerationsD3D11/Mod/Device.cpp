@@ -47,6 +47,13 @@ UINT calculateIndexCount(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount)
 
 void Device::updatePipelineState()
 {
+    if (dirty[DSI_ConstantBuffer])
+    {
+        deviceContext->VSSetConstantBuffers(0, 1, vertexConstantsBuffer.GetAddressOf());
+        deviceContext->PSSetConstantBuffers(0, 1, pixelConstantsBuffer.GetAddressOf());
+        deviceContext->PSSetConstantBuffers(1, 1, alphaTestBuffer.GetAddressOf());
+    }
+
     if (dirty[DSI_RenderTarget])
     {
         ID3D11RenderTargetView* renderTargetViews[_countof(renderTargets)];
@@ -250,6 +257,11 @@ void Device::setDSI(void* dest, const void* src, const size_t byteSize, const si
     memcpy(dest, src, byteSize);
 }
 
+void Device::invalidateDirtyStates()
+{
+    memset(dirty, ~0, sizeof(dirty));
+}
+
 bool Device::reserveUploadVertexBuffer(const void* data, const size_t size)
 {
     if (size <= uploadVertexBufferSize)
@@ -343,13 +355,9 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
     bufferDesc.ByteWidth = 16;
     device->CreateBuffer(&bufferDesc, nullptr, alphaTestBuffer.GetAddressOf());
 
-    deviceContext->VSSetConstantBuffers(0, 1, vertexConstantsBuffer.GetAddressOf());
-    deviceContext->PSSetConstantBuffers(0, 1, pixelConstantsBuffer.GetAddressOf());
-    deviceContext->PSSetConstantBuffers(1, 1, alphaTestBuffer.GetAddressOf());
-
     fvfVertexShader.Attach(new VertexShader(device.Get(), ShaderData((void*)g_fvf_vs_main, sizeof(g_fvf_vs_main), 0)));
 
-    memset(dirty, ~0, sizeof(dirty));
+    invalidateDirtyStates();
 }
 
 ID3D11Device* Device::get() const
@@ -398,6 +406,8 @@ FUNCTION_STUB(HRESULT, Device::Reset, D3DPRESENT_PARAMETERS* pPresentationParame
 HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
     swapChain->present(this, syncInterval);
+
+    invalidateDirtyStates();
     return S_OK;
 }
 

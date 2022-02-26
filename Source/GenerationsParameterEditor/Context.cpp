@@ -1,9 +1,9 @@
-﻿#include "Configuration.h"
-#include "Context.h"
+﻿#include "Context.h"
+#include "Configuration.h"
+#include "DebugDrawTextImpl.h"
+#include "GlobalLightEditor.h"
 #include "ParameterEditor.h"
 #include "PlayerInfo.h"
-#include "GlobalLightEditor.h"
-#include "DebugDrawTextImpl.h"
 
 const uint32_t* const WIDTH = (uint32_t*)0x1DFDDDC;
 const uint32_t* const HEIGHT = (uint32_t*)0x1DFDDE0;
@@ -12,7 +12,8 @@ std::string Context::modDirectoryPath;
 std::string Context::imGuiIniPath = "ImGui.ini";
 
 HWND Context::window;
-IDirect3DDevice9* Context::device;
+IUnknown* Context::device;
+Backend Context::backend;
 
 ImFont* Context::font;
 
@@ -32,7 +33,12 @@ bool Context::isInitialized()
     return window && device;
 }
 
-void Context::initialize(HWND window, IDirect3DDevice9* device)
+Backend Context::getBackend()
+{
+    return backend;
+}
+
+void Context::initialize(HWND window, IUnknown* device)
 {
     Context::window = window;
     Context::device = device;
@@ -40,7 +46,44 @@ void Context::initialize(HWND window, IDirect3DDevice9* device)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    ImGui_ImplDX9_Init(device);
+    backend = Backend::Unknown;
+    {
+        IDirect3DDevice9* d3d9Device = nullptr;
+
+        if (SUCCEEDED(device->QueryInterface(&d3d9Device)))
+        {
+            backend = Backend::DX9;
+
+            ImGui_ImplDX9_Init(d3d9Device);
+
+            d3d9Device->Release();
+        }
+    }
+
+    if (backend == Backend::Unknown)
+    {
+        ID3D11Device* d3d11Device = nullptr;
+
+        if (SUCCEEDED(device->QueryInterface(&d3d11Device)))
+        {
+            backend = Backend::DX11;
+
+            ID3D11DeviceContext* d3d11Context = nullptr;
+            d3d11Device->GetImmediateContext(&d3d11Context);
+
+            ImGui_ImplDX11_Init(d3d11Device, d3d11Context);
+
+            d3d11Device->Release();
+            d3d11Context->Release();
+        }
+    }
+
+    if (backend == Backend::Unknown)
+    {
+        MessageBoxW(window, L"Failed to initialize Parameter Editor", L"Parameter Editor", MB_ICONERROR);
+        exit(-1);
+    }
+
     ImGui_ImplWin32_Init(window);
 
     ImGuiIO& io = ImGui::GetIO();
@@ -69,7 +112,17 @@ void Context::initialize(HWND window, IDirect3DDevice9* device)
 
 void Context::update()
 {
-    ImGui_ImplDX9_NewFrame();
+    switch (backend)
+    {
+    case Backend::DX9:
+        ImGui_ImplDX9_NewFrame();
+        break;
+
+    case Backend::DX11:
+        ImGui_ImplDX11_NewFrame();
+        break;
+    }
+
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
@@ -91,13 +144,34 @@ void Context::update()
 
     ImGui::EndFrame();
     ImGui::Render();
-    ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+
+    switch (backend)
+    {
+    case Backend::DX9:
+        ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+        break;
+
+    case Backend::DX11:
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        break;
+    }
 }
 
 void Context::reset()
 {
-    ImGui_ImplDX9_InvalidateDeviceObjects();
+    switch (backend)
+    {
+    case Backend::DX9:
+        ImGui_ImplDX9_InvalidateDeviceObjects();
+        break;
+
+    case Backend::DX11:
+        ImGui_ImplDX11_InvalidateDeviceObjects();
+        break;
+    }
 }
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT Context::wndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {

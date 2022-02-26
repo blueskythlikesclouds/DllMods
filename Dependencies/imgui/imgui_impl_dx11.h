@@ -1,8 +1,8 @@
-// dear imgui: Renderer Backend for DirectX9
+// dear imgui: Renderer Backend for DirectX11
 // This needs to be used along with a Platform Backend (e.g. Win32)
 
 // Implemented features:
-//  [X] Renderer: User texture binding. Use 'LPDIRECT3DTEXTURE9' as ImTextureID. Read the FAQ about ImTextureID!
+//  [X] Renderer: User texture binding. Use 'ID3D11ShaderResourceView*' as ImTextureID. Read the FAQ about ImTextureID!
 //  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bit indices.
 
 // You can use unmodified imgui_impl_* files in your project. See examples/ folder for examples of using this. 
@@ -13,13 +13,14 @@
 #pragma once
 #include "imgui.h"      // IMGUI_IMPL_API
 
-struct IDirect3DDevice9;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
 
-IMGUI_IMPL_API bool     ImGui_ImplDX9_Init(IDirect3DDevice9* device);
-IMGUI_IMPL_API void     ImGui_ImplDX9_Shutdown();
-IMGUI_IMPL_API void     ImGui_ImplDX9_NewFrame();
-IMGUI_IMPL_API void     ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data);
+IMGUI_IMPL_API bool     ImGui_ImplDX11_Init(ID3D11Device* device, ID3D11DeviceContext* device_context);
+IMGUI_IMPL_API void     ImGui_ImplDX11_Shutdown();
+IMGUI_IMPL_API void     ImGui_ImplDX11_NewFrame();
+IMGUI_IMPL_API void     ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data);
 
 // Use if you want to reset your rendering device without losing Dear ImGui state.
-IMGUI_IMPL_API bool     ImGui_ImplDX9_CreateDeviceObjects();
-IMGUI_IMPL_API void     ImGui_ImplDX9_InvalidateDeviceObjects();
+IMGUI_IMPL_API void     ImGui_ImplDX11_InvalidateDeviceObjects();
+IMGUI_IMPL_API bool     ImGui_ImplDX11_CreateDeviceObjects();

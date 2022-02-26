@@ -39,7 +39,7 @@ extern "C" __declspec(dllexport) void OnFrame()
         if (!application)
             return;
 
-        IDirect3DDevice9* device = *(IDirect3DDevice9**)(*(uint32_t*)(application + 80) + 8);
+        IUnknown* device = *(IUnknown**)(*(uint32_t*)(application + 80) + 8);
         if (!device)
             return;
 
@@ -49,7 +49,8 @@ extern "C" __declspec(dllexport) void OnFrame()
 
         Context::initialize(window, device);
 
-        INSTALL_VTABLE_HOOK(IDirect3DDevice9, device, Reset, 16);
+        if (Context::getBackend() == Backend::DX9)
+            INSTALL_VTABLE_HOOK(IDirect3DDevice9, device, Reset, 16);
     }
 
     const uint32_t parameterEditor = *(uint32_t*)(applicationDocument + 516);
