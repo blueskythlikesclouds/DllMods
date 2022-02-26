@@ -35,9 +35,9 @@ struct alignas(16) PixelConstants
 
 class Device : public Unknown
 {
-    CriticalSection criticalSection;
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> deviceContext;
+    CriticalSection criticalSection;
 
     std::unique_ptr<SwapChain> swapChain;
     UINT syncInterval;

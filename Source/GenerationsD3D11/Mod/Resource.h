@@ -5,8 +5,6 @@
 
 class Resource : public Unknown
 {
-    INSERT_PADDING(8);
-
 protected:
     ComPtr<Device> device;
     ComPtr<ID3D11Resource> resource;
