@@ -100,7 +100,15 @@ namespace ShaderTranslator
                 else if (line.StartsWith("def"))
                 {
                     int firstSeparatorIndex = line.IndexOf(',');
-                    definitions.Add(int.Parse(line.Substring(5, firstSeparatorIndex - 5)), line.Substring(firstSeparatorIndex + 2));
+                    string value = line.Substring(firstSeparatorIndex + 2);
+
+                    // Special case: Debug/stereo shaders take dot product of the sampled
+                    // depth value using this vector. This is not going to work due to
+                    // depth reads in DX11 loading only into the X component, unlike RAWZ/INTZ.
+                    // We fix this by forcing the dot product to return the X value.
+                    value = value.Replace("0.00389099144, 1.51991853e-005, 0.99609381", "1, 0, 0");
+                    
+                    definitions.Add(int.Parse(line.Substring(5, firstSeparatorIndex - 5)), value);
                 }
 
                 else if (line.StartsWith("dcl"))
