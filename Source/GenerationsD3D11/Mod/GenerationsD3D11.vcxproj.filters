@@ -69,6 +69,7 @@
     <ClCompile Include="..\..\..\Dependencies\xxHash\xxhash.c">
       <Filter>Dependencies</Filter>
     </ClCompile>
+    <ClCompile Include="IncludeImp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -134,6 +135,9 @@
     <ClInclude Include="ShaderCache.h">
       <Filter>Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="Include\GenerationsD3D11.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Dependencies">
@@ -153,6 +157,9 @@
     </Filter>
     <Filter Include="Device">
       <UniqueIdentifier>{a239bd54-67a7-4d6b-8a6d-93a1d3aa2ea1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{9ef3d3b3-8e5a-434c-8484-474ee80d7f29}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

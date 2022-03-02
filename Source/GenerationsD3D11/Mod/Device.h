@@ -50,8 +50,8 @@ class Device : public Unknown
     BOOL alphaTestEnable{};
     FLOAT alphaRef{};
     D3D11_BLEND_DESC blendState{};
-    ComPtr<Texture> textures[16];
-    D3D11_SAMPLER_DESC samplers[_countof(textures)]{};
+    ComPtr<Texture> textures[32];
+    D3D11_SAMPLER_DESC samplers[16]{};
     D3D11_RECT scissorRect{};
     D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
     ComPtr<VertexDeclaration> vertexDeclaration;
@@ -135,6 +135,7 @@ public:
     ID3D11Device* get() const;
     ID3D11DeviceContext* getContext() const;
 
+    CriticalSection& getCriticalSection();
     std::lock_guard<CriticalSection> lock();
 
 #pragma region D3D9 Device

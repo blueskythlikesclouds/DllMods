@@ -370,6 +370,11 @@ ID3D11DeviceContext* Device::getContext() const
     return deviceContext.Get();
 }
 
+CriticalSection& Device::getCriticalSection()
+{
+    return criticalSection;
+}
+
 std::lock_guard<CriticalSection> Device::lock()
 {
     return std::lock_guard(criticalSection);

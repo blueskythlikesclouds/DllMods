@@ -130,6 +130,7 @@
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="D3D9.cpp" />
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="IncludeImp.cpp" />
     <ClCompile Include="RenderTargetSurface.cpp" />
     <ClCompile Include="RenderTargetTexture.cpp" />
     <ClCompile Include="Resource.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Device.h" />
     <ClInclude Include="D3D9.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Include\GenerationsD3D11.h" />
     <ClInclude Include="ShaderCache.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="RenderTargetSurface.h" />
