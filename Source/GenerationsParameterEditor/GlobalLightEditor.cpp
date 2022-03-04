@@ -60,7 +60,7 @@ void GlobalLightEditor::update()
     
     boost::shared_ptr<Hedgehog::Mirage::CLightData> spGlobalLightData;
 
-    for (auto it = spLightListData->m_Lights.m_pBegin; it != spLightListData->m_Lights.m_pEnd; it++)
+    for (auto it = spLightListData->m_Lights.begin(); it != spLightListData->m_Lights.end(); it++)
     {
         if ((*it)->m_Type != Hedgehog::Mirage::eLightType_Directional)
             continue;
