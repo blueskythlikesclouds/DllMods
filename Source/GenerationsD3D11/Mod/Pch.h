@@ -2,6 +2,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 
+#include <BlueBlur.h>
+
 #if _DEBUG
 #define PRINT(x, ...) printf(x, __VA_ARGS__);
 #else
@@ -36,7 +38,6 @@
 #include <mutex>
 #include <vector>
 
-#include <BlueBlur.h>
 #include <Helpers.h>
 #include <INIReader.h>
 #include <LostCodeLoader.h>
