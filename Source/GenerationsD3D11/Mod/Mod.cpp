@@ -17,13 +17,8 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     ComPtr<ID3D11Resource> texture;
     ComPtr<ID3D11ShaderResourceView> srv;
 
-    HRESULT hr;
-    {
-        const auto lock = device->lock();
-
-        hr = DirectX::CreateDDSTextureFromMemory(device->get(), device->getContext(),
-            pData, length, texture.GetAddressOf(), srv.GetAddressOf());
-    }
+    HRESULT hr = DirectX::CreateDDSTextureFromMemory(device->get(), nullptr,
+        pData, length, texture.GetAddressOf(), srv.GetAddressOf());
 
     if (SUCCEEDED(hr))
     {
