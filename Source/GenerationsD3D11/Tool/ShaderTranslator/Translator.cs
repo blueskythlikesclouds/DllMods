@@ -56,7 +56,7 @@ namespace ShaderTranslator
             string disassembly;
             {
                 ID3DBlob blob;
-                Compiler.Disassemble(function, functionSize, 0x40, null, out blob);
+                Compiler.Disassemble(function, functionSize, 0x50, null, out blob);
                 disassembly = Marshal.PtrToStringAnsi(blob.GetBufferPointer());
             }
 
