@@ -126,6 +126,8 @@ HRESULT Texture::LockRect(UINT Level, D3DLOCKED_RECT* pLockedRect, CONST RECT* p
 {
     D3D11_MAPPED_SUBRESOURCE mappedSubResource;
 
+    const auto lock = device->lock();
+
     if (FAILED(device->getContext()->Map(resource.Get(), Level, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource)))
         return E_FAIL;
 
@@ -137,6 +139,8 @@ HRESULT Texture::LockRect(UINT Level, D3DLOCKED_RECT* pLockedRect, CONST RECT* p
 
 HRESULT Texture::UnlockRect(UINT Level)
 {
+    const auto lock = device->lock();
+
     device->getContext()->Unmap(resource.Get(), Level);
     return S_OK;
 }

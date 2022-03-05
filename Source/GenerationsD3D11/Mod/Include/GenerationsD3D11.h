@@ -2,23 +2,33 @@
 
 #include <d3d11.h>
 
+namespace DX_PATCH 
+{
+    class IDirect3DBaseTexture9;
+    class IDirect3DDevice9;
+    class IDirect3DResource9;
+}
+
 namespace GenerationsD3D11
 {
-    inline ID3D11Device* (*GetDevice)(void* dxpDevice);
-    inline ID3D11DeviceContext* (*GetDeviceContext)(void* dxpDevice);
+    inline ID3D11Device* (*GetDevice)(DX_PATCH::IDirect3DDevice9* dxpDevice);
+    inline ID3D11DeviceContext* (*GetDeviceContext)(DX_PATCH::IDirect3DDevice9* dxpDevice);
 
-    inline void(*LockDevice)(void* dxpDevice);
-    inline void(*UnlockDevice)(void* dxpDevice);
+    inline void(*LockDevice)(DX_PATCH::IDirect3DDevice9* dxpDevice);
+    inline void(*UnlockDevice)(DX_PATCH::IDirect3DDevice9* dxpDevice);
 
-    inline ID3D11Resource* (*GetResource)(void* dxpResource);
+    inline ID3D11Resource* (*GetResource)(DX_PATCH::IDirect3DResource9* dxpResource);
+    inline ID3D11ShaderResourceView* (*GetShaderResourceView)(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture);
+    inline ID3D11RenderTargetView* (*GetRenderTargetView)(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture);
+    inline ID3D11DepthStencilView* (*GetDepthStencilView)(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture);
 
     class LockGuard
     {
     protected:
-        void* dxpDevice;
+        DX_PATCH::IDirect3DDevice9* dxpDevice;
 
     public:
-        LockGuard(void* dxpDevice) : dxpDevice(dxpDevice)
+        LockGuard(DX_PATCH::IDirect3DDevice9* dxpDevice) : dxpDevice(dxpDevice)
         {
             if (dxpDevice)
                 LockDevice(dxpDevice);
@@ -48,6 +58,9 @@ namespace GenerationsD3D11
         any |= SetFunctionPointer(LockDevice, module, "GenerationsD3D11_LockDevice");
         any |= SetFunctionPointer(UnlockDevice, module, "GenerationsD3D11_UnlockDevice");
         any |= SetFunctionPointer(GetResource, module, "GenerationsD3D11_GetResource");
+        any |= SetFunctionPointer(GetShaderResourceView, module, "GenerationsD3D11_GetShaderResourceView");
+        any |= SetFunctionPointer(GetRenderTargetView, module, "GenerationsD3D11_GetRenderTargetView");
+        any |= SetFunctionPointer(GetDepthStencilView, module, "GenerationsD3D11_GetDepthStencilView");
 
         if (any)
         {

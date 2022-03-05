@@ -65,13 +65,19 @@ HOOK(HRESULT, __stdcall, FillTexture, 0xA55270, Texture* pTexture, LPD3DXFILL2D 
     ComPtr<ID3D11Texture2D> texture;
 
     if (FAILED(pTexture->getResource()->QueryInterface(IID_PPV_ARGS(texture.GetAddressOf()))))
+    {
+        pTexture->UnlockRect(0);
         return E_FAIL;
+    }
 
     D3D11_TEXTURE2D_DESC desc;
     texture->GetDesc(&desc);
 
     if (desc.Format != DXGI_FORMAT_B8G8R8A8_UNORM)
+    {
+        pTexture->UnlockRect(0);
         return E_FAIL;
+    }
 
     const Eigen::Vector2f texelSize(1.0f / (float)desc.Width, 1.0f / (float)desc.Height);
 
@@ -92,7 +98,6 @@ HOOK(HRESULT, __stdcall, FillTexture, 0xA55270, Texture* pTexture, LPD3DXFILL2D 
     }
 
     pTexture->UnlockRect(0);
-
     return S_OK;
 }
 
