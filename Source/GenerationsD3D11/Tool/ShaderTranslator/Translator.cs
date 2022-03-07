@@ -45,13 +45,19 @@ namespace ShaderTranslator
                     hash == 602606931u || hash == 781526840u);
         }
 
+        public static unsafe string Translate(byte[] function, out bool isPixelShader)
+        {
+            fixed (byte* ptr = function)
+                return Translate(ptr, function.Length, out isPixelShader);
+        }
+
         public static unsafe byte[] Translate(byte[] function)
         {
             fixed (byte* ptr = function)
                 return Translate(ptr, function.Length);
         }
 
-        public static unsafe byte[] Translate(void* function, int functionSize)
+        public static unsafe string Translate(void* function, int functionSize, out bool isPixelShader)
         {
             string disassembly;
             {
@@ -66,7 +72,7 @@ namespace ShaderTranslator
             for (i = 0; i < lines.Length; i++)
                 lines[i] = lines[i].Trim();
 
-            bool isPixelShader = false;
+            isPixelShader = false;
 
             var inSemantics = new Dictionary<string, string>();
             var outSemantics = new Dictionary<string, string>();
@@ -375,21 +381,28 @@ namespace ShaderTranslator
 
             stringBuilder.AppendLine("}");
 
-            string translated = stringBuilder.ToString();
-            {
-                ID3DBlob blob, errorBlob;
+            return stringBuilder.ToString();
+        }
 
-                int result = Compiler.Compile(translated, translated.Length, string.Empty, null, null, "main",
-                    isPixelShader ? "ps_5_0" : "vs_5_0", 0, 0, out blob, out errorBlob);
+        public static unsafe byte[] Translate(void* function, int functionSize)
+        {
+            return Compile(Translate(function, functionSize, out bool isPixelShader), isPixelShader);
+        }
 
-                if (result != 0 && errorBlob != null)
-                    throw new Exception(Marshal.PtrToStringAnsi(errorBlob.GetBufferPointer()));
+        public static unsafe byte[] Compile(string translated, bool isPixelShader)
+        {
+            ID3DBlob blob, errorBlob;
 
-                var bytes = new byte[blob.GetBufferSize()];
-                Marshal.Copy(blob.GetBufferPointer(), bytes, 0, blob.GetBufferSize());
+            int result = Compiler.Compile(translated, translated.Length, string.Empty, null, null, "main",
+                isPixelShader ? "ps_5_0" : "vs_5_0", 0, 0, out blob, out errorBlob);
 
-                return bytes;
-            }
+            if (result != 0 && errorBlob != null)
+                throw new Exception(Marshal.PtrToStringAnsi(errorBlob.GetBufferPointer()));
+
+            var bytes = new byte[blob.GetBufferSize()];
+            Marshal.Copy(blob.GetBufferPointer(), bytes, 0, blob.GetBufferSize());
+
+            return bytes;
         }
     }
 }
