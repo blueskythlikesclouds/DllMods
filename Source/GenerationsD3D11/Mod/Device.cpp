@@ -147,7 +147,9 @@ void Device::updatePipelineState()
         size_t j;
         for (j = i; j < _countof(textures) && dirty[DSI_Texture + j]; j++)
         {
-            setDSI(samplers[j].Filter, (D3D11_FILTER)(samplers[j].Filter & ~0x80), DSI_Sampler + j); // Cleanse sampler state
+            if (j < _countof(samplers))
+                setDSI(samplers[j].Filter, (D3D11_FILTER)(samplers[j].Filter & ~0x80), DSI_Sampler + j); // Cleanse sampler state
+
             shaderResourceViews[j - i] = textures[j] ? textures[j]->getSRV() : nullptr;
         }
 
