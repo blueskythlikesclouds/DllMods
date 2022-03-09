@@ -190,7 +190,7 @@ namespace ShaderTranslator
 
             stringBuilder.AppendLine("#define FLT_MAX asfloat(0x7f7fffff)\n");
 
-            stringBuilder.AppendLine("cbuffer global : register(b0) {");
+            stringBuilder.AppendFormat("cbuffer cbGlobals{0} : register(b0) {{", isPixelShader ? "PS" : "VS");
 
             foreach (var constant in constants)
             {
@@ -214,32 +214,19 @@ namespace ShaderTranslator
                         break;
 
                     case ConstantType.Bool:
-                        char swizzle = 'x';
-
-                        switch (constant.Register % 4)
-                        {
-                            case 1: swizzle = 'y'; break;
-                            case 2: swizzle = 'z'; break;
-                            case 3: swizzle = 'w'; break;
-                        }
-
-                        stringBuilder.AppendFormat("\tbool {0} : packoffset(c{1}.{2});\n", constant.Name,
-                            (isPixelShader ? 224 : 256) + constant.Register / 4, swizzle);
-
-                        constantMap.Add($"b{constant.Register}", constant.Name);
+                        stringBuilder.AppendFormat("#define {0} (1 << {1})\n", constant.Name, (isPixelShader ? 16 : 0) + constant.Register);
+                        constantMap.Add($"b{constant.Register}", $"g_Booleans & {constant.Name}");
                         break;
                 }
             }
 
             stringBuilder.AppendLine("}\n");
 
-            if (isPixelShader)
-            {
-                stringBuilder.AppendLine("cbuffer alpha_test : register(b1) {");
-                stringBuilder.AppendLine("\tbool enable_alpha_test;");
-                stringBuilder.AppendLine("\tfloat alpha_threshold;");
-                stringBuilder.AppendLine("}\n");
-            }
+            stringBuilder.AppendLine("cbuffer cbGlobalsShared : register(b1) {");
+            stringBuilder.AppendLine("\tuint g_Booleans;");
+            stringBuilder.AppendLine("\tbool g_EnableAlphaTest;");
+            stringBuilder.AppendLine("\tfloat g_AlphaThreshold;");
+            stringBuilder.AppendLine("}\n");
 
             if (samplers.Count > 0)
             {
@@ -370,8 +357,8 @@ namespace ShaderTranslator
 
             if (isPixelShader)
             {
-                stringBuilder.AppendLine("\n\tif (enable_alpha_test) {");
-                stringBuilder.AppendLine("\t\tclip(oC0.w - alpha_threshold);");
+                stringBuilder.AppendLine("\n\tif (g_EnableAlphaTest) {");
+                stringBuilder.AppendLine("\t\tclip(oC0.w - g_AlphaThreshold);");
                 stringBuilder.AppendLine("\t}");
             }
 
@@ -394,7 +381,7 @@ namespace ShaderTranslator
             ID3DBlob blob, errorBlob;
 
             int result = Compiler.Compile(translated, translated.Length, string.Empty, null, null, "main",
-                isPixelShader ? "ps_5_0" : "vs_5_0", 0, 0, out blob, out errorBlob);
+                isPixelShader ? "ps_5_0" : "vs_5_0", 1 << 15, 0, out blob, out errorBlob);
 
             if (result != 0 && errorBlob != null)
                 throw new Exception(Marshal.PtrToStringAnsi(errorBlob.GetBufferPointer()));

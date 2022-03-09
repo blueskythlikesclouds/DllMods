@@ -49,9 +49,11 @@ void Device::updatePipelineState()
 {
     if (dirty[DSI_ConstantBuffer])
     {
-        deviceContext->VSSetConstantBuffers(0, 1, vertexConstantsBuffer.GetAddressOf());
-        deviceContext->PSSetConstantBuffers(0, 1, pixelConstantsBuffer.GetAddressOf());
-        deviceContext->PSSetConstantBuffers(1, 1, alphaTestBuffer.GetAddressOf());
+        deviceContext->VSSetConstantBuffers(0, 1, globalsPSBuffer.GetAddressOf());
+        deviceContext->VSSetConstantBuffers(1, 1, globalsSharedBuffer.GetAddressOf());
+
+        deviceContext->PSSetConstantBuffers(0, 1, globalsVSBuffer.GetAddressOf());
+        deviceContext->PSSetConstantBuffers(1, 1, globalsSharedBuffer.GetAddressOf());
     }
 
     if (dirty[DSI_RenderTarget])
@@ -104,14 +106,6 @@ void Device::updatePipelineState()
         }
 
         deviceContext->RSSetState(rasterizerStateObj);
-    }
-
-    if (dirty[DSI_AlphaTest])
-    {
-        D3D11_MAPPED_SUBRESOURCE mappedSubResource;
-        deviceContext->Map(alphaTestBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
-        memcpy(mappedSubResource.pData, &alphaTestEnable, 8);
-        deviceContext->Unmap(alphaTestBuffer.Get(), 0);
     }
 
     if (dirty[DSI_BlendState])
@@ -205,22 +199,13 @@ void Device::updatePipelineState()
         deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), shader, enableInstancing));
     }
 
-    BOOL currHasBone = vertexConstants.b[0];
-    if (vertexDeclaration && enableInstancing)
-        currHasBone &= (BOOL)vertexDeclaration->getHasBone();
-
-    if (dirty[DSI_VertexConstant] || currHasBone != hasBone)
+    if (dirty[DSI_VertexConstant])
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
-        deviceContext->Map(vertexConstantsBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
-
-        memcpy(mappedSubResource.pData, &vertexConstants, sizeof(vertexConstants));
-        *(BOOL*)((char*)mappedSubResource.pData + offsetof(VertexConstants, b[0])) = currHasBone;
-
-        deviceContext->Unmap(vertexConstantsBuffer.Get(), 0);
+        deviceContext->Map(globalsPSBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
+        memcpy(mappedSubResource.pData, &globalsVS, sizeof(globalsVS));
+        deviceContext->Unmap(globalsPSBuffer.Get(), 0);
     }
-
-    hasBone = currHasBone;
 
     if (dirty[DSI_VertexBuffer])
     {
@@ -242,10 +227,28 @@ void Device::updatePipelineState()
     if (dirty[DSI_PixelConstant])
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
-        deviceContext->Map(pixelConstantsBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
-        memcpy(mappedSubResource.pData, &pixelConstants, sizeof(pixelConstants));
-        deviceContext->Unmap(pixelConstantsBuffer.Get(), 0);
+        deviceContext->Map(globalsVSBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
+        memcpy(mappedSubResource.pData, &globalsPS, sizeof(globalsPS));
+        deviceContext->Unmap(globalsVSBuffer.Get(), 0);
     }
+
+    bool currHasBone = (globalsShared.booleans & mrgHasBone) != 0;
+    if (vertexDeclaration && enableInstancing)
+        currHasBone &= vertexDeclaration->getHasBone();
+
+    if (dirty[DSI_SharedConstant] || currHasBone != hasBone)
+    {
+        D3D11_MAPPED_SUBRESOURCE mappedSubResource;
+        deviceContext->Map(globalsSharedBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
+
+        *(UINT*)mappedSubResource.pData = (globalsShared.booleans & ~mrgHasBone) | (currHasBone ? mrgHasBone : 0);
+        memcpy((char*)mappedSubResource.pData + offsetof(GlobalsShared, enableAlphaTest), &globalsShared.enableAlphaTest,
+               sizeof(GlobalsShared) - offsetof(GlobalsShared, enableAlphaTest));
+
+        deviceContext->Unmap(globalsSharedBuffer.Get(), 0);
+    }
+
+    hasBone = currHasBone;
 
     memset(dirty, 0, sizeof(dirty));
 }
@@ -345,17 +348,17 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
     }
 
     D3D11_BUFFER_DESC bufferDesc{};
-    bufferDesc.ByteWidth = (sizeof(vertexConstants) + 16) & ~0xF;
+    bufferDesc.ByteWidth = (sizeof(globalsVS) + 15) & ~15;
     bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    device->CreateBuffer(&bufferDesc, nullptr, vertexConstantsBuffer.GetAddressOf());
+    device->CreateBuffer(&bufferDesc, nullptr, globalsPSBuffer.GetAddressOf());
 
-    bufferDesc.ByteWidth = (sizeof(pixelConstants) + 16) & ~0xF;
-    device->CreateBuffer(&bufferDesc, nullptr, pixelConstantsBuffer.GetAddressOf());
+    bufferDesc.ByteWidth = (sizeof(globalsPS) + 15) & ~15;
+    device->CreateBuffer(&bufferDesc, nullptr, globalsVSBuffer.GetAddressOf());
 
-    bufferDesc.ByteWidth = 16;
-    device->CreateBuffer(&bufferDesc, nullptr, alphaTestBuffer.GetAddressOf());
+    bufferDesc.ByteWidth = (sizeof(globalsShared) + 15) & ~15;
+    device->CreateBuffer(&bufferDesc, nullptr, globalsSharedBuffer.GetAddressOf());
 
     fvfVertexShader.Attach(new VertexShader(device.Get(), ShaderData((void*)g_fvf_vs_main, sizeof(g_fvf_vs_main), 0)));
 
@@ -681,7 +684,7 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
         break;
 
     case D3DRS_ALPHATESTENABLE:
-        setDSI(alphaTestEnable, (BOOL)Value, DSI_AlphaTest);
+        setDSI(globalsShared.enableAlphaTest, (BOOL)Value, DSI_SharedConstant);
         break;
 
     case D3DRS_SRCBLEND:
@@ -701,7 +704,7 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
         break;
 
     case D3DRS_ALPHAREF:
-        setDSI(alphaRef, (float)Value / 255.0f, DSI_AlphaTest);
+        setDSI(globalsShared.alphaThreshold, (float)Value / 255.0f, DSI_SharedConstant);
         break;
 
     case D3DRS_ALPHABLENDENABLE:
@@ -992,7 +995,7 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShader, VertexShader** ppShader)
 
 HRESULT Device::SetVertexShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
 {
-    memcpy(&vertexConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
+    memcpy(&globalsVS.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
     dirty[DSI_VertexConstant] = true;
 
     return S_OK;
@@ -1009,8 +1012,10 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantI, UINT StartRegister, int
 
 HRESULT Device::SetVertexShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT BoolCount)
 {
-    memcpy(&vertexConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL));
-    dirty[DSI_VertexConstant] = true;
+    const size_t mask = 1 << StartRegister;
+    const size_t value = pConstantData[0] << StartRegister;
+
+    setDSI(globalsShared.booleans, (globalsShared.booleans & ~mask) | value, DSI_SharedConstant);
 
     return S_OK;
 }
@@ -1065,7 +1070,7 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShader, PixelShader** ppShader)
 
 HRESULT Device::SetPixelShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
 {
-    memcpy(&pixelConstants.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
+    memcpy(&globalsPS.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
     dirty[DSI_PixelConstant] = true;
 
     return S_OK;
@@ -1082,8 +1087,10 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShaderConstantI, UINT StartRegister, int*
 
 HRESULT Device::SetPixelShaderConstantB(UINT StartRegister, CONST BOOL* pConstantData, UINT  BoolCount)
 {
-    memcpy(&pixelConstants.b[StartRegister], pConstantData, BoolCount * sizeof(BOOL));
-    dirty[DSI_PixelConstant] = true;
+    const size_t mask = 1 << (16 + StartRegister);
+    const size_t value = pConstantData[0] << (16 + StartRegister);
+
+    setDSI(globalsShared.booleans, (globalsShared.booleans & ~mask) | value, DSI_SharedConstant);
 
     return S_OK;
 }

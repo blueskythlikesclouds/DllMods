@@ -21,16 +21,23 @@ typedef Buffer IndexBuffer;
 
 typedef ID3D11PixelShader PixelShader;
 
-struct alignas(16) VertexConstants
+struct alignas(16) GlobalsVS
 {
     FLOAT c[256][4];
-    BOOL b[16];
 };
 
-struct alignas(16) PixelConstants
+struct alignas(16) GlobalsPS
 {
     FLOAT c[224][4];
-    BOOL b[16];
+};
+
+#define mrgHasBone (1 << 0)
+
+struct alignas(16) GlobalsShared
+{
+    UINT booleans;
+    BOOL enableAlphaTest;
+    float alphaThreshold;
 };
 
 class Device : public Unknown
@@ -47,15 +54,13 @@ class Device : public Unknown
     D3D11_VIEWPORT viewport{};
     D3D11_DEPTH_STENCIL_DESC depthStencilState{};
     D3D11_RASTERIZER_DESC rasterizerState{};
-    BOOL alphaTestEnable{};
-    FLOAT alphaRef{};
     D3D11_BLEND_DESC blendState{};
     ComPtr<Texture> textures[32];
     D3D11_SAMPLER_DESC samplers[16]{};
     D3D11_RECT scissorRect{};
     D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
     ComPtr<VertexDeclaration> vertexDeclaration;
-    VertexConstants vertexConstants{};
+    GlobalsVS globalsVS{};
     BOOL hasBone{};
     ComPtr<VertexShader> vertexShader;
     ComPtr<ID3D11Buffer> vertexBuffers[8];
@@ -65,7 +70,8 @@ class Device : public Unknown
     bool enableInstancing{};
     ComPtr<IndexBuffer> indexBuffer;
     ComPtr<PixelShader> pixelShader;
-    PixelConstants pixelConstants{};
+    GlobalsPS globalsPS{};
+    GlobalsShared globalsShared{};
 
     std::unordered_map<XXH32_hash_t, ComPtr<ID3D11DepthStencilState>> depthStencilStates;
     std::unordered_map<XXH32_hash_t, ComPtr<ID3D11RasterizerState>> rasterizerStates;
@@ -73,9 +79,9 @@ class Device : public Unknown
     std::unordered_map<XXH32_hash_t, ComPtr<ID3D11SamplerState>> samplerStates;
     std::unordered_map<uint32_t, ComPtr<VertexDeclaration>> fvfMap;
 
-    ComPtr<ID3D11Buffer> vertexConstantsBuffer;
-    ComPtr<ID3D11Buffer> pixelConstantsBuffer;
-    ComPtr<ID3D11Buffer> alphaTestBuffer;
+    ComPtr<ID3D11Buffer> globalsPSBuffer;
+    ComPtr<ID3D11Buffer> globalsVSBuffer;
+    ComPtr<ID3D11Buffer> globalsSharedBuffer;
 
     ComPtr<ID3D11Buffer> uploadVertexBuffer;
     size_t uploadVertexBufferSize{};
@@ -89,7 +95,6 @@ class Device : public Unknown
         DSI_Viewport,
         DSI_DepthStencilState,
         DSI_RasterizerState,
-        DSI_AlphaTest,
         DSI_BlendState,
         DSI_Texture,
         DSI_Sampler = DSI_Texture + _countof(textures),
@@ -101,6 +106,7 @@ class Device : public Unknown
         DSI_IndexBuffer,
         DSI_PixelShader,
         DSI_PixelConstant,
+        DSI_SharedConstant,
         DSI_Count,
     };
 
