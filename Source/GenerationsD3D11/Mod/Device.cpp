@@ -344,7 +344,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
     for (auto& sampler : samplers)
     {
         sampler = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-        sampler.ComparisonFunc = D3D11_COMPARISON_LESS;
+        sampler.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
     }
 
     D3D11_BUFFER_DESC bufferDesc{};
