@@ -222,9 +222,13 @@ namespace ShaderTranslator
 
             stringBuilder.AppendLine("}\n");
 
+            stringBuilder.AppendLine("#define SHARED_FLAGS_ENABLE_ALPHA_TEST (1 << 0)");
+            stringBuilder.AppendLine("#define SHARED_FLAGS_HAS_10_BIT_NORMAL (1 << 1)");
+            stringBuilder.AppendLine("#define SHARED_FLAGS_HAS_BINORMAL      (1 << 2)\n");
+
             stringBuilder.AppendLine("cbuffer cbGlobalsShared : register(b1) {");
             stringBuilder.AppendLine("\tuint g_Booleans;");
-            stringBuilder.AppendLine("\tbool g_EnableAlphaTest;");
+            stringBuilder.AppendLine("\tuint g_Flags;");
             stringBuilder.AppendLine("\tfloat g_AlphaThreshold;");
             stringBuilder.AppendLine("}\n");
 
@@ -357,7 +361,7 @@ namespace ShaderTranslator
 
             if (isPixelShader)
             {
-                stringBuilder.AppendLine("\n\tif (g_EnableAlphaTest) {");
+                stringBuilder.AppendLine("\n\tif (g_Flags & SHARED_FLAGS_ENABLE_ALPHA_TEST) {");
                 stringBuilder.AppendLine("\t\tclip(oC0.w - g_AlphaThreshold);");
                 stringBuilder.AppendLine("\t}");
             }

@@ -38,6 +38,11 @@ VertexDeclaration::VertexDeclaration(const D3DVERTEXELEMENT9* pVertexElements) :
 
         hasBone |= pVertexElements[i].Usage == D3DDECLUSAGE_BLENDWEIGHT || 
             pVertexElements[i].Usage == D3DDECLUSAGE_BLENDINDICES;
+
+        has10BitNormal |= pVertexElements[i].Type == D3DDECLTYPE_UDEC3 ||
+            pVertexElements[i].Type == D3DDECLTYPE_DEC3N;
+
+        hasBinormal |= pVertexElements[i].Usage == D3DDECLUSAGE_BINORMAL;
     }
 
     vertexElements = std::make_unique<D3DVERTEXELEMENT9[]>(inputElements.size() + 1);
@@ -84,6 +89,16 @@ VertexDeclaration::VertexDeclaration(DWORD FVF) : isFVF(true)
     }
 
     inputElements.shrink_to_fit();
+}
+
+bool VertexDeclaration::getHas10BitNormal() const
+{
+    return has10BitNormal;
+}
+
+bool VertexDeclaration::getHasBinormal() const
+{
+    return hasBinormal;
 }
 
 bool VertexDeclaration::getHasBone() const

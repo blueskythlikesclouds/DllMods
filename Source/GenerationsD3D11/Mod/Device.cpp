@@ -217,8 +217,8 @@ void Device::flush()
         deviceContext->Map(globalsSharedBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
 
         *(UINT*)mappedSubResource.pData = (globalsShared.booleans & ~mrgHasBone) | (currHasBone ? mrgHasBone : 0);
-        memcpy((char*)mappedSubResource.pData + offsetof(GlobalsShared, enableAlphaTest), &globalsShared.enableAlphaTest,
-               sizeof(GlobalsShared) - offsetof(GlobalsShared, enableAlphaTest));
+        memcpy((char*)mappedSubResource.pData + offsetof(GlobalsShared, flags), &globalsShared.flags,
+               sizeof(GlobalsShared) - offsetof(GlobalsShared, flags));
 
         deviceContext->Unmap(globalsSharedBuffer.Get(), 0);
     }
@@ -691,7 +691,7 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
         break;
 
     case D3DRS_ALPHATESTENABLE:
-        setDirty(globalsShared.enableAlphaTest, (BOOL)Value, DirtySharedConstant);
+        setDirty(globalsShared.flags, globalsShared.flags & ~SHARED_FLAGS_ENABLE_ALPHA_TEST | (Value ? SHARED_FLAGS_ENABLE_ALPHA_TEST : 0), DirtySharedConstant);
         break;
 
     case D3DRS_SRCBLEND:
@@ -973,6 +973,17 @@ HRESULT Device::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexElements
 HRESULT Device::SetVertexDeclaration(VertexDeclaration* pDecl)
 {
     setDirty(vertexDeclaration, pDecl, DirtyVertexShader);
+
+    // Totally not for the PBR shaders mod, nuh-huh.
+    UINT flags = globalsShared.flags & ~(SHARED_FLAGS_HAS_10_BIT_NORMAL | SHARED_FLAGS_HAS_BINORMAL);
+    if (pDecl)
+    {
+        if (pDecl->getHas10BitNormal()) flags |= SHARED_FLAGS_HAS_10_BIT_NORMAL;
+        if (pDecl->getHasBinormal()) flags |= SHARED_FLAGS_HAS_BINORMAL;
+    }
+
+    setDirty(globalsShared.flags, flags, DirtySharedConstant);
+
     return S_OK;
 }
 

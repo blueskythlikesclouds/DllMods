@@ -33,10 +33,14 @@ struct alignas(16) GlobalsPS
 
 #define mrgHasBone (1 << 0)
 
+#define SHARED_FLAGS_ENABLE_ALPHA_TEST (1 << 0)
+#define SHARED_FLAGS_HAS_10_BIT_NORMAL (1 << 1)
+#define SHARED_FLAGS_HAS_BINORMAL      (1 << 2)
+
 struct alignas(16) GlobalsShared
 {
     UINT booleans;
-    BOOL enableAlphaTest;
+    UINT flags;
     float alphaThreshold;
 };
 
