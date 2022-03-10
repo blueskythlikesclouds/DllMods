@@ -61,7 +61,7 @@ class Device : public Unknown
     D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
     ComPtr<VertexDeclaration> vertexDeclaration;
     GlobalsVS globalsVS{};
-    BOOL hasBone{};
+    bool hasBone{};
     ComPtr<VertexShader> vertexShader;
     ComPtr<ID3D11Buffer> vertexBuffers[8];
     UINT vertexStrides[_countof(vertexBuffers)]{};
@@ -88,47 +88,56 @@ class Device : public Unknown
 
     ComPtr<VertexShader> fvfVertexShader;
 
-    enum DirtyStateIndex
+    enum Dirty
     {
-        DSI_ConstantBuffer,
-        DSI_RenderTarget,
-        DSI_Viewport,
-        DSI_DepthStencilState,
-        DSI_RasterizerState,
-        DSI_BlendState,
-        DSI_Texture,
-        DSI_Sampler = DSI_Texture + _countof(textures),
-        DSI_ScissorRect = DSI_Sampler + _countof(samplers),
-        DSI_PrimitiveTopology,
-        DSI_VertexShader,
-        DSI_VertexConstant,
-        DSI_VertexBuffer,
-        DSI_IndexBuffer,
-        DSI_PixelShader,
-        DSI_PixelConstant,
-        DSI_SharedConstant,
-        DSI_Count,
+        DirtyRenderTarget,
+        DirtyViewport,
+        DirtyDepthStencilState,
+        DirtyRasterizerState,
+        DirtyBlendState,
+        DirtyTexture,
+        DirtySampler,
+        DirtyScissorRect,
+        DirtyPrimitiveTopology,
+        DirtyVertexShader,
+        DirtyVertexConstant,
+        DirtyVertexBuffer,
+        DirtyIndexBuffer,
+        DirtyPixelShader,
+        DirtyPixelConstant,
+        DirtySharedConstant,
     };
 
-    bool dirty[DSI_Count];
+    size_t dirty;
+    size_t dirtyTextures;
+    size_t dirtySamplers;
 
-    void updatePipelineState();
-    void setDSI(void* dest, const void* src, size_t byteSize, size_t dirtyStateIndex);
+    void flush();
+    void setDirty(void* dest, const void* src, size_t byteSize, size_t dirtyStateIndex);
 
     template<typename T>
-    void setDSI(T& dest, const T src, const size_t dirtyStateIndex)
+    void setDirty(T& dest, const T src, const size_t dirtyStateIndex)
     {
-        setDSI(&dest, &src, sizeof(T), dirtyStateIndex);
+        setDirty(&dest, &src, sizeof(T), dirtyStateIndex);
     }
 
     template<typename T>
-    void setDSI(ComPtr<T>& dest, T* src, const size_t dirtyStateIndex)
+    void setDirty(ComPtr<T>& dest, T* src, const size_t dirtyStateIndex)
     {
         if (dest.Get() == src)
             return;
 
-        dirty[dirtyStateIndex] = true;
+        dirty |= 1 << dirtyStateIndex;
         dest = src;
+    }
+
+    void setTexture(Texture* texture, size_t index);
+    void setSamplerState(void* dest, const void* src, size_t byteSize, size_t index);
+
+    template<typename T>
+    void setSamplerState(T& dest, const T src, const size_t index)
+    {
+        setSamplerState(&dest, &src, sizeof(T), index);
     }
 
     void invalidateDirtyStates();

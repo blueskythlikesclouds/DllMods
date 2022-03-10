@@ -45,18 +45,9 @@ UINT calculateIndexCount(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount)
     return vertexCount;
 }
 
-void Device::updatePipelineState()
+void Device::flush()
 {
-    if (dirty[DSI_ConstantBuffer])
-    {
-        deviceContext->VSSetConstantBuffers(0, 1, globalsPSBuffer.GetAddressOf());
-        deviceContext->VSSetConstantBuffers(1, 1, globalsSharedBuffer.GetAddressOf());
-
-        deviceContext->PSSetConstantBuffers(0, 1, globalsVSBuffer.GetAddressOf());
-        deviceContext->PSSetConstantBuffers(1, 1, globalsSharedBuffer.GetAddressOf());
-    }
-
-    if (dirty[DSI_RenderTarget])
+    if (dirty & (1 << DirtyRenderTarget))
     {
         ID3D11RenderTargetView* renderTargetViews[_countof(renderTargets)];
 
@@ -67,10 +58,10 @@ void Device::updatePipelineState()
         deviceContext->OMSetRenderTargets(i, renderTargetViews, depthStencil ? depthStencil->getDSV() : nullptr);
     }
 
-    if (dirty[DSI_Viewport])
+    if (dirty & (1 << DirtyViewport))
         deviceContext->RSSetViewports(1, &viewport);
 
-    if (dirty[DSI_DepthStencilState])
+    if (dirty & (1 << DirtyDepthStencilState))
     {
         const XXH32_hash_t hash = XXH32(&depthStencilState, sizeof(depthStencilState), 0);
         const auto pair = depthStencilStates.find(hash);
@@ -89,7 +80,7 @@ void Device::updatePipelineState()
         deviceContext->OMSetDepthStencilState(depthStencilStateObj, 0);
     }
 
-    if (dirty[DSI_RasterizerState])
+    if (dirty & (1 << DirtyRasterizerState))
     {
         const XXH32_hash_t hash = XXH32(&rasterizerState, sizeof(rasterizerState), 0);
         const auto pair = rasterizerStates.find(hash);
@@ -108,7 +99,7 @@ void Device::updatePipelineState()
         deviceContext->RSSetState(rasterizerStateObj);
     }
 
-    if (dirty[DSI_BlendState])
+    if (dirty & (1 << DirtyBlendState))
     {
         const XXH32_hash_t hash = XXH32(&blendState, sizeof(blendState), 0);
         const auto pair = blendStates.find(hash);
@@ -128,70 +119,50 @@ void Device::updatePipelineState()
         deviceContext->OMSetBlendState(blendStateObj, blendFactor, ~0);
     }
 
-    for (size_t i = 0; i < _countof(textures);)
+    if (dirty & (1 << DirtyTexture))
     {
-        if (!dirty[DSI_Texture + i])
+        for (size_t i = 0; i < _countof(textures); i++)
         {
-            ++i;
-            continue;
+            if (!(dirtyTextures & (1 << i)))
+                continue;
+
+            ID3D11ShaderResourceView* shaderResourceView = textures[i] ? textures[i]->getSRV() : nullptr;
+            deviceContext->PSSetShaderResources(i, 1, &shaderResourceView);
         }
-
-        ID3D11ShaderResourceView* shaderResourceViews[_countof(textures)];
-
-        size_t j;
-        for (j = i; j < _countof(textures) && dirty[DSI_Texture + j]; j++)
-        {
-            if (j < _countof(samplers))
-                setDSI(samplers[j].Filter, (D3D11_FILTER)(samplers[j].Filter & ~0x80), DSI_Sampler + j); // Cleanse sampler state
-
-            shaderResourceViews[j - i] = textures[j] ? textures[j]->getSRV() : nullptr;
-        }
-
-        deviceContext->PSSetShaderResources(i, j - i, shaderResourceViews);
-        i = j + 1;
     }
 
-    for (size_t i = 0; i < _countof(samplers);)
+    if (dirty & (1 << DirtySampler))
     {
-        if (!dirty[DSI_Sampler + i])
+        for (size_t i = 0; i < _countof(samplers); i++)
         {
-            ++i;
-            continue;
-        }
+            if (!(dirtySamplers & (1 << i)))
+                continue;
 
-        ID3D11SamplerState* samplerStateObjs[_countof(samplers)];
-
-        size_t j;
-        for (j = i; j < _countof(samplers) && dirty[DSI_Sampler + j]; j++)
-        {
-            // g_ShadowMapSampler/g_VerticalShadowMapSampler
-            if ((j == 7 || j == 13) && textures[j] && textures[j]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
-                samplers[j].Filter = (D3D11_FILTER)(samplers[j].Filter | 0x80);
-
-            const XXH32_hash_t hash = XXH32(&samplers[j], sizeof(samplers[j]), 0);
+            const XXH32_hash_t hash = XXH32(&samplers[i], sizeof(samplers[i]), 0);
             const auto pair = samplerStates.find(hash);
 
+            ID3D11SamplerState* samplerStateObj;
+
             if (pair != samplerStates.end())
-                samplerStateObjs[j - i] = pair->second.Get();
+                samplerStateObj = pair->second.Get();
             else
             {
-                device->CreateSamplerState(&samplers[j], &samplerStateObjs[j - i]);
-                samplerStates.insert(std::make_pair(hash, samplerStateObjs[j - i]));
-                samplerStateObjs[j - i]->Release();
+                device->CreateSamplerState(&samplers[i], &samplerStateObj);
+                samplerStates.insert(std::make_pair(hash, samplerStateObj));
+                samplerStateObj->Release();
             }
-        }
 
-        deviceContext->PSSetSamplers(i, j - i, samplerStateObjs);
-        i = j + 1;
+            deviceContext->PSSetSamplers(i, 1, &samplerStateObj);
+        }
     }
 
-    if (dirty[DSI_ScissorRect])
+    if (dirty & (1 << DirtyScissorRect))
         deviceContext->RSSetScissorRects(1, &scissorRect);
 
-    if (dirty[DSI_PrimitiveTopology])
+    if (dirty & (1 << DirtyPrimitiveTopology))
         deviceContext->IASetPrimitiveTopology(primitiveTopology);
 
-    if (dirty[DSI_VertexShader] && vertexDeclaration)
+    if (dirty & (1 << DirtyVertexShader) && vertexDeclaration)
     {
         const VertexShader* shader = !vertexShader || vertexDeclaration->getIsFVF() ? fvfVertexShader.Get() : vertexShader.Get();
 
@@ -199,7 +170,7 @@ void Device::updatePipelineState()
         deviceContext->IASetInputLayout(vertexDeclaration->getInputLayout(device.Get(), shader, enableInstancing));
     }
 
-    if (dirty[DSI_VertexConstant])
+    if (dirty & (1 << DirtyVertexConstant))
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
         deviceContext->Map(globalsPSBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
@@ -207,7 +178,7 @@ void Device::updatePipelineState()
         deviceContext->Unmap(globalsPSBuffer.Get(), 0);
     }
 
-    if (dirty[DSI_VertexBuffer])
+    if (dirty & (1 << DirtyVertexBuffer))
     {
         ID3D11Buffer* buffers[_countof(vertexBuffers)];
 
@@ -218,13 +189,13 @@ void Device::updatePipelineState()
         deviceContext->IASetVertexBuffers(0, i, buffers, vertexStrides, vertexOffsets);
     }
 
-    if (dirty[DSI_IndexBuffer] && indexBuffer)
+    if (dirty & (1 << DirtyIndexBuffer) && indexBuffer)
         deviceContext->IASetIndexBuffer(reinterpret_cast<ID3D11Buffer*>(indexBuffer->getResource()), indexBuffer->getFormat(), 0);
 
-    if (dirty[DSI_PixelShader] && pixelShader)
+    if (dirty & (1 << DirtyPixelShader) && pixelShader)
         deviceContext->PSSetShader(pixelShader.Get(), nullptr, 0);
 
-    if (dirty[DSI_PixelConstant])
+    if (dirty & (1 << DirtyPixelConstant))
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
         deviceContext->Map(globalsVSBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
@@ -236,7 +207,7 @@ void Device::updatePipelineState()
     if (vertexDeclaration && enableInstancing)
         currHasBone &= vertexDeclaration->getHasBone();
 
-    if (dirty[DSI_SharedConstant] || currHasBone != hasBone)
+    if (dirty & (1 << DirtySharedConstant) || currHasBone != hasBone)
     {
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
         deviceContext->Map(globalsSharedBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
@@ -250,21 +221,53 @@ void Device::updatePipelineState()
 
     hasBone = currHasBone;
 
-    memset(dirty, 0, sizeof(dirty));
+    dirty = 0;
+    dirtyTextures = 0;
+    dirtySamplers = 0;
 }
 
-void Device::setDSI(void* dest, const void* src, const size_t byteSize, const size_t dirtyStateIndex)
+void Device::setDirty(void* dest, const void* src, const size_t byteSize, const size_t dirtyStateIndex)
 {
     if (memcmp(dest, src, byteSize) == 0)
         return;
 
-    dirty[dirtyStateIndex] = true;
     memcpy(dest, src, byteSize);
+    dirty |= 1 << dirtyStateIndex;
+}
+
+void Device::setTexture(Texture* texture, const size_t index)
+{
+    if (textures[index].Get() == texture)
+        return;
+
+    textures[index] = texture;
+    dirty |= 1 << DirtyTexture;
+    dirtyTextures |= 1 << index;
+}
+
+void Device::setSamplerState(void* dest, const void* src, const size_t byteSize, const size_t index)
+{
+    if (memcmp(dest, src, byteSize) == 0)
+        return;
+
+    memcpy(dest, src, byteSize);
+    dirty |= 1 << DirtySampler;
+    dirtySamplers |= 1 << index;
 }
 
 void Device::invalidateDirtyStates()
 {
-    memset(dirty, ~0, sizeof(dirty));
+    dirty = ~0;
+    dirtyTextures = ~0;
+    dirtySamplers = ~0;
+
+    LOCK_GUARD();
+
+    deviceContext->VSSetConstantBuffers(0, 1, globalsPSBuffer.GetAddressOf());
+    deviceContext->VSSetConstantBuffers(1, 1, globalsSharedBuffer.GetAddressOf());
+
+    deviceContext->PSSetConstantBuffers(0, 1, globalsVSBuffer.GetAddressOf());
+    deviceContext->PSSetConstantBuffers(1, 1, globalsSharedBuffer.GetAddressOf());
 }
 
 bool Device::reserveUploadVertexBuffer(const void* data, const size_t size)
@@ -549,7 +552,7 @@ HRESULT Device::CreateOffscreenPlainSurface(UINT Width, UINT Height, D3DFORMAT F
 
 HRESULT Device::SetRenderTarget(DWORD RenderTargetIndex, Surface* pRenderTarget)
 {
-    setDSI(renderTargets[RenderTargetIndex], pRenderTarget ? reinterpret_cast<RenderTargetSurface*>(pRenderTarget)->getTexture() : nullptr, DSI_RenderTarget);
+    setDirty(renderTargets[RenderTargetIndex], pRenderTarget ? reinterpret_cast<RenderTargetSurface*>(pRenderTarget)->getTexture() : nullptr, DirtyRenderTarget);
     return S_OK;
 }
 
@@ -560,7 +563,7 @@ HRESULT Device::GetRenderTarget(DWORD RenderTargetIndex, Surface** ppRenderTarge
 
 HRESULT Device::SetDepthStencilSurface(Surface* pNewZStencil)
 {
-    setDSI(depthStencil, pNewZStencil ? reinterpret_cast<DepthStencilSurface*>(pNewZStencil)->getTexture() : nullptr, DSI_RenderTarget);
+    setDirty(depthStencil, pNewZStencil ? reinterpret_cast<DepthStencilSurface*>(pNewZStencil)->getTexture() : nullptr, DirtyRenderTarget);
     return S_OK;
 }
 
@@ -635,7 +638,7 @@ HRESULT Device::SetViewport(CONST D3DVIEWPORT9* pViewport)
     newViewport.MinDepth = pViewport->MinZ;
     newViewport.MaxDepth = pViewport->MaxZ;
 
-    setDSI(&viewport, &newViewport, sizeof(D3D11_VIEWPORT), DSI_Viewport);
+    setDirty(&viewport, &newViewport, sizeof(D3D11_VIEWPORT), DirtyViewport);
     return S_OK;
 }
 
@@ -672,83 +675,83 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
     switch (State)
     {
     case D3DRS_ZENABLE:
-        setDSI(depthStencilState.DepthEnable, (BOOL)Value, DSI_DepthStencilState);
+        setDirty(depthStencilState.DepthEnable, (BOOL)Value, DirtyDepthStencilState);
         break;
 
     case D3DRS_FILLMODE:
-        setDSI(rasterizerState.FillMode, (D3D11_FILL_MODE)Value, DSI_RasterizerState);
+        setDirty(rasterizerState.FillMode, (D3D11_FILL_MODE)Value, DirtyRasterizerState);
         break;
 
     case D3DRS_ZWRITEENABLE:
-        setDSI(depthStencilState.DepthWriteMask, (D3D11_DEPTH_WRITE_MASK)Value, DSI_DepthStencilState);
+        setDirty(depthStencilState.DepthWriteMask, (D3D11_DEPTH_WRITE_MASK)Value, DirtyDepthStencilState);
         break;
 
     case D3DRS_ALPHATESTENABLE:
-        setDSI(globalsShared.enableAlphaTest, (BOOL)Value, DSI_SharedConstant);
+        setDirty(globalsShared.enableAlphaTest, (BOOL)Value, DirtySharedConstant);
         break;
 
     case D3DRS_SRCBLEND:
-        setDSI(blendState.RenderTarget[0].SrcBlend, (D3D11_BLEND)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[0].SrcBlend, (D3D11_BLEND)Value, DirtyBlendState);
         break;
 
     case D3DRS_DESTBLEND:
-        setDSI(blendState.RenderTarget[0].DestBlend, (D3D11_BLEND)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[0].DestBlend, (D3D11_BLEND)Value, DirtyBlendState);
         break;
 
     case D3DRS_CULLMODE:
-        setDSI(rasterizerState.CullMode, (D3D11_CULL_MODE)Value, DSI_RasterizerState);
+        setDirty(rasterizerState.CullMode, (D3D11_CULL_MODE)Value, DirtyRasterizerState);
         break;
 
     case D3DRS_ZFUNC:
-        setDSI(depthStencilState.DepthFunc, (D3D11_COMPARISON_FUNC)Value, DSI_DepthStencilState);
+        setDirty(depthStencilState.DepthFunc, (D3D11_COMPARISON_FUNC)Value, DirtyDepthStencilState);
         break;
 
     case D3DRS_ALPHAREF:
-        setDSI(globalsShared.alphaThreshold, (float)Value / 255.0f, DSI_SharedConstant);
+        setDirty(globalsShared.alphaThreshold, (float)Value / 255.0f, DirtySharedConstant);
         break;
 
     case D3DRS_ALPHABLENDENABLE:
-        setDSI(blendState.RenderTarget[0].BlendEnable, (BOOL)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[0].BlendEnable, (BOOL)Value, DirtyBlendState);
         break;
 
     case D3DRS_COLORWRITEENABLE:
-        setDSI(blendState.RenderTarget[0].RenderTargetWriteMask, (UINT8)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[0].RenderTargetWriteMask, (UINT8)Value, DirtyBlendState);
         break;
 
     case D3DRS_BLENDOP:
-        setDSI(blendState.RenderTarget[0].BlendOp, (D3D11_BLEND_OP)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[0].BlendOp, (D3D11_BLEND_OP)Value, DirtyBlendState);
         break;
 
     case D3DRS_SLOPESCALEDEPTHBIAS:
-        setDSI(rasterizerState.SlopeScaledDepthBias, *(float*)&Value, DSI_RasterizerState);
+        setDirty(rasterizerState.SlopeScaledDepthBias, *(float*)&Value, DirtyRasterizerState);
         break;
 
     case D3DRS_COLORWRITEENABLE1:
-        setDSI(blendState.RenderTarget[1].RenderTargetWriteMask, (UINT8)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[1].RenderTargetWriteMask, (UINT8)Value, DirtyBlendState);
         break;
 
     case D3DRS_COLORWRITEENABLE2:
-        setDSI(blendState.RenderTarget[2].RenderTargetWriteMask, (UINT8)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[2].RenderTargetWriteMask, (UINT8)Value, DirtyBlendState);
         break;
 
     case D3DRS_COLORWRITEENABLE3: 
-        setDSI(blendState.RenderTarget[3].RenderTargetWriteMask, (UINT8)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[3].RenderTargetWriteMask, (UINT8)Value, DirtyBlendState);
         break;
 
     case D3DRS_DEPTHBIAS:
-        setDSI(rasterizerState.DepthBias, (INT)(*(float*)&Value * (1 << 24)), DSI_RasterizerState);
+        setDirty(rasterizerState.DepthBias, (INT)(*(float*)&Value * (1 << 24)), DirtyRasterizerState);
         break;
 
     case D3DRS_SRCBLENDALPHA:
-        setDSI(blendState.RenderTarget[0].SrcBlendAlpha, (D3D11_BLEND)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[0].SrcBlendAlpha, (D3D11_BLEND)Value, DirtyBlendState);
         break;
 
     case D3DRS_DESTBLENDALPHA:
-        setDSI(blendState.RenderTarget[0].DestBlendAlpha, (D3D11_BLEND)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[0].DestBlendAlpha, (D3D11_BLEND)Value, DirtyBlendState);
         break;
 
     case D3DRS_BLENDOPALPHA:
-        setDSI(blendState.RenderTarget[0].BlendOpAlpha, (D3D11_BLEND_OP)Value, DSI_BlendState);
+        setDirty(blendState.RenderTarget[0].BlendOpAlpha, (D3D11_BLEND_OP)Value, DirtyBlendState);
         break;
     }
 
@@ -771,7 +774,19 @@ FUNCTION_STUB(HRESULT, Device::GetTexture, DWORD Stage, BaseTexture** ppTexture)
 
 HRESULT Device::SetTexture(DWORD Stage, BaseTexture* pTexture)
 {
-    setDSI(textures[Stage], reinterpret_cast<Texture*>(pTexture), DSI_Texture + Stage);
+    setTexture(reinterpret_cast<Texture*>(pTexture), Stage);
+
+    // g_VerticalShadowMapSampler/g_ShadowMapSampler
+    if (Stage == 7 || Stage == 13)
+    {
+        size_t filter = samplers[Stage].Filter & ~0x80;
+        
+        if (textures[Stage] && textures[Stage]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
+            filter |= 0x80; // Comparison state
+
+        setSamplerState(samplers[Stage].Filter, (D3D11_FILTER)filter, Stage);
+    }
+
     return S_OK;
 }
 
@@ -789,15 +804,15 @@ HRESULT Device::SetSamplerState(DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD V
     switch (Type)
     {
     case D3DSAMP_ADDRESSU:
-        setDSI(samplers[Sampler].AddressU, (D3D11_TEXTURE_ADDRESS_MODE)Value, DSI_Sampler + Sampler);
+        setSamplerState(samplers[Sampler].AddressU, (D3D11_TEXTURE_ADDRESS_MODE)Value, Sampler);
         break;
 
     case D3DSAMP_ADDRESSV:
-        setDSI(samplers[Sampler].AddressV, (D3D11_TEXTURE_ADDRESS_MODE)Value, DSI_Sampler + Sampler);
+        setSamplerState(samplers[Sampler].AddressV, (D3D11_TEXTURE_ADDRESS_MODE)Value, Sampler);
         break;
 
     case D3DSAMP_ADDRESSW:
-        setDSI(samplers[Sampler].AddressW, (D3D11_TEXTURE_ADDRESS_MODE)Value, DSI_Sampler + Sampler);
+        setSamplerState(samplers[Sampler].AddressW, (D3D11_TEXTURE_ADDRESS_MODE)Value, Sampler);
         break;
 
     case D3DSAMP_BORDERCOLOR:
@@ -807,30 +822,30 @@ HRESULT Device::SetSamplerState(DWORD Sampler, D3DSAMPLERSTATETYPE Type, DWORD V
         color[0] = ((Value >> 16) & 0xFF) / 255.0f;
         color[3] = ((Value >> 24) & 0xFF) / 255.0f;
 
-        setDSI(samplers[Sampler].BorderColor, color, sizeof(samplers[Sampler].BorderColor), DSI_Sampler + Sampler);
+        setSamplerState(samplers[Sampler].BorderColor, color, sizeof(samplers[Sampler].BorderColor), Sampler);
         break;
 
     case D3DSAMP_MAGFILTER:
         if (Value == D3DTEXF_LINEAR)
-            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x4), DSI_Sampler + Sampler);
+            setSamplerState(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x4), Sampler);
         else
-            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x4), DSI_Sampler + Sampler);
+            setSamplerState(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x4), Sampler);
 
         break;
 
     case D3DSAMP_MINFILTER:
         if (Value == D3DTEXF_LINEAR)
-            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x10), DSI_Sampler + Sampler);
+            setSamplerState(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x10), Sampler);
         else
-            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x10), DSI_Sampler + Sampler);
+            setSamplerState(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x10), Sampler);
 
         break;
 
     case D3DSAMP_MIPFILTER:
         if (Value == D3DTEXF_LINEAR)
-            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x1), DSI_Sampler + Sampler);
+            setSamplerState(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter | 0x1), Sampler);
         else
-            setDSI(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x1), DSI_Sampler + Sampler);
+            setSamplerState(samplers[Sampler].Filter, (D3D11_FILTER)(samplers[Sampler].Filter & ~0x1), Sampler);
 
         break;
         
@@ -856,7 +871,7 @@ HRESULT Device::SetScissorRect(CONST RECT* pRect)
     newScissorRect.right = pRect->right;
     newScissorRect.bottom = pRect->bottom;
 
-    setDSI(&scissorRect, &newScissorRect, sizeof(D3D11_RECT), DSI_ScissorRect);
+    setDirty(&scissorRect, &newScissorRect, sizeof(D3D11_RECT), DirtyScissorRect);
     return S_OK;
 }
 
@@ -875,10 +890,10 @@ HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, 
     if (PrimitiveType > D3DPT_TRIANGLESTRIP)
         return S_OK;
 
-    setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
+    setDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyPrimitiveTopology);
 
     LOCK_GUARD();
-    updatePipelineState();
+    flush();
 
     if (enableInstancing)
         deviceContext->DrawInstanced(calculateIndexCount(PrimitiveType, PrimitiveCount), instanceCount, StartVertex, 0);
@@ -893,10 +908,10 @@ HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVer
     if (PrimitiveType > D3DPT_TRIANGLESTRIP)
         return S_OK;
 
-    setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
+    setDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyPrimitiveTopology);
 
     LOCK_GUARD();
-    updatePipelineState();
+    flush();
 
     if (enableInstancing)
         deviceContext->DrawIndexedInstanced(calculateIndexCount(PrimitiveType, primCount), instanceCount, startIndex, BaseVertexIndex, 0);
@@ -911,9 +926,9 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
     if (PrimitiveType > D3DPT_TRIANGLESTRIP)
         return S_OK;
 
-    setDSI(vertexStrides[0], VertexStreamZeroStride, DSI_VertexBuffer);
-    setDSI(vertexOffsets[0], 0u, DSI_VertexBuffer);
-    setDSI(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DSI_PrimitiveTopology);
+    setDirty(vertexStrides[0], VertexStreamZeroStride, DirtyVertexBuffer);
+    setDirty(vertexOffsets[0], 0u, DirtyVertexBuffer);
+    setDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyPrimitiveTopology);
 
     // Calculate total byte size
     const UINT vertexCount = calculateIndexCount(PrimitiveType, PrimitiveCount); // index count == vertex count
@@ -932,10 +947,10 @@ HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCo
     }
 
     // Set first vertex buffer
-    setDSI(vertexBuffers[0], uploadVertexBuffer.Get(), DSI_VertexBuffer);
+    setDirty(vertexBuffers[0], uploadVertexBuffer.Get(), DirtyVertexBuffer);
 
     // Draw
-    updatePipelineState();
+    flush();
     deviceContext->Draw(vertexCount, 0);
 
     return S_OK;
@@ -953,7 +968,7 @@ HRESULT Device::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9* pVertexElements
 
 HRESULT Device::SetVertexDeclaration(VertexDeclaration* pDecl)
 {
-    setDSI(vertexDeclaration, pDecl, DSI_VertexShader);
+    setDirty(vertexDeclaration, pDecl, DirtyVertexShader);
     return S_OK;
 }
 
@@ -973,7 +988,7 @@ HRESULT Device::SetFVF(DWORD FVF)
         fvfMap.insert(std::make_pair(FVF, fvf));
     }
 
-    setDSI(vertexDeclaration, fvf.Get(), DSI_VertexShader);
+    setDirty(vertexDeclaration, fvf.Get(), DirtyVertexShader);
     return S_OK;
 }
 
@@ -987,7 +1002,7 @@ HRESULT Device::CreateVertexShader(CONST DWORD* pFunction, VertexShader** ppShad
 
 HRESULT Device::SetVertexShader(VertexShader* pShader)
 {
-    setDSI(vertexShader, pShader, DSI_VertexShader);
+    setDirty(vertexShader, pShader, DirtyVertexShader);
     return S_OK;
 }
 
@@ -996,7 +1011,7 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShader, VertexShader** ppShader)
 HRESULT Device::SetVertexShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
 {
     memcpy(&globalsVS.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
-    dirty[DSI_VertexConstant] = true;
+    dirty |= 1 << DirtyVertexConstant;
 
     return S_OK;
 }
@@ -1015,7 +1030,7 @@ HRESULT Device::SetVertexShaderConstantB(UINT StartRegister, CONST BOOL* pConsta
     const size_t mask = 1 << StartRegister;
     const size_t value = pConstantData[0] << StartRegister;
 
-    setDSI(globalsShared.booleans, (globalsShared.booleans & ~mask) | value, DSI_SharedConstant);
+    setDirty(globalsShared.booleans, (globalsShared.booleans & ~mask) | value, DirtySharedConstant);
 
     return S_OK;
 }
@@ -1024,9 +1039,9 @@ FUNCTION_STUB(HRESULT, Device::GetVertexShaderConstantB, UINT StartRegister, BOO
 
 HRESULT Device::SetStreamSource(UINT StreamNumber, VertexBuffer* pStreamData, UINT OffsetInBytes, UINT Stride)
 {
-    setDSI(vertexBuffers[StreamNumber], pStreamData ? reinterpret_cast<ID3D11Buffer*>(pStreamData->getResource()) : nullptr, DSI_VertexBuffer);
-    setDSI(vertexStrides[StreamNumber], Stride, DSI_VertexBuffer);
-    setDSI(vertexOffsets[StreamNumber], OffsetInBytes, DSI_VertexBuffer);
+    setDirty(vertexBuffers[StreamNumber], pStreamData ? reinterpret_cast<ID3D11Buffer*>(pStreamData->getResource()) : nullptr, DirtyVertexBuffer);
+    setDirty(vertexStrides[StreamNumber], Stride, DirtyVertexBuffer);
+    setDirty(vertexOffsets[StreamNumber], OffsetInBytes, DirtyVertexBuffer);
 
     return S_OK;
 }
@@ -1038,7 +1053,7 @@ HRESULT Device::SetStreamSourceFreq(UINT StreamNumber, UINT Setting)
     if (StreamNumber != 0)
         return S_OK;
 
-    setDSI(enableInstancing, (Setting & D3DSTREAMSOURCE_INDEXEDDATA) != 0, DSI_VertexShader);
+    setDirty(enableInstancing, (Setting & D3DSTREAMSOURCE_INDEXEDDATA) != 0, DirtyVertexShader);
     instanceCount = Setting & 0x3FFFFFFF;
 
     return S_OK;
@@ -1048,7 +1063,7 @@ FUNCTION_STUB(HRESULT, Device::GetStreamSourceFreq, UINT StreamNumber, UINT* pSe
 
 HRESULT Device::SetIndices(IndexBuffer* pIndexData)
 {
-    setDSI(indexBuffer, pIndexData, DSI_IndexBuffer);
+    setDirty(indexBuffer, pIndexData, DirtyIndexBuffer);
     return S_OK;
 }
 
@@ -1062,7 +1077,7 @@ HRESULT Device::CreatePixelShader(CONST DWORD* pFunction, PixelShader** ppShader
 
 HRESULT Device::SetPixelShader(PixelShader* pShader)
 {
-    setDSI(pixelShader, pShader, DSI_PixelShader);
+    setDirty(pixelShader, pShader, DirtyPixelShader);
     return S_OK;
 }
 
@@ -1071,7 +1086,7 @@ FUNCTION_STUB(HRESULT, Device::GetPixelShader, PixelShader** ppShader)
 HRESULT Device::SetPixelShaderConstantF(UINT StartRegister, CONST float* pConstantData, UINT Vector4fCount)
 {
     memcpy(&globalsPS.c[StartRegister], pConstantData, Vector4fCount * sizeof(FLOAT[4]));
-    dirty[DSI_PixelConstant] = true;
+    dirty |= 1 << DirtyPixelConstant;
 
     return S_OK;
 }
@@ -1090,7 +1105,7 @@ HRESULT Device::SetPixelShaderConstantB(UINT StartRegister, CONST BOOL* pConstan
     const size_t mask = 1 << (16 + StartRegister);
     const size_t value = pConstantData[0] << (16 + StartRegister);
 
-    setDSI(globalsShared.booleans, (globalsShared.booleans & ~mask) | value, DSI_SharedConstant);
+    setDirty(globalsShared.booleans, (globalsShared.booleans & ~mask) | value, DirtySharedConstant);
 
     return S_OK;
 }
