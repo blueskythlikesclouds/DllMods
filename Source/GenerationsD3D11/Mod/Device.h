@@ -44,49 +44,6 @@ class Device : public Unknown
 {
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> deviceContext;
-    CriticalSection criticalSection;
-
-    std::unique_ptr<SwapChain> swapChain;
-    UINT syncInterval;
-
-    ComPtr<RenderTargetTexture> renderTargets[4]{};
-    ComPtr<DepthStencilTexture> depthStencil{};
-    D3D11_VIEWPORT viewport{};
-    D3D11_DEPTH_STENCIL_DESC depthStencilState{};
-    D3D11_RASTERIZER_DESC rasterizerState{};
-    D3D11_BLEND_DESC blendState{};
-    ComPtr<Texture> textures[32];
-    D3D11_SAMPLER_DESC samplers[16]{};
-    D3D11_RECT scissorRect{};
-    D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
-    ComPtr<VertexDeclaration> vertexDeclaration;
-    GlobalsVS globalsVS{};
-    bool hasBone{};
-    ComPtr<VertexShader> vertexShader;
-    ComPtr<ID3D11Buffer> vertexBuffers[8];
-    UINT vertexStrides[_countof(vertexBuffers)]{};
-    UINT vertexOffsets[_countof(vertexBuffers)]{};
-    UINT instanceCount{1};
-    bool enableInstancing{};
-    ComPtr<IndexBuffer> indexBuffer;
-    ComPtr<PixelShader> pixelShader;
-    GlobalsPS globalsPS{};
-    GlobalsShared globalsShared{};
-
-    std::unordered_map<XXH32_hash_t, ComPtr<ID3D11DepthStencilState>> depthStencilStates;
-    std::unordered_map<XXH32_hash_t, ComPtr<ID3D11RasterizerState>> rasterizerStates;
-    std::unordered_map<XXH32_hash_t, ComPtr<ID3D11BlendState>> blendStates;
-    std::unordered_map<XXH32_hash_t, ComPtr<ID3D11SamplerState>> samplerStates;
-    std::unordered_map<uint32_t, ComPtr<VertexDeclaration>> fvfMap;
-
-    ComPtr<ID3D11Buffer> globalsPSBuffer;
-    ComPtr<ID3D11Buffer> globalsVSBuffer;
-    ComPtr<ID3D11Buffer> globalsSharedBuffer;
-
-    ComPtr<ID3D11Buffer> uploadVertexBuffer;
-    size_t uploadVertexBufferSize{};
-
-    ComPtr<VertexShader> fvfVertexShader;
 
     enum Dirty
     {
@@ -111,6 +68,45 @@ class Device : public Unknown
     size_t dirty;
     size_t dirtyTextures;
     size_t dirtySamplers;
+
+    ComPtr<ID3D11Buffer> uploadVertexBuffer;
+    size_t uploadVertexBufferSize{};
+    ComPtr<ID3D11Buffer> globalsPSBuffer;
+    ComPtr<ID3D11Buffer> globalsVSBuffer;
+    ComPtr<ID3D11Buffer> globalsSharedBuffer;
+    ComPtr<VertexShader> fvfVertexShader;
+
+    CriticalSection criticalSection;
+
+    ComPtr<RenderTargetTexture> renderTargets[4]{};
+    ComPtr<DepthStencilTexture> depthStencil{};
+    D3D11_VIEWPORT viewport{};
+    D3D11_DEPTH_STENCIL_DESC depthStencilState{};
+    D3D11_RASTERIZER_DESC rasterizerState{};
+    D3D11_BLEND_DESC blendState{};
+    ComPtr<Texture> textures[32];
+    D3D11_SAMPLER_DESC samplers[16]{};
+    D3D11_RECT scissorRect{};
+    D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
+    ComPtr<VertexDeclaration> vertexDeclaration;
+    bool hasBone{};
+    ComPtr<VertexShader> vertexShader;
+    ComPtr<ID3D11Buffer> vertexBuffers[8];
+    UINT vertexStrides[_countof(vertexBuffers)]{};
+    UINT vertexOffsets[_countof(vertexBuffers)]{};
+    UINT instanceCount{1};
+    bool enableInstancing{};
+    ComPtr<IndexBuffer> indexBuffer;
+    ComPtr<PixelShader> pixelShader;
+
+    std::unordered_map<XXH32_hash_t, ComPtr<ID3D11DepthStencilState>> depthStencilStates;
+    std::unordered_map<XXH32_hash_t, ComPtr<ID3D11RasterizerState>> rasterizerStates;
+    std::unordered_map<XXH32_hash_t, ComPtr<ID3D11BlendState>> blendStates;
+    std::unordered_map<XXH32_hash_t, ComPtr<ID3D11SamplerState>> samplerStates;
+    std::unordered_map<uint32_t, ComPtr<VertexDeclaration>> fvfMap;
+
+    std::unique_ptr<SwapChain> swapChain;
+    UINT syncInterval;
 
     void flush();
     void setDirty(void* dest, const void* src, size_t byteSize, size_t dirtyStateIndex);

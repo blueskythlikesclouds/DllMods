@@ -45,6 +45,10 @@ UINT calculateIndexCount(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount)
     return vertexCount;
 }
 
+alignas(64) GlobalsVS globalsVS;
+alignas(64) GlobalsPS globalsPS;
+alignas(64) GlobalsShared globalsShared;
+
 void Device::flush()
 {
     if (dirty & (1 << DirtyRenderTarget))
