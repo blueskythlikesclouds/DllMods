@@ -17,8 +17,8 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     ComPtr<ID3D11Resource> texture;
     ComPtr<ID3D11ShaderResourceView> srv;
 
-    HRESULT hr = DirectX::CreateDDSTextureFromMemory(device->get(), nullptr,
-        pData, length, texture.GetAddressOf(), srv.GetAddressOf());
+    HRESULT hr = DirectX::CreateDDSTextureFromMemoryEx(device->get(), nullptr,
+        pData, length, 0, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, texture.GetAddressOf(), srv.GetAddressOf());
 
     if (SUCCEEDED(hr))
     {
