@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <mutex>
 
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
@@ -21,3 +22,29 @@
 #include <INIReader.h>
 
 #include <Helpers.h>
+
+class CriticalSection
+{
+public:
+	CRITICAL_SECTION criticalSection;
+
+	CriticalSection()
+	{
+		InitializeCriticalSection(&criticalSection);
+	}
+
+	~CriticalSection()
+	{
+		DeleteCriticalSection(&criticalSection);
+	}
+
+	void lock()
+	{
+		EnterCriticalSection(&criticalSection);
+	}
+
+	void unlock()
+	{
+		LeaveCriticalSection(&criticalSection);
+	}
+};

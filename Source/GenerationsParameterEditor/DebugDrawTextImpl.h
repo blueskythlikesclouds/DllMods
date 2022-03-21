@@ -22,6 +22,7 @@ protected:
         Color color;
     };
 
+    static CriticalSection criticalSection;
     static std::list<Text> texts;
 
     ~DebugDrawTextImpl() = default;

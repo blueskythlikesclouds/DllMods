@@ -12,16 +12,19 @@ DebugDrawText* DebugDrawText::getInstanceImpl()
     return new DebugDrawTextImpl();
 }
 
+CriticalSection DebugDrawTextImpl::criticalSection;
 std::list<DebugDrawTextImpl::Text> DebugDrawTextImpl::texts;
 bool DebugDrawTextImpl::visible = true;
 
 void DebugDrawTextImpl::drawImpl(const char* text, const Location& location, float size, const Color& color)
 {
+    std::lock_guard lock(criticalSection);
     texts.push_back({ TextType::Free, text, 0, 0, location, size, color });
 }
 
 void DebugDrawTextImpl::logImpl(const char* text, const float time, const size_t priority, const Color& color)
 {
+    std::lock_guard lock(criticalSection);
     texts.push_back({ TextType::Grouped, text, time, priority, {0, 0}, 1, color });
 }
 
@@ -36,6 +39,8 @@ inline ImU32 getImGuiColor(const DebugDrawText::Color& color)
 
 void DebugDrawTextImpl::update()
 {
+    std::lock_guard lock(criticalSection);
+
     ImGuiIO& io = ImGui::GetIO();
 
     for (auto it = texts.begin(); it != texts.end();)

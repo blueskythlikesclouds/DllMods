@@ -76,7 +76,7 @@ protected:
 };
 
 // Define this before including the .h file in your project
-#ifdef DEBUG_DRAW_TEXT_DLL_IMPORT
+#ifndef DEBUG_DRAW_TEXT_DLL_EXPORT
 
 inline DebugDrawText* DebugDrawText::getInstanceImpl()
 {
