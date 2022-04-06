@@ -101,6 +101,38 @@ HOOK(HRESULT, __stdcall, FillTexture, 0xA55270, Texture* pTexture, LPD3DXFILL2D 
     return S_OK;
 }
 
+const uint16_t groundSmokeParticleIndexBuffer[] =
+{
+    0, 1, 2,
+    0, 2, 3,
+    0, 3, 4,
+    0, 4, 5
+};
+
+constexpr size_t groundSmokeParticleIndexBufferCount = _countof(groundSmokeParticleIndexBuffer);
+constexpr size_t groundSmokeParticleIndexBufferSize = sizeof(groundSmokeParticleIndexBuffer);
+
+// Release mode fails to compile when calling memcpy in inline assembly.
+void __stdcall memcpyTrampoline(void* _Dst, void const* _Src, size_t _Size)
+{
+    memcpy(_Dst, _Src, _Size);
+}
+
+void __declspec(naked) groundSmokeParticleCopyIndexBufferMidAsmHook()
+{
+    static uint32_t returnAddr = 0x11A37CC;
+
+    __asm
+    {
+        push groundSmokeParticleIndexBufferSize
+        push offset groundSmokeParticleIndexBuffer
+        push ecx
+        call memcpyTrampoline
+
+        jmp[returnAddr]
+    }
+}
+
 HOOK(D3D9*, __cdecl, Direct3DCreate, 0xA5EDD0, UINT SDKVersion)
 {
     return new D3D9(SDKVersion);
@@ -180,6 +212,13 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
 
     WRITE_MEMORY(0x744FF3, uint8_t, 0x8B, 0x43, 0x08, 0x90, 0x90);
     WRITE_NOP(0x7450D2, 5);
+
+    // Smoke effect uses triangle fans, patch the index buffer to use triangles instead
+    WRITE_MEMORY(0x11A379C, uint8_t, groundSmokeParticleIndexBufferSize);
+    WRITE_MEMORY(0x11A37B0, uint8_t, groundSmokeParticleIndexBufferSize);
+    WRITE_JUMP(0x11A37C0, groundSmokeParticleCopyIndexBufferMidAsmHook);
+    WRITE_MEMORY(0x11A2C63, uint8_t, groundSmokeParticleIndexBufferCount / 3);
+    WRITE_MEMORY(0x11A2C6D, uint8_t, D3DPT_TRIANGLELIST);
 
 #if _DEBUG
     INSTALL_HOOK(MyOutputDebugStringA);
