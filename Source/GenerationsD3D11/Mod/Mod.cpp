@@ -168,6 +168,19 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
     ShaderCache::init(dir);
     ShaderCache::load();
 
+#if _DEBUG
+    INSTALL_HOOK(MyOutputDebugStringA);
+    INSTALL_HOOK(MyOutputDebugStringW);
+
+    if (!GetConsoleWindow())
+        AllocConsole();
+
+    freopen("CONOUT$", "w", stdout);
+#endif
+}
+
+extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to prevent D3D9Ex conflict
+{
     MemoryHandler::applyPatches();
 
     INSTALL_HOOK(LoadPictureData);
@@ -219,14 +232,4 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
     WRITE_JUMP(0x11A37C0, groundSmokeParticleCopyIndexBufferMidAsmHook);
     WRITE_MEMORY(0x11A2C63, uint8_t, groundSmokeParticleIndexBufferCount / 3);
     WRITE_MEMORY(0x11A2C6D, uint8_t, D3DPT_TRIANGLELIST);
-
-#if _DEBUG
-    INSTALL_HOOK(MyOutputDebugStringA);
-    INSTALL_HOOK(MyOutputDebugStringW);
-
-    if (!GetConsoleWindow())
-        AllocConsole();
-
-    freopen("CONOUT$", "w", stdout);
-#endif
 }
