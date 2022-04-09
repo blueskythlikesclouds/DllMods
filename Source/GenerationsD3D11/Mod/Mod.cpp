@@ -39,9 +39,9 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     pPictureData->m_Flags |= hh::db::eDatabaseDataFlags_IsMadeOne;
 }
 
-HOOK(void, __fastcall, GameplayFlowDebugInitExit, 0xD0BA70, void* This)
+HOOK(void, __fastcall, GameplayFlowStageEnter, 0xD05530, void* This)
 {
-    originalGameplayFlowDebugInitExit(This);
+    originalGameplayFlowStageEnter(This);
 
     ShaderCache::save();
     ShaderCache::clean();
@@ -221,7 +221,7 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
     MemoryHandler::applyPatches();
 
     INSTALL_HOOK(LoadPictureData);
-    INSTALL_HOOK(GameplayFlowDebugInitExit);
+    INSTALL_HOOK(GameplayFlowStageEnter);
     INSTALL_HOOK(FillTexture);
     INSTALL_HOOK(Direct3DCreate);
 
@@ -290,6 +290,6 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
     WRITE_MEMORY(0x1059F92, uint8_t, 0x64);
     WRITE_MEMORY(0x1059FB1, uint8_t, 0x68);
 
-    // Patch SFD decode function to copy data when data is valid.
+    // Patch SFD decode function to copy data when it's valid.
     WRITE_JUMP(0x1059130, sfdDecodeTrampoline);
 }
