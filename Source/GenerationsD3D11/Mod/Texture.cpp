@@ -146,3 +146,14 @@ HRESULT Texture::UnlockRect(UINT Level)
 }
 
 FUNCTION_STUB(HRESULT, Texture::AddDirtyRect, CONST RECT* pDirtyRect)
+
+HRESULT Texture::BeginSfdDecodeCallback(uintptr_t, Texture*& texture, uintptr_t, uintptr_t)
+{
+    texture = this;
+    return S_OK;
+}
+
+HRESULT Texture::EndSfdDecodeCallback(uintptr_t)
+{
+    return S_OK;
+}
