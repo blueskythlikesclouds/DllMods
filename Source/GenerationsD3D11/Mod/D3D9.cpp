@@ -65,7 +65,7 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
     if (displayMode != DisplayMode::Windowed && *(uint8_t*)0xA5EB5B != 0x89) // Check if Borderless Fullscreen patch is enabled in HMM
         displayMode = DisplayMode::BorderlessFullscreen;
 
-    LONG_PTR windowStyle = GetWindowLong(pPresentationParameters->hDeviceWindow, GWL_STYLE);
+    LONG_PTR windowStyle = WS_POPUP;
 
     MONITORINFO monitorInfo;
     monitorInfo.cbSize = sizeof(MONITORINFO);
