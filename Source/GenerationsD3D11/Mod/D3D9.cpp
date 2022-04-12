@@ -106,8 +106,6 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
             if (!Configuration::allowResizeInWindowed)
                 windowStyle &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
         }
-        else
-            windowStyle = WS_POPUP;
     }
     else
     {
@@ -128,12 +126,17 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
     pPresentationParameters->Windowed = TRUE;
 
     *ppReturnedDeviceInterface = new Device(pPresentationParameters, scaling);
-    (*ppReturnedDeviceInterface)->Present(nullptr, nullptr, nullptr, nullptr);
+
+    // Force the window to the foreground.
+    const DWORD windowThreadProcessId = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+    const DWORD currentThreadId = GetCurrentThreadId();
+    AttachThreadInput(windowThreadProcessId, currentThreadId, TRUE);
+    BringWindowToTop(pPresentationParameters->hDeviceWindow);
+    ShowWindow(pPresentationParameters->hDeviceWindow, SW_SHOW);
+    AttachThreadInput(windowThreadProcessId, currentThreadId, FALSE);
 
     SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | windowStyle);
     SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_TOP, x, y, width, height, SWP_FRAMECHANGED);
-    SetForegroundWindow(pPresentationParameters->hDeviceWindow);
-    SetFocus(pPresentationParameters->hDeviceWindow);
 
     // In windowed, title bar and border are included when setting width/height. Let's fix that and not be like Lost World/Forces.
     if (displayMode == DisplayMode::Windowed)

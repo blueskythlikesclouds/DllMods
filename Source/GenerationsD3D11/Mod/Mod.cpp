@@ -170,6 +170,11 @@ void __declspec(naked) sfdDecodeTrampoline()
     }
 }
 
+HICON __stdcall LoadIconImpl(HINSTANCE hInstance, LPCSTR lpIconName)
+{
+    return LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(2057));
+}
+
 HOOK(D3D9*, __cdecl, Direct3DCreate, 0xA5EDD0, UINT SDKVersion)
 {
     return new D3D9(SDKVersion);
@@ -224,6 +229,10 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
     INSTALL_HOOK(GameplayFlowStageEnter);
     INSTALL_HOOK(FillTexture);
     INSTALL_HOOK(Direct3DCreate);
+
+    // Patch the window function to load the icon in the executable.
+    WRITE_CALL(0xE7B843, LoadIconImpl);
+    WRITE_NOP(0xE7B848, 1);
 
     // Hide window when it's first created because it's not a pleasant sight to see it centered/resized afterwards.
     WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
