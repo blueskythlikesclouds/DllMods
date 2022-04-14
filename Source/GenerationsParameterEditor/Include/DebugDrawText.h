@@ -75,7 +75,6 @@ protected:
     void logImpl(const char* text, float time, size_t priority, const Color& color) override {}
 };
 
-// Define this before including the .h file in your project
 #ifndef DEBUG_DRAW_TEXT_DLL_EXPORT
 
 inline DebugDrawText* DebugDrawText::getInstanceImpl()
