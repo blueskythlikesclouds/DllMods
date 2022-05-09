@@ -213,12 +213,43 @@ void __declspec(naked) CSonicStateDriftDriftingSoundMidAsmHook()
 // Choose left/right intro animation appropriately
 //
 
+bool __fastcall ShouldDriftStartChangeAnimation()
+{
+    void* sonicContext = *(void**)0x1E5E2F0;
+    MsgGetAnimationInfo msgGetAnimationInfo{};
+    CSonicSpeedProcMsgGetAnimationInfo(*(void**)((uint8_t*)sonicContext + 0x110), &msgGetAnimationInfo);
+
+    // Return false if current animation is already drift, but true if it's ending
+    return (strstr(msgGetAnimationInfo.name, "Drift") == nullptr || strstr(msgGetAnimationInfo.name, "DriftEnd") != nullptr);
+}
+
 uint32_t CSonicStateDriftDriftingLoopAnimationMidAsmHookReturnAddress = 0xDF35F3;
 
 void __declspec(naked) CSonicStateDriftDriftingLoopAnimationMidAsmHook()
 {
+    static size_t skipAnimDriftR = 0xDF3611;
+    static size_t skipAnimDriftL = 0xDF3644;
     __asm
     {
+        // check if change anim
+        push ebx
+        call [ShouldDriftStartChangeAnimation]
+        pop ebx
+
+        test al,al
+        jnz changeAnim
+
+        fldz
+        fxch st(1)
+        lea ecx, [esp + 0x40 - 0x2C]
+        fcomip st, st(1)
+        fstp st
+        jbe skipDriftL
+        jmp [skipAnimDriftR]
+    skipDriftL:
+        jmp [skipAnimDriftL]
+
+    changeAnim:
         fldz
         fxch st(1)
         lea ecx, [esp + 0x40 - 0x2C]
@@ -244,9 +275,12 @@ void __declspec(naked) CSonicStateDriftDriftingLoopAnimationMidAsmHook()
 // Handle Water -> Ground drift sound transition
 //
 
+bool wasDriftRight = false;
+float driftDirectionTime = 0.0f;
 HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, void* This)
 {
     void* sonicContext = *(void**)((uint32_t)*(void**)((uint32_t)This + 8) + 8);
+    float elapsedTime = *(float*)(*(uint32_t*)((uint32_t)This + 12) + 36);
 
     const uint32_t cueId = getDriftCueId();
     if (currentDriftCueId != cueId)
@@ -267,8 +301,39 @@ HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, void* This)
     MsgGetAnimationInfo msgGetAnimationInfo {};
     CSonicSpeedProcMsgGetAnimationInfo(*(void**)((uint8_t*)sonicContext + 0x110), &msgGetAnimationInfo);
 
-    if (strstr(msgGetAnimationInfo.name, "DriftStart") != nullptr && msgGetAnimationInfo.frame >= driftStartFinalFrame)
-        CSonicContextChangeAnimation(sonicContext, GetSonicStateFlags()->DriftRight ? DriftR : DriftL);
+    if (strstr(msgGetAnimationInfo.name, "DriftStartL") != nullptr && msgGetAnimationInfo.frame >= driftStartFinalFrame)
+    {
+        CSonicContextChangeAnimation(sonicContext, DriftL);
+    }
+    else if (strstr(msgGetAnimationInfo.name, "DriftStartR") != nullptr && msgGetAnimationInfo.frame >= driftStartFinalFrame)
+    {
+        CSonicContextChangeAnimation(sonicContext, DriftR);
+    }
+     
+    bool driftRight = GetSonicStateFlags()->DriftRight;
+    if (wasDriftRight != driftRight)
+    {
+        // Reset timer if switching direction
+        driftDirectionTime = 0.0f;
+        wasDriftRight = driftRight;
+    }
+    else
+    {
+        driftDirectionTime += elapsedTime;
+        if (driftDirectionTime > 0.4f)
+        {
+            if (strstr(msgGetAnimationInfo.name, "DriftL") != nullptr && driftRight)
+            {
+                driftDirectionTime = 0.0f;
+                CSonicContextChangeAnimation(sonicContext, DriftStartR);
+            }
+            else if (strstr(msgGetAnimationInfo.name, "DriftR") != nullptr && !driftRight)
+            {
+                driftDirectionTime = 0.0f;
+                CSonicContextChangeAnimation(sonicContext, DriftStartL);
+            }
+        }
+    }
 
     static float intervalTime = 0.0f;
     if (intervalTime > 0.07f)
@@ -294,6 +359,7 @@ HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, void* This)
 
 HOOK(void, __fastcall, CSonicStateDriftOnLeave, 0xDF2D20, void* This)
 {
+    driftDirectionTime = 0.0f;
     void* sonicContext = *(void**)0x1E5E2F0;
 
     MsgGetAnimationInfo msgGetAnimationInfo {};
@@ -350,28 +416,33 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, void* This, void* Edx, void
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 // Restore sea-spray sound when boosting on water // 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-
+static SharedPtrTypeless seaSpraySoundHandle;
 HOOK(void, __fastcall, CSonicStatePluginOnWaterUpdate, 0x119BED0, void* This)
 {
-	static SharedPtrTypeless soundHandle;
-
 	CSonicStateFlags* flags = GetSonicStateFlags();
 	if (flags->OnWater && flags->Boost)
 	{
-		if (soundHandle == nullptr)
+		if (seaSpraySoundHandle == nullptr)
 		{
 			void* sonicContext = *(void**)((uint32_t)This + 8);
 			CSonicSpeedContextPlaySound* playSound = *(CSonicSpeedContextPlaySound**)(*(uint32_t*)sonicContext + 116);
 
-			playSound(sonicContext, nullptr, soundHandle, 2002059, 1);
+			playSound(sonicContext, nullptr, seaSpraySoundHandle, 2002059, 1);
 		}
 	}
 	else
 	{
-		soundHandle.reset();
+		seaSpraySoundHandle.reset();
 	}
 
 	originalCSonicStatePluginOnWaterUpdate(This);
+}
+
+// Fix dying while boosting on water doesn't destroy the sfx
+HOOK(int, __fastcall, MsgRestartStage, 0xE76810, uint32_t* This, void* Edx, void* message)
+{
+    seaSpraySoundHandle.reset();
+    return originalMsgRestartStage(This, Edx, message);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -516,6 +587,10 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo* info)
 
 	// Player surfing sound when boosting on water
 	INSTALL_HOOK(CSonicStatePluginOnWaterUpdate);
+	INSTALL_HOOK(MsgRestartStage);
+
+    // Don't slow down on ground
+    WRITE_JUMP(0xDF33A7, (void*)0xDF3482);
 
 	// Keep drifting even if we hit an obstacle
 	WRITE_MEMORY(0xDF3373, uint8_t, 0xEB);
