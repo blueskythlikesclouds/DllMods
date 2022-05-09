@@ -1,27 +1,68 @@
 // Mod.cpp
 
-enum class SkeletonType
+enum
 {
-    Generations,
-    Unleashed
+    DRIFT_L,
+    DRIFT_START_L,
+    DRIFT_END_L,
+    DRIFT_R,
+    DRIFT_START_R,
+    DRIFT_END_R,
+    DRIFT_ANIM_COUNT
 };
 
-SkeletonType skeletonType;
+constexpr const char* SWA_ANIM_NAMES[DRIFT_ANIM_COUNT] =
+{
+    "DriftL_SWA",
+    "DriftStartL_SWA",
+    "DriftEndL_SWA",
+    "DriftR_SWA",
+    "DriftStartR_SWA",
+    "DriftEndR_SWA",
+};
 
-const char* volatile const DriftL = "DriftL";
-const char* volatile const DriftStartL = "DriftStartL";
-const char* volatile const DriftEndL = "DriftEndL";
-const char* volatile const DriftR = "DriftR";
-const char* volatile const DriftStartR = "DriftStartR";
-const char* volatile const DriftEndR = "DriftEndR";
+constexpr const char* BB_ANIM_NAMES[DRIFT_ANIM_COUNT] =
+{
+    "DriftL_BlueBlur",
+    "DriftStartL_BlueBlur",
+    "DriftEndL_BlueBlur",
+    "DriftR_BlueBlur",
+    "DriftStartR_BlueBlur",
+    "DriftEndR_BlueBlur",
+};
+
+constexpr const char* SWA_ANIM_FILE_NAMES[DRIFT_ANIM_COUNT] =
+{
+    "sn_drift_swa_l_loop",
+    "sn_drift_swa_l_s",
+    "sn_drift_swa_l_e",
+    "sn_drift_swa_r_loop",
+    "sn_drift_swa_r_s",
+    "sn_drift_swa_r_e"
+};
+
+constexpr const char* BB_ANIM_FILE_NAMES[DRIFT_ANIM_COUNT] =
+{
+    "sn_drift_bb_l_loop",
+    "sn_drift_bb_l_s",
+    "sn_drift_bb_l_e",
+    "sn_drift_bb_r_loop",
+    "sn_drift_bb_r_s",
+    "sn_drift_bb_r_e"
+};
+
+constexpr float BB_DRIFT_START_FINAL_FRAME = 16.0f;
+constexpr float SWA_DRIFT_START_FINAL_FRAME = 20.0f;
+
+// Generations: 26
+// Unleashed: 26
+constexpr float DRIFT_END_FINAL_FRAME = 26.0f;
+
+const char* animNames[DRIFT_ANIM_COUNT];
 
 // Generations: 16
 // Unleashed: 20
 float driftStartFinalFrame;
-
-// Generations: 26
-// Unleashed: 26
-const float driftEndFinalFrame = 26.0f;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~//
 // Insert drift animations // 
@@ -32,90 +73,32 @@ HOOK(void*, __cdecl, InitializeSonicAnimationList, 0x1272490)
     void* result = originalInitializeSonicAnimationList();
     {
         CAnimationStateSet* set = (CAnimationStateSet*)0x15E8D40;
-        CAnimationStateInfo* entries = new CAnimationStateInfo[set->count + 6];
+        CAnimationStateInfo* entries = new CAnimationStateInfo[set->count + 2 * DRIFT_ANIM_COUNT];
 
         std::copy(set->entries, set->entries + set->count, entries);
 
-        entries[set->count].name = DriftL;
-        entries[set->count].fileName = skeletonType == SkeletonType::Generations ? "sn_drift_bb_l_loop" : "sn_drift_swa_l_loop";
-        entries[set->count].speed = 1.0f;
-        entries[set->count].playbackType = 0;
-        entries[set->count].field10 = 0;
-        entries[set->count].field14 = -1.0f;
-        entries[set->count].field18 = -1.0f;
-        entries[set->count].field1C = 0;
-        entries[set->count].field20 = -1;
-        entries[set->count].field24 = -1;
-        entries[set->count].field28 = -1;
-        entries[set->count].field2C = -1;
+        for (size_t i = 0; i < 2 * DRIFT_ANIM_COUNT; i++)
+        {
+            const size_t animIndex = i % DRIFT_ANIM_COUNT;
 
-        entries[set->count + 1].name = DriftStartL;
-        entries[set->count + 1].fileName = skeletonType == SkeletonType::Generations ? "sn_drift_bb_l_s" : "sn_drift_swa_l_s";
-        entries[set->count + 1].speed = 1.0f;
-        entries[set->count + 1].playbackType = 1;
-        entries[set->count + 1].field10 = 0;
-        entries[set->count + 1].field14 = -1.0f;
-        entries[set->count + 1].field18 = -1.0f;
-        entries[set->count + 1].field1C = 0;
-        entries[set->count + 1].field20 = -1;
-        entries[set->count + 1].field24 = -1;
-        entries[set->count + 1].field28 = -1;
-        entries[set->count + 1].field2C = -1;
+            CAnimationStateInfo& entry = entries[set->count + i];
 
-        entries[set->count + 2].name = DriftEndL;
-        entries[set->count + 2].fileName = skeletonType == SkeletonType::Generations ? "sn_drift_bb_l_e" : "sn_drift_swa_l_e";
-        entries[set->count + 2].speed = 1.0f;
-        entries[set->count + 2].playbackType = 1;
-        entries[set->count + 2].field10 = 0;
-        entries[set->count + 2].field14 = -1.0f;
-        entries[set->count + 2].field18 = -1.0f;
-        entries[set->count + 2].field1C = 0;
-        entries[set->count + 2].field20 = -1;
-        entries[set->count + 2].field24 = -1;
-        entries[set->count + 2].field28 = -1;
-        entries[set->count + 2].field2C = -1;
-
-        entries[set->count + 3].name = DriftR;
-        entries[set->count + 3].fileName = skeletonType == SkeletonType::Generations ? "sn_drift_bb_r_loop" : "sn_drift_swa_r_loop";
-        entries[set->count + 3].speed = 1.0f;
-        entries[set->count + 3].playbackType = 0;
-        entries[set->count + 3].field10 = 0;
-        entries[set->count + 3].field14 = -1.0f;
-        entries[set->count + 3].field18 = -1.0f;
-        entries[set->count + 3].field1C = 0;
-        entries[set->count + 3].field20 = -1;
-        entries[set->count + 3].field24 = -1;
-        entries[set->count + 3].field28 = -1;
-        entries[set->count + 3].field2C = -1;
-
-        entries[set->count + 4].name = DriftStartR;
-        entries[set->count + 4].fileName = skeletonType == SkeletonType::Generations ? "sn_drift_bb_r_s" : "sn_drift_swa_r_s";
-        entries[set->count + 4].speed = 1.0f;
-        entries[set->count + 4].playbackType = 1;
-        entries[set->count + 4].field10 = 0;
-        entries[set->count + 4].field14 = -1.0f;
-        entries[set->count + 4].field18 = -1.0f;
-        entries[set->count + 4].field1C = 0;
-        entries[set->count + 4].field20 = -1;
-        entries[set->count + 4].field24 = -1;
-        entries[set->count + 4].field28 = -1;
-        entries[set->count + 4].field2C = -1;
-
-        entries[set->count + 5].name = DriftEndR;
-        entries[set->count + 5].fileName = skeletonType == SkeletonType::Generations ? "sn_drift_bb_r_e" : "sn_drift_swa_r_e";
-        entries[set->count + 5].speed = 1.0f;
-        entries[set->count + 5].playbackType = 1;
-        entries[set->count + 5].field10 = 0;
-        entries[set->count + 5].field14 = -1.0f;
-        entries[set->count + 5].field18 = -1.0f;
-        entries[set->count + 5].field1C = 0;
-        entries[set->count + 5].field20 = -1;
-        entries[set->count + 5].field24 = -1;
-        entries[set->count + 5].field28 = -1;
-        entries[set->count + 5].field2C = -1;
+            entry.name = i >= DRIFT_ANIM_COUNT ? BB_ANIM_NAMES[animIndex] : SWA_ANIM_NAMES[animIndex];
+            entry.fileName = i >= DRIFT_ANIM_COUNT ? BB_ANIM_FILE_NAMES[animIndex] : SWA_ANIM_FILE_NAMES[animIndex];
+            entry.speed = 1.0f;
+            entry.playbackType = animIndex == DRIFT_L || animIndex == DRIFT_R ? 0 : 1;
+            entry.field10 = 0;
+            entry.field14 = -1.0f;
+            entry.field18 = -1.0f;
+            entry.field1C = 0;
+            entry.field20 = -1;
+            entry.field24 = -1;
+            entry.field28 = -1;
+            entry.field2C = -1;
+        }
 
         WRITE_MEMORY(&set->entries, void*, entries);
-        WRITE_MEMORY(&set->count, size_t, set->count + 6);
+        WRITE_MEMORY(&set->count, size_t, set->count + 2 * DRIFT_ANIM_COUNT);
     }
 
     return result;
@@ -128,14 +111,14 @@ HOOK(void, __fastcall, CSonicCreateAnimationStates, 0xE1B6C0, void* This, void* 
     FUNCTION_PTR(void*, __stdcall, createAnimationState, 0xCDFA20,
         void* This, boost::shared_ptr<void>& spAnimationState, const hh::base::CSharedString& name, const hh::base::CSharedString& alsoName);
 
-    boost::shared_ptr<void> animationState;
+    for (size_t i = 0; i < 2 * DRIFT_ANIM_COUNT; i++)
+    {
+        const size_t animIndex = i % DRIFT_ANIM_COUNT;
+        const hh::base::CSharedString animName = i >= DRIFT_ANIM_COUNT ? BB_ANIM_NAMES[animIndex] : SWA_ANIM_NAMES[animIndex];
 
-    createAnimationState(A2, animationState, DriftL, DriftL);
-    createAnimationState(A2, animationState, DriftStartL, DriftStartL);
-    createAnimationState(A2, animationState, DriftEndL, DriftEndL);
-    createAnimationState(A2, animationState, DriftR, DriftR);
-    createAnimationState(A2, animationState, DriftStartR, DriftStartR);
-    createAnimationState(A2, animationState, DriftEndR, DriftEndR);
+        boost::shared_ptr<void> animationState;
+        createAnimationState(A2, animationState, animName, animName);
+    }
 }
 
 HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const size_t size, void* database)
@@ -248,14 +231,13 @@ void __declspec(naked) CSonicStateDriftDriftingLoopAnimationMidAsmHook()
         fstp st
         jbe pushDriftL
 
-        lea edx, DriftStartR
+        push animNames[DRIFT_START_R * 4]
         jmp return
 
     pushDriftL:
-        lea edx, DriftStartL
+        push animNames[DRIFT_START_L * 4]
 
     return:
-        push[edx]
         jmp[CSonicStateDriftDriftingLoopAnimationMidAsmHookReturnAddress]
     }
 }
@@ -287,10 +269,10 @@ HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, Hedgehog::Unive
     playerContext->m_pPlayer->SendMessageImm(playerContext->m_pPlayer->m_ActorID, spAnimInfo);
 
     if (strstr(spAnimInfo->m_Name.c_str(), "DriftStartL") != nullptr && spAnimInfo->m_Frame >= driftStartFinalFrame)
-        playerContext->ChangeAnimation(DriftL);
+        playerContext->ChangeAnimation(animNames[DRIFT_L]);
 
     else if (strstr(spAnimInfo->m_Name.c_str(), "DriftStartR") != nullptr && spAnimInfo->m_Frame >= driftStartFinalFrame)
-        playerContext->ChangeAnimation(DriftR);
+        playerContext->ChangeAnimation(animNames[DRIFT_R]);
 
     bool driftRight = playerContext->StateFlag(eStateFlag_DriftRight);
 
@@ -309,12 +291,12 @@ HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, Hedgehog::Unive
             if (strstr(spAnimInfo->m_Name.c_str(), "DriftL") != nullptr && driftRight)
             {
                 driftDirectionTime = 0.0f;
-                playerContext->ChangeAnimation(DriftStartR);
+                playerContext->ChangeAnimation(animNames[DRIFT_START_R]);
             }
             else if (strstr(spAnimInfo->m_Name.c_str(), "DriftR") != nullptr && !driftRight)
             {
                 driftDirectionTime = 0.0f;
-                playerContext->ChangeAnimation(DriftStartL);
+                playerContext->ChangeAnimation(animNames[DRIFT_START_L]);
             }
         }
     }
@@ -344,8 +326,13 @@ HOOK(void, __fastcall, CSonicStateDriftOnLeave, 0xDF2D20, Sonic::Player::CPlayer
 
     const auto& animName = This->GetContext()->GetCurrentAnimationName();
 
-    if (animName == DriftL || animName == DriftR)
-        This->GetContext()->ChangeAnimation(static_cast<Sonic::Player::CPlayerSpeedContext*>(This->GetContext())->StateFlag(eStateFlag_DriftRight) ? DriftEndR : DriftEndL);
+    if (animName == animNames[DRIFT_L] || animName == animNames[DRIFT_R])
+    {
+        This->GetContext()->ChangeAnimation(
+            static_cast<Sonic::Player::CPlayerSpeedContext*>(This->GetContext())->StateFlag(eStateFlag_DriftRight)
+                ? animNames[DRIFT_END_R]
+                : animNames[DRIFT_END_L]);
+    }
 
     originalCSonicStateDriftOnLeave(This);
 }
@@ -363,7 +350,7 @@ HOOK(void, __stdcall, ChangeAnimation, 0xCDFC80, void* A1, boost::shared_ptr<voi
         const auto spAnimInfo = boost::make_shared<Sonic::Message::MsgGetAnimationInfo>();
         pPlayer->SendMessageImm(pPlayer->m_ActorID, spAnimInfo);
 
-        if (strstr(spAnimInfo->m_Name.c_str(), "DriftEnd") != nullptr && spAnimInfo->m_Frame < driftEndFinalFrame)
+        if (strstr(spAnimInfo->m_Name.c_str(), "DriftEnd") != nullptr && spAnimInfo->m_Frame < DRIFT_END_FINAL_FRAME)
         {
             memset(&A2, 0, sizeof(A2));
             return;
@@ -384,10 +371,14 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed
     if (!Sonic::Player::CSonicContext::GetInstance())
         return originalCPlayerSpeedUpdate(This, Edx, A2);
 
+    const bool isSwa = This->m_spCharacterModel->GetNode("SonicRoot") != nullptr;
+    memcpy(animNames, isSwa ? SWA_ANIM_NAMES : BB_ANIM_NAMES, sizeof(animNames));
+    driftStartFinalFrame = isSwa ? SWA_DRIFT_START_FINAL_FRAME : BB_DRIFT_START_FINAL_FRAME;
+
     const auto spAnimInfo = boost::make_shared<Sonic::Message::MsgGetAnimationInfo>();
     This->SendMessageImm(This->m_ActorID, spAnimInfo);
 
-    if (strstr(spAnimInfo->m_Name.c_str(), "DriftEnd") != nullptr && spAnimInfo->m_Frame >= driftEndFinalFrame)
+    if (strstr(spAnimInfo->m_Name.c_str(), "DriftEnd") != nullptr && spAnimInfo->m_Frame >= DRIFT_END_FINAL_FRAME)
         This->GetContext()->ChangeAnimation("Walk");
 
     originalCPlayerSpeedUpdate(This, Edx, A2);
@@ -518,15 +509,6 @@ extern "C" __declspec(dllexport) void __cdecl Init(ModInfo* info)
     size_t pos = dir.find_last_of("\\/");
     if (pos != std::string::npos)
         dir.erase(pos + 1);
-
-    const INIReader reader(dir + "GenerationsUnleashedDrift.ini");
-
-    if (reader.ParseError() != 0)
-        MessageBox(NULL, L"Failed to parse GenerationsUnleashedDrift.ini", NULL, MB_ICONERROR);
-    else
-        skeletonType = (SkeletonType)reader.GetInteger("Main", "SkeletonType", 0);
-
-    driftStartFinalFrame = skeletonType == SkeletonType::Generations ? 16.0f : 20.0f;
 
     // Add drift animations to the animation list
     INSTALL_HOOK(InitializeSonicAnimationList);
