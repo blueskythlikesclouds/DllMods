@@ -126,9 +126,9 @@ HOOK(void, __fastcall, CSonicCreateAnimationStates, 0xE1B6C0, void* This, void* 
     originalCSonicCreateAnimationStates(This, Edx, A2, A3);
 
     FUNCTION_PTR(void*, __stdcall, createAnimationState, 0xCDFA20,
-        void* This, SharedPtrTypeless&spAnimationState, const hh::base::CSharedString & name, const hh::base::CSharedString & alsoName);
+        void* This, boost::shared_ptr<void>& spAnimationState, const hh::base::CSharedString& name, const hh::base::CSharedString& alsoName);
 
-    SharedPtrTypeless animationState;
+    boost::shared_ptr<void> animationState;
 
     createAnimationState(A2, animationState, DriftL, DriftL);
     createAnimationState(A2, animationState, DriftStartL, DriftStartL);
@@ -140,17 +140,11 @@ HOOK(void, __fastcall, CSonicCreateAnimationStates, 0xE1B6C0, void* This, void* 
 
 HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const size_t size, void* database)
 {
-    std::string str;
-    {
-        std::stringstream stream;
-
-        stream << "  <DefAppend>\n";
-        stream << "    <Name>Sonic</Name>\n";
-        stream << "    <Archive>SonicDrift</Archive>\n";
-        stream << "  </DefAppend>\n";
-
-        str = stream.str();
-    }
+    constexpr std::string_view str =
+        "  <DefAppend>"
+        "    <Name>Sonic</Name>"
+        "    <Archive>SonicDrift</Archive>"
+        "  </DefAppend>";
 
     const size_t newSize = size + str.size();
     const std::unique_ptr<char[]> buffer = std::make_unique<char[]>(newSize);
@@ -159,7 +153,7 @@ HOOK(bool, __stdcall, ParseArchiveTree, 0xD4C8E0, void* A1, char* data, const si
     char* insertionPos = strstr(buffer.get(), "<Include>");
 
     memmove(insertionPos + str.size(), insertionPos, size - (size_t)(insertionPos - buffer.get()));
-    memcpy(insertionPos, str.c_str(), str.size());
+    memcpy(insertionPos, str.data(), str.size());
 
     bool result;
     {
@@ -177,8 +171,7 @@ uint32_t currentDriftCueId;
 
 uint32_t __cdecl getDriftCueId()
 {
-    CSonicStateFlags* flags = GetSonicStateFlags();
-    return flags->OnWater ? 2002059 : 2002039;
+    return Sonic::Player::CPlayerSpeedContext::GetInstance()->StateFlag(eStateFlag_OnWater) ? 2002059 : 2002039;
 }
 
 uint32_t CSonicStateDriftDriftingSoundMidAsmHookReturnAddress = 0xDF36A3;
@@ -215,12 +208,10 @@ void __declspec(naked) CSonicStateDriftDriftingSoundMidAsmHook()
 
 bool __fastcall ShouldDriftStartChangeAnimation()
 {
-    void* sonicContext = *(void**)0x1E5E2F0;
-    MsgGetAnimationInfo msgGetAnimationInfo{};
-    CSonicSpeedProcMsgGetAnimationInfo(*(void**)((uint8_t*)sonicContext + 0x110), &msgGetAnimationInfo);
+    const auto& animName = Sonic::Player::CPlayerSpeedContext::GetInstance()->GetCurrentAnimationName();
 
     // Return false if current animation is already drift, but true if it's ending
-    return (strstr(msgGetAnimationInfo.name, "Drift") == nullptr || strstr(msgGetAnimationInfo.name, "DriftEnd") != nullptr);
+    return (strstr(animName.c_str(), "Drift") == nullptr || strstr(animName.c_str(), "DriftEnd") != nullptr);
 }
 
 uint32_t CSonicStateDriftDriftingLoopAnimationMidAsmHookReturnAddress = 0xDF35F3;
@@ -277,40 +268,32 @@ void __declspec(naked) CSonicStateDriftDriftingLoopAnimationMidAsmHook()
 
 bool wasDriftRight = false;
 float driftDirectionTime = 0.0f;
-HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, void* This)
+
+HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, Hedgehog::Universe::TStateMachine<Sonic::Player::CPlayerSpeedContext::CStateSpeedBase>::TState* This)
 {
-    void* sonicContext = *(void**)((uint32_t)*(void**)((uint32_t)This + 8) + 8);
-    float elapsedTime = *(float*)(*(uint32_t*)((uint32_t)This + 12) + 36);
+    const auto playerContext = static_cast<Sonic::Player::CPlayerSpeedContext*>(This->GetContext()->GetContext());
 
     const uint32_t cueId = getDriftCueId();
+
     if (currentDriftCueId != cueId)
     {
-        CSonicSpeedContextPlaySound* playSound = *(CSonicSpeedContextPlaySound**)(*(uint32_t*)sonicContext + 116);
-
-        SharedPtrTypeless srcSoundHandle;
-        playSound(sonicContext, nullptr, srcSoundHandle, cueId, 1);
-
-        SharedPtrTypeless* dstSoundHandle = (SharedPtrTypeless*)((char*)This + 96);
-        dstSoundHandle->reset(); // For some reason I have to reset it first, otherwise the sound handle stays.
-        *dstSoundHandle = srcSoundHandle;
+        *(boost::shared_ptr<Hedgehog::Sound::CSoundHandle>*)((char*)This + 96) = playerContext->PlaySound(cueId, 1);
         currentDriftCueId = cueId;
     }
 
     originalCSonicStateDriftDriftingUpdate(This);
 
-    MsgGetAnimationInfo msgGetAnimationInfo {};
-    CSonicSpeedProcMsgGetAnimationInfo(*(void**)((uint8_t*)sonicContext + 0x110), &msgGetAnimationInfo);
+    const auto spAnimInfo = boost::make_shared<Sonic::Message::MsgGetAnimationInfo>();
+    playerContext->m_pPlayer->SendMessageImm(playerContext->m_pPlayer->m_ActorID, spAnimInfo);
 
-    if (strstr(msgGetAnimationInfo.name, "DriftStartL") != nullptr && msgGetAnimationInfo.frame >= driftStartFinalFrame)
-    {
-        CSonicContextChangeAnimation(sonicContext, DriftL);
-    }
-    else if (strstr(msgGetAnimationInfo.name, "DriftStartR") != nullptr && msgGetAnimationInfo.frame >= driftStartFinalFrame)
-    {
-        CSonicContextChangeAnimation(sonicContext, DriftR);
-    }
-     
-    bool driftRight = GetSonicStateFlags()->DriftRight;
+    if (strstr(spAnimInfo->m_Name.c_str(), "DriftStartL") != nullptr && spAnimInfo->m_Frame >= driftStartFinalFrame)
+        playerContext->ChangeAnimation(DriftL);
+
+    else if (strstr(spAnimInfo->m_Name.c_str(), "DriftStartR") != nullptr && spAnimInfo->m_Frame >= driftStartFinalFrame)
+        playerContext->ChangeAnimation(DriftR);
+
+    bool driftRight = playerContext->StateFlag(eStateFlag_DriftRight);
+
     if (wasDriftRight != driftRight)
     {
         // Reset timer if switching direction
@@ -319,37 +302,35 @@ HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, void* This)
     }
     else
     {
-        driftDirectionTime += elapsedTime;
+        driftDirectionTime += This->m_pStateMachine->m_UpdateInfo.DeltaTime;
+
         if (driftDirectionTime > 0.4f)
         {
-            if (strstr(msgGetAnimationInfo.name, "DriftL") != nullptr && driftRight)
+            if (strstr(spAnimInfo->m_Name.c_str(), "DriftL") != nullptr && driftRight)
             {
                 driftDirectionTime = 0.0f;
-                CSonicContextChangeAnimation(sonicContext, DriftStartR);
+                playerContext->ChangeAnimation(DriftStartR);
             }
-            else if (strstr(msgGetAnimationInfo.name, "DriftR") != nullptr && !driftRight)
+            else if (strstr(spAnimInfo->m_Name.c_str(), "DriftR") != nullptr && !driftRight)
             {
                 driftDirectionTime = 0.0f;
-                CSonicContextChangeAnimation(sonicContext, DriftStartL);
+                playerContext->ChangeAnimation(DriftStartL);
             }
         }
     }
 
     static float intervalTime = 0.0f;
+
     if (intervalTime > 0.07f)
     {
-        CSonicSpeedContextPlaySound* playSound = *(CSonicSpeedContextPlaySound**)(*(uint32_t*)sonicContext + 116);
-
         FUNCTION_PTR(uint32_t, __thiscall, getSurfaceId, 0xDFD420, void* This, uint32_t type);
-
-        SharedPtrTypeless soundHandle;
-        playSound(sonicContext, nullptr, soundHandle, getSurfaceId(sonicContext, 1), 1);
+        playerContext->PlaySound(getSurfaceId(playerContext, 1), 1);
 
         intervalTime = 0.0f;
     }
     else
     {
-        intervalTime += 1.0f / 60.0f;
+        intervalTime += This->m_pStateMachine->m_UpdateInfo.DeltaTime;
     }
 }
 
@@ -357,16 +338,14 @@ HOOK(void, __fastcall, CSonicStateDriftDriftingUpdate, 0xDF32D0, void* This)
 // Swap to outro animation when finishing drift
 //
 
-HOOK(void, __fastcall, CSonicStateDriftOnLeave, 0xDF2D20, void* This)
+HOOK(void, __fastcall, CSonicStateDriftOnLeave, 0xDF2D20, Sonic::Player::CPlayerSpeedContext::CStateSpeedBase* This)
 {
     driftDirectionTime = 0.0f;
-    void* sonicContext = *(void**)0x1E5E2F0;
 
-    MsgGetAnimationInfo msgGetAnimationInfo {};
-    CSonicSpeedProcMsgGetAnimationInfo(*(void**)((uint8_t*)sonicContext + 0x110), &msgGetAnimationInfo);
+    const auto& animName = This->GetContext()->GetCurrentAnimationName();
 
-    if (strcmp(msgGetAnimationInfo.name, DriftL) == 0 || strcmp(msgGetAnimationInfo.name, DriftR) == 0)
-        CSonicContextChangeAnimation(sonicContext, GetSonicStateFlags()->DriftRight ? DriftEndR : DriftEndL);
+    if (animName == DriftL || animName == DriftR)
+        This->GetContext()->ChangeAnimation(static_cast<Sonic::Player::CPlayerSpeedContext*>(This->GetContext())->StateFlag(eStateFlag_DriftRight) ? DriftEndR : DriftEndL);
 
     originalCSonicStateDriftOnLeave(This);
 }
@@ -375,18 +354,18 @@ HOOK(void, __fastcall, CSonicStateDriftOnLeave, 0xDF2D20, void* This)
 // Make outro animation persist till it's done playing
 //
 
-HOOK(void, __stdcall, ChangeAnimation, 0xCDFC80, void* A1, SharedPtrTypeless& A2, const hh::base::CSharedString& name)
+HOOK(void, __stdcall, ChangeAnimation, 0xCDFC80, void* A1, boost::shared_ptr<void>& A2, const hh::base::CSharedString& name)
 {
     if (name == "Walk")
     {
-        void* sonicContext = *(void**)0x1E5E2F0;
+        const auto pPlayer = Sonic::Player::CPlayerSpeedContext::GetInstance()->m_pPlayer;
 
-        MsgGetAnimationInfo msgGetAnimationInfo {};
-        CSonicSpeedProcMsgGetAnimationInfo(*(void**)((uint8_t*)sonicContext + 0x110), &msgGetAnimationInfo);
+        const auto spAnimInfo = boost::make_shared<Sonic::Message::MsgGetAnimationInfo>();
+        pPlayer->SendMessageImm(pPlayer->m_ActorID, spAnimInfo);
 
-        if (strstr(msgGetAnimationInfo.name, "DriftEnd") != nullptr && msgGetAnimationInfo.frame < driftEndFinalFrame)
+        if (strstr(spAnimInfo->m_Name.c_str(), "DriftEnd") != nullptr && spAnimInfo->m_Frame < driftEndFinalFrame)
         {
-            memset(&A2, 0, sizeof(SharedPtrTypeless));
+            memset(&A2, 0, sizeof(A2));
             return;
         }
     }
@@ -400,15 +379,16 @@ HOOK(void, __stdcall, ChangeAnimation, 0xCDFC80, void* A1, SharedPtrTypeless& A2
 
 // TODO: Does not work properly with brake. Sonic gets stuck in walk animation when idling.
 
-HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, void* This, void* Edx, void* A2)
+HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, Sonic::Player::CPlayerSpeed* This, void* Edx, void* A2)
 {
-    void* sonicContext = *(void**)0x1E5E2F0;
+    if (!Sonic::Player::CSonicContext::GetInstance())
+        return originalCPlayerSpeedUpdate(This, Edx, A2);
 
-    MsgGetAnimationInfo msgGetAnimationInfo {};
-    CSonicSpeedProcMsgGetAnimationInfo(*(void**)((uint8_t*)sonicContext + 0x110), &msgGetAnimationInfo);
+    const auto spAnimInfo = boost::make_shared<Sonic::Message::MsgGetAnimationInfo>();
+    This->SendMessageImm(This->m_ActorID, spAnimInfo);
 
-    if (strstr(msgGetAnimationInfo.name, "DriftEnd") != nullptr && msgGetAnimationInfo.frame >= driftEndFinalFrame)
-        CSonicContextChangeAnimation(sonicContext, "Walk");
+    if (strstr(spAnimInfo->m_Name.c_str(), "DriftEnd") != nullptr && spAnimInfo->m_Frame >= driftEndFinalFrame)
+        This->GetContext()->ChangeAnimation("Walk");
 
     originalCPlayerSpeedUpdate(This, Edx, A2);
 }
@@ -416,19 +396,14 @@ HOOK(void, __fastcall, CPlayerSpeedUpdate, 0xE6BF20, void* This, void* Edx, void
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 // Restore sea-spray sound when boosting on water // 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-static SharedPtrTypeless seaSpraySoundHandle;
-HOOK(void, __fastcall, CSonicStatePluginOnWaterUpdate, 0x119BED0, void* This)
+static boost::shared_ptr<Hedgehog::Sound::CSoundHandle> seaSpraySoundHandle;
+
+HOOK(void, __fastcall, CSonicStatePluginOnWaterUpdate, 0x119BED0, Hedgehog::Universe::TStateMachine<Sonic::Player::CPlayerSpeedContext>::TState* This)
 {
-	CSonicStateFlags* flags = GetSonicStateFlags();
-	if (flags->OnWater && flags->Boost)
+    if (This->GetContext()->StateFlag(eStateFlag_OnWater) && This->GetContext()->StateFlag(eStateFlag_Boost))
 	{
 		if (seaSpraySoundHandle == nullptr)
-		{
-			void* sonicContext = *(void**)((uint32_t)This + 8);
-			CSonicSpeedContextPlaySound* playSound = *(CSonicSpeedContextPlaySound**)(*(uint32_t*)sonicContext + 116);
-
-			playSound(sonicContext, nullptr, seaSpraySoundHandle, 2002059, 1);
-		}
+            seaSpraySoundHandle = This->GetContext()->PlaySound(2002059, 1);
 	}
 	else
 	{
