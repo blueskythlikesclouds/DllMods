@@ -76,14 +76,14 @@ namespace
     {
         hh::mr::CMirageDatabaseWrapper wrapper(pDatabase);
 
-        wrapper.GetVertexShaderData(bbBloom.m_spVertexShader, "RenderBuffer", 0);
-        wrapper.GetPixelShaderData(bbBloom.m_spPixelShader, "HfBloom_BrightPassHDR", 0);
+        bbBloom.m_spVertexShader = wrapper.GetVertexShaderData("RenderBuffer");
+        bbBloom.m_spPixelShader = wrapper.GetPixelShaderData("HfBloom_BrightPassHDR");
 
-        wrapper.GetVertexShaderData(swaBloom.m_spVertexShader, "RenderBuffer", 0);
-        wrapper.GetPixelShaderData(swaBloom.m_spPixelShader, "SWA_Bloom_BrightPassHDR", 0);
+        swaBloom.m_spVertexShader = wrapper.GetVertexShaderData("RenderBuffer");
+        swaBloom.m_spPixelShader = wrapper.GetPixelShaderData("SWA_Bloom_BrightPassHDR");
 
-        wrapper.GetVertexShaderData(legacyBloom.m_spVertexShader, "RenderBuffer", 0);
-        wrapper.GetPixelShaderData(legacyBloom.m_spPixelShader, "Bloom_BrightPassHDR", 0);
+        legacyBloom.m_spVertexShader = wrapper.GetVertexShaderData("RenderBuffer");
+        legacyBloom.m_spPixelShader = wrapper.GetPixelShaderData("Bloom_BrightPassHDR");
 
         bloomShaderPairRef = (hh::mr::SShaderPair*)((char*)This + 27 * 16);
 

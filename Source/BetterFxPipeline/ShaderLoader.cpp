@@ -2,12 +2,6 @@
 #include "FxaaRenderer.h"
 #include "Configuration.h"
 
-const std::array<const char*, 2> ARCHIVE_NAMES =
-{
-    "FxFXAA",
-    "SWA"
-};
-
 FUNCTION_PTR(void*, __thiscall, fun69C270, 0x69C270, 
     void* This, const boost::shared_ptr<void>& a2, const hh::base::CSharedString& arFileName, const hh::base::CSharedString& arlFileName, void* a5);
 
@@ -26,26 +20,23 @@ HOOK(void*, __stdcall, LoadApplicationAndShaders, 0xD6A580, void* This)
 
     void* archiveDatabaseLoader = *(void**)(*(uint32_t*)((uint32_t)This + 4) + 200);
 
-    for (auto& archiveName : ARCHIVE_NAMES)
-    {
-        hh::base::CSharedString arFileName((std::string(archiveName) + ".ar").c_str());
-        hh::base::CSharedString arlFileName((std::string(archiveName) + ".arl").c_str());
+    const hh::base::CSharedString arFileName("BetterFxPipeline.ar");
+    const hh::base::CSharedString arlFileName("BetterFxPipeline.arl");
 
-        uint32_t unk0[53];
+    uint32_t unk0[53];
 
-        fun446F90((void*)&unk0, 200, 5);
-        fun69C270(archiveDatabaseLoader, boost::shared_ptr<void>(), arFileName, arlFileName, (void*)&unk0);
-        fun446E30((void*)&unk0);
+    fun446F90((void*)&unk0, 200, 5);
+    fun69C270(archiveDatabaseLoader, boost::shared_ptr<void>(), arFileName, arlFileName, (void*)&unk0);
+    fun446E30((void*)&unk0);
 
-        uint32_t field04 = *(uint32_t*)((uint32_t)This + 4);
-        boost::shared_ptr<void> field88 = *(boost::shared_ptr<void>*)(field04 + 136);
+    uint32_t field04 = *(uint32_t*)((uint32_t)This + 4);
+    boost::shared_ptr<void> field88 = *(boost::shared_ptr<void>*)(field04 + 136);
 
-        fun69AFF0(archiveDatabaseLoader, field88, arlFileName);
+    fun69AFF0(archiveDatabaseLoader, field88, arlFileName);
 
-        fun446F90((void*)&unk0, -10, 5);
-        fun69AB10(archiveDatabaseLoader, field88, arFileName, (void*)&unk0, 0, 0);
-        fun446E30((void*)&unk0);
-    }
+    fun446F90((void*)&unk0, -10, 5);
+    fun69AB10(archiveDatabaseLoader, field88, arFileName, (void*)&unk0, 0, 0);
+    fun446E30((void*)&unk0);
 
     return originalLoadApplicationAndShaders(This);
 }
