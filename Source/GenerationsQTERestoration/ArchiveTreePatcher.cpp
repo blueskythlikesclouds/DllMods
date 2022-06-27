@@ -59,7 +59,7 @@ const char* archiveTreePatcherLanguageAppendData
 boost::shared_ptr<hh::db::CRawData>* __fastcall archiveTreePatcherGetRawDataImpl(hh::db::CDatabase* This, void* Edx,
     boost::shared_ptr<hh::db::CRawData>& rawData, const hh::base::CSharedString& name, const bool flag)
 {
-    This->GetRawData(rawData, name, flag);
+    hh::db::fpCDatabaseGetRawData(This, rawData, name, flag);
 
     const bool isOther = name == "OtherArchiveTree.xml";
     const bool isLanguage = name == "LanguageTree.xml";
