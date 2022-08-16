@@ -45,6 +45,16 @@ namespace ShaderTranslator
                     hash == 602606931u || hash == 781526840u);
         }
 
+        // Color correction shader needs to be compiled without optimizations to match the
+        // floating-point accuracy of its DX9 counterpart. (mad -> mul + add)
+        public static unsafe bool IsColorCorrectionShader(void* function, int functionSize)
+        {
+            uint hash;
+
+            return functionSize == 1280 &&
+                   ((hash = GetHashCode(function, functionSize)) == 1114391076u || hash == 2621835860u);
+        }
+
         public static unsafe string Translate(byte[] function, out bool isPixelShader)
         {
             fixed (byte* ptr = function)
@@ -377,15 +387,15 @@ namespace ShaderTranslator
 
         public static unsafe byte[] Translate(void* function, int functionSize)
         {
-            return Compile(Translate(function, functionSize, out bool isPixelShader), isPixelShader);
+            return Compile(Translate(function, functionSize, out bool isPixelShader), isPixelShader, IsColorCorrectionShader(function, functionSize));
         }
 
-        public static unsafe byte[] Compile(string translated, bool isPixelShader)
+        public static unsafe byte[] Compile(string translated, bool isPixelShader, bool skipOptimizations)
         {
             ID3DBlob blob, errorBlob;
 
             int result = Compiler.Compile(translated, translated.Length, string.Empty, null, null, "main",
-                isPixelShader ? "ps_5_0" : "vs_5_0", 1 << 15, 0, out blob, out errorBlob);
+                isPixelShader ? "ps_5_0" : "vs_5_0", skipOptimizations ? (1u << 2) : (1u << 15), 0, out blob, out errorBlob);
 
             if (result != 0 && errorBlob != null)
                 throw new Exception(Marshal.PtrToStringAnsi(errorBlob.GetBufferPointer()));
