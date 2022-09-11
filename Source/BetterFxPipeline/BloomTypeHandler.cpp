@@ -7,9 +7,9 @@ HOOK(void, __cdecl, CreateBloomStarParams, 0x110E670, Sonic::CParameterGroup* Th
 {
     originalCreateBloomStarParams(This);
 
-    Sonic::CParameterCategory* pParameterCategory = This->CreateParameterCategory("Extra", "");
+    Sonic::CEditParam* pEditParam = This->CreateParameterCategory("Extra", "");
 
-    pParameterCategory->CreateParamTypeList(&sceneEffectBloomType, "BloomType", "",
+    pEditParam->CreateParamTypeList(&sceneEffectBloomType, "BloomType", "",
     {
         { "Better FxPipeline", 0 },
         { "Sonic Generations", (uint32_t)BloomType::MTFx + 1 },
@@ -53,9 +53,9 @@ HOOK(void, __fastcall, CFxBloomGlareInitialize, Sonic::fpCFxBloomGlareInitialize
 {
     originalCFxBloomGlareInitialize(This);
 
-    This->m_pScheduler->GetShader(bbBloom, "RenderBuffer", "HfBloom_BrightPassHDR");
-    This->m_pScheduler->GetShader(swaBloom, "RenderBuffer", "SWA_Bloom_BrightPassHDR");
-    This->m_pScheduler->GetShader(legacyBloom, "RenderBuffer", "Bloom_BrightPassHDR");
+    bbBloom = This->m_pScheduler->GetShader("RenderBuffer", "HfBloom_BrightPassHDR");
+    swaBloom = This->m_pScheduler->GetShader("RenderBuffer", "SWA_Bloom_BrightPassHDR");
+    legacyBloom = This->m_pScheduler->GetShader("RenderBuffer", "Bloom_BrightPassHDR");
 }
 
 HOOK(void, __fastcall, CFxBloomGlareExecute, Sonic::fpCFxBloomGlareExecute, Sonic::CFxBloomGlare* This)

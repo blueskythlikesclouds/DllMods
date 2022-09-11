@@ -21,8 +21,8 @@ boost::shared_ptr<hh::ygg::CYggTexture> fxaaFrameBuffer;
 
 HOOK(void*, __fastcall, InitializeCrossFade, 0x10C21A0, Sonic::CFxJob* This)
 {
-    This->m_pScheduler->GetShader(fxaaShaderPair, "FxFilterNone", FxaaRenderer::SHADER_NAMES[(uint32_t)Configuration::fxaaIntensity - 1]);
-    This->m_pScheduler->m_pMisc->m_pDevice->CreateTexture(fxaaFrameBuffer, 1.0f, 1.0f, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, NULL);
+    fxaaShaderPair = This->m_pScheduler->GetShader("FxFilterNone", FxaaRenderer::SHADER_NAMES[(uint32_t)Configuration::fxaaIntensity - 1]);
+    fxaaFrameBuffer = This->m_pScheduler->m_pMisc->m_pDevice->CreateTexture(1.0f, 1.0f, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, NULL);
 
     return originalInitializeCrossFade(This);
 }
@@ -34,11 +34,8 @@ HOOK(void*, __fastcall, ExecuteCrossFade, 0x10C22D0, Sonic::CFxJob* This)
     if (!fxaaShaderPair.m_spVertexShader || !fxaaShaderPair.m_spPixelShader || !fxaaFrameBuffer)
         return result;
 
-    boost::shared_ptr<hh::ygg::CYggTexture> frameBuffer;
-    This->GetDefaultTexture(frameBuffer);
-
-    boost::shared_ptr<hh::ygg::CYggSurface> surface;
-    fxaaFrameBuffer->GetSurface(surface, 0, 0);
+    const auto frameBuffer = This->GetDefaultTexture();
+    const auto surface = fxaaFrameBuffer->GetSurface(0, 0);
 
     This->m_pScheduler->m_pMisc->m_pDevice->SetRenderTarget(0, surface);
     This->m_pScheduler->m_pMisc->m_pDevice->SetShader(fxaaShaderPair);
