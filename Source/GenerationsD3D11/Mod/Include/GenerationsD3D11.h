@@ -19,8 +19,8 @@ namespace GenerationsD3D11
 
     inline ID3D11Resource* (*GetResource)(DX_PATCH::IDirect3DResource9* dxpResource);
     inline ID3D11ShaderResourceView* (*GetShaderResourceView)(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture);
-    inline ID3D11RenderTargetView* (*GetRenderTargetView)(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture);
-    inline ID3D11DepthStencilView* (*GetDepthStencilView)(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture);
+    inline ID3D11RenderTargetView* (*GetRenderTargetView)(DX_PATCH::IDirect3DSurface9* dxpSurface);
+    inline ID3D11DepthStencilView* (*GetDepthStencilView)(DX_PATCH::IDirect3DSurface9* dxpSurface);
 
     class LockGuard
     {

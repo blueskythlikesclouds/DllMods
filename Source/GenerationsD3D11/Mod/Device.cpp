@@ -556,7 +556,7 @@ HRESULT Device::CreateOffscreenPlainSurface(UINT Width, UINT Height, D3DFORMAT F
 
 HRESULT Device::SetRenderTarget(DWORD RenderTargetIndex, Surface* pRenderTarget)
 {
-    setDirty(renderTargets[RenderTargetIndex], pRenderTarget ? reinterpret_cast<RenderTargetSurface*>(pRenderTarget)->getTexture() : nullptr, DirtyRenderTarget);
+    setDirty(renderTargets[RenderTargetIndex], reinterpret_cast<RenderTargetSurface*>(pRenderTarget), DirtyRenderTarget);
     return S_OK;
 }
 
@@ -567,16 +567,16 @@ HRESULT Device::GetRenderTarget(DWORD RenderTargetIndex, Surface** ppRenderTarge
 
 HRESULT Device::SetDepthStencilSurface(Surface* pNewZStencil)
 {
-    setDirty(depthStencil, pNewZStencil ? reinterpret_cast<DepthStencilSurface*>(pNewZStencil)->getTexture() : nullptr, DirtyRenderTarget);
+    setDirty(depthStencil, reinterpret_cast<DepthStencilSurface*>(pNewZStencil), DirtyRenderTarget);
     return S_OK;
 }
 
 HRESULT Device::GetDepthStencilSurface(Surface** ppZStencilSurface)
 {
+    *ppZStencilSurface = depthStencil.Get();
+
     if (depthStencil)
-        depthStencil->GetSurfaceLevel(0, ppZStencilSurface);
-    else
-        *ppZStencilSurface = nullptr;
+        depthStencil->AddRef();
 
     return S_OK;
 }

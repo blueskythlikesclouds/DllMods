@@ -2,12 +2,14 @@
 
 #include "Surface.h"
 
+class DepthStencilTexture;
+
 class DepthStencilSurface : public Surface
 {
-    ComPtr<DepthStencilTexture> texture;
+    ComPtr<ID3D11DepthStencilView> dsv;
 
 public:
-    explicit DepthStencilSurface(Device* device, DepthStencilTexture* texture);
+    explicit DepthStencilSurface(Device* device, DepthStencilTexture* texture, size_t mipSlice);
 
-    DepthStencilTexture* getTexture() const;
+    ID3D11DepthStencilView* getDSV() const;
 };

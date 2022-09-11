@@ -7,9 +7,8 @@ class BaseTexture;
 class Buffer;
 class CubeTexture;
 class D3D9;
-class DepthStencilTexture;
+class DepthStencilSurface;
 class RenderTargetSurface;
-class RenderTargetTexture;
 class Surface;
 class SwapChain;
 class Texture;
@@ -82,8 +81,8 @@ class Device : public Unknown
 
     CriticalSection criticalSection;
 
-    ComPtr<RenderTargetTexture> renderTargets[4]{};
-    ComPtr<DepthStencilTexture> depthStencil{};
+    ComPtr<RenderTargetSurface> renderTargets[4]{};
+    ComPtr<DepthStencilSurface> depthStencil{};
     D3D11_VIEWPORT viewport{};
     D3D11_DEPTH_STENCIL_DESC depthStencilState{};
     D3D11_RASTERIZER_DESC rasterizerState{};

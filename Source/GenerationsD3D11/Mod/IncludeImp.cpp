@@ -1,8 +1,8 @@
 #include "Include/GenerationsD3D11.h"
 
-#include "DepthStencilTexture.h"
+#include "DepthStencilSurface.h"
 #include "Device.h"
-#include "RenderTargetTexture.h"
+#include "RenderTargetSurface.h"
 #include "Resource.h"
 #include "Texture.h"
 
@@ -36,12 +36,13 @@ extern "C" __declspec(dllexport) ID3D11ShaderResourceView* GenerationsD3D11_GetS
     return reinterpret_cast<Texture*>(dxpBaseTexture)->getSRV();
 }
 
-extern "C" __declspec(dllexport) ID3D11RenderTargetView* GenerationsD3D11_GetRenderTargetView(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture)
+extern "C" __declspec(dllexport) ID3D11RenderTargetView* GenerationsD3D11_GetRenderTargetView(DX_PATCH::IDirect3DSurface9* dxpSurface)
 {
-    return reinterpret_cast<RenderTargetTexture*>(dxpBaseTexture)->getRTV();
+    return reinterpret_cast<RenderTargetSurface*>(dxpSurface)->getRTV();
 }
 
-extern "C" __declspec(dllexport) ID3D11DepthStencilView* GenerationsD3D11_GetDepthStencilView(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture)
+extern "C" __declspec(dllexport) ID3D11DepthStencilView* GenerationsD3D11_GetDepthStencilView(DX_PATCH::IDirect3DSurface9* dxpSurface)
 {
-    return reinterpret_cast<DepthStencilTexture*>(dxpBaseTexture)->getDSV();
+    return reinterpret_cast<DepthStencilSurface*>(dxpSurface)->getDSV();
+
 }
