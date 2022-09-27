@@ -27,8 +27,11 @@
 #include <dxgi1_4.h>
 
 #include <DDSTextureLoader11.h>
-#include <xxhash.h>
 #include <lz4.h>
+
+#define inline __forceinline
+#include <xxhash.h>
+#undef inline
 
 #include <bitset>
 #include <cstdint>
