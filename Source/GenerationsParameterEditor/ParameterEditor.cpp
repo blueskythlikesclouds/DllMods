@@ -2,6 +2,7 @@
 #include "ParameterEditor.h"
 #include "PlayerInfo.h"
 #include "GlobalLightEditor.h"
+#include "MaterialEditor.h"
 
 bool ParameterEditor::visible = true;
 
@@ -100,6 +101,9 @@ void ParameterEditor::update()
 
                 if (ImGui::MenuItem("Global light editor"))
                     GlobalLightEditor::visible ^= true;
+
+                if (ImGui::MenuItem("Material editor"))
+                    MaterialEditor::visible ^= true;
 
                 ImGui::EndMenu();
             }

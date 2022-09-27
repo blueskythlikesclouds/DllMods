@@ -166,6 +166,7 @@
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="GlobalLightEditor.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="MaterialEditor.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="ParameterData.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="Context.h" />
     <ClInclude Include="Include\DebugDrawText.h" />
     <ClInclude Include="GlobalLightEditor.h" />
+    <ClInclude Include="MaterialEditor.h" />
     <ClInclude Include="ParameterData.h" />
     <ClInclude Include="ParameterEditor.h" />
     <ClInclude Include="Path.h" />

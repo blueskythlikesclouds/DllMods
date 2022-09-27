@@ -2,6 +2,7 @@
 #include "Configuration.h"
 #include "DebugDrawTextImpl.h"
 #include "GlobalLightEditor.h"
+#include "MaterialEditor.h"
 #include "ParameterEditor.h"
 #include "PlayerInfo.h"
 
@@ -138,6 +139,7 @@ void Context::update()
     Configuration::update();
     PlayerInfo::update();
     GlobalLightEditor::update();
+    MaterialEditor::update();
     DebugDrawTextImpl::update();
 
     ImGui::PopFont();

@@ -6,6 +6,8 @@
 
 #include <LostCodeLoader.h>
 
+#include "MaterialEditor.h"
+
 SynchronizedObject** const APPLICATION_DOCUMENT = (SynchronizedObject**)0x1E66B34;
 
 HOOK(LRESULT, __stdcall, WndProc, 0xE7B6C0, HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -83,4 +85,6 @@ extern "C" __declspec(dllexport) void Init(ModInfo* modInfo)
         WRITE_MEMORY(0x1AD99E8, char*, "shader_debug.arl");
         WRITE_MEMORY(0x1AD99EC, char*, "shader_debug_add.arl");
     }
+
+    MaterialEditor::init();
 }

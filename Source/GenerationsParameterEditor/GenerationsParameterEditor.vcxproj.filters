@@ -39,6 +39,7 @@
     <ClCompile Include="..\..\Dependencies\imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -55,6 +56,7 @@
     <ClInclude Include="GlobalLightEditor.h" />
     <ClInclude Include="DebugDrawTextImpl.h" />
     <ClInclude Include="Include\DebugDrawText.h" />
+    <ClInclude Include="MaterialEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="imgui">
