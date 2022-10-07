@@ -130,7 +130,6 @@
     <ClCompile Include="ShaderCache.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainDefault.cpp" />
-    <ClCompile Include="SwapChainOn12.cpp" />
     <ClCompile Include="SwapChainWaitable.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VertexDeclaration.cpp" />
@@ -163,7 +162,6 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="SwapChainDefault.h" />
-    <ClInclude Include="SwapChainOn12.h" />
     <ClInclude Include="SwapChainWaitable.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexDeclaration.h" />

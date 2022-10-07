@@ -30,9 +30,6 @@
     <ClCompile Include="Buffer.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
-    <ClCompile Include="SwapChainOn12.cpp">
-      <Filter>Device</Filter>
-    </ClCompile>
     <ClCompile Include="SwapChainWaitable.cpp">
       <Filter>Device</Filter>
     </ClCompile>
@@ -103,9 +100,6 @@
       <Filter>Device</Filter>
     </ClInclude>
     <ClInclude Include="SwapChain.h">
-      <Filter>Device</Filter>
-    </ClInclude>
-    <ClInclude Include="SwapChainOn12.h">
       <Filter>Device</Filter>
     </ClInclude>
     <ClInclude Include="DepthStencilSurface.h">
