@@ -177,7 +177,7 @@ HICON __stdcall LoadIconImpl(HINSTANCE hInstance, LPCSTR lpIconName)
 
 HOOK(D3D9*, __cdecl, Direct3DCreate, 0xA5EDD0, UINT SDKVersion)
 {
-    return new D3D9(SDKVersion);
+    return new D3D9();
 }
 
 HOOK(void, WINAPI, MyOutputDebugStringA, &OutputDebugStringA, LPCSTR lpOutputString)

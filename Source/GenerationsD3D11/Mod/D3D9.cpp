@@ -3,39 +3,41 @@
 #include "Configuration.h"
 #include "Device.h"
 
-D3D9::D3D9(UINT SDKVersion) : d3d9(Direct3DCreate9(SDKVersion))
+void D3D9::ensureNotNull()
 {
-}
-
-D3D9::~D3D9()
-{
-    d3d9->Release();
+    if (!d3d9)
+        d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 }
 
 FUNCTION_STUB(HRESULT, D3D9::RegisterSoftwareDevice, void* pInitializeFunction)
 
 UINT D3D9::GetAdapterCount()
 {
+    ensureNotNull();
     return d3d9->GetAdapterCount();
 }
 
 HRESULT D3D9::GetAdapterIdentifier(UINT Adapter, DWORD Flags, D3DADAPTER_IDENTIFIER9* pIdentifier)
 {
+    ensureNotNull();
     return d3d9->GetAdapterIdentifier(Adapter, Flags, pIdentifier);
 }
 
 UINT D3D9::GetAdapterModeCount(UINT Adapter, D3DFORMAT Format)
 {
+    ensureNotNull();
     return d3d9->GetAdapterModeCount(Adapter, Format);
 }
 
 HRESULT D3D9::EnumAdapterModes(UINT Adapter, D3DFORMAT Format, UINT Mode, D3DDISPLAYMODE* pMode)
 {
+    ensureNotNull();
     return d3d9->EnumAdapterModes(Adapter, Format, Mode, pMode);
 }
 
 HRESULT D3D9::GetAdapterDisplayMode(UINT Adapter, D3DDISPLAYMODE* pMode)
 {
+    ensureNotNull();
     return d3d9->GetAdapterDisplayMode(Adapter, pMode);
 }
 
@@ -43,6 +45,7 @@ FUNCTION_STUB(HRESULT, D3D9::CheckDeviceType, UINT Adapter, D3DDEVTYPE DevType, 
 
 HRESULT D3D9::CheckDeviceFormat(UINT Adapter, D3DDEVTYPE DeviceType, D3DFORMAT AdapterFormat, DWORD Usage, D3DRESOURCETYPE RType, D3DFORMAT CheckFormat)
 {
+    ensureNotNull();
     return d3d9->CheckDeviceFormat(Adapter, DeviceType, AdapterFormat, Usage, RType, CheckFormat);
 }
 
@@ -54,6 +57,7 @@ FUNCTION_STUB(HRESULT, D3D9::CheckDeviceFormatConversion, UINT Adapter, D3DDEVTY
 
 HRESULT D3D9::GetDeviceCaps(UINT Adapter, D3DDEVTYPE DeviceType, D3DCAPS9* pCaps)
 {
+    ensureNotNull();
     return d3d9->GetDeviceCaps(Adapter, DeviceType, pCaps);
 }
 
@@ -70,7 +74,9 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
     MONITORINFO monitorInfo;
     monitorInfo.cbSize = sizeof(MONITORINFO);
 
+    ensureNotNull();
     GetMonitorInfo(d3d9->GetAdapterMonitor(Adapter), &monitorInfo);
+    d3d9 = nullptr;
 
     uint32_t x, y, width, height;
 

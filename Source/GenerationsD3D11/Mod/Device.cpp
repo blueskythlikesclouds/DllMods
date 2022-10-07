@@ -9,7 +9,6 @@
 #include "ShaderCache.h"
 #include "Surface.h"
 #include "SwapChainDefault.h"
-#include "SwapChainOn12.h"
 #include "SwapChainWaitable.h"
 #include "Texture.h"
 #include "TypeConverter.h"
