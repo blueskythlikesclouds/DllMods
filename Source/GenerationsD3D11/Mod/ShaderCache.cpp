@@ -8,6 +8,7 @@
 
 struct ChunkHeader
 {
+    size_t version;
     size_t compressedLength;
     size_t uncompressedLength;
 
@@ -34,7 +35,7 @@ struct ChunkHeader
 
 struct ShaderHeader
 {
-    XXH64_hash_t hash;
+    XXH32_hash_t hash;
     size_t length;
 
     static size_t computePadding(const size_t length)
@@ -58,7 +59,7 @@ struct ShaderHeader
     }
 };
 
-ShaderData::ShaderData(void* handle, const size_t length, XXH64_hash_t hash) : handle(handle), length(length), hash(hash)
+ShaderData::ShaderData(void* handle, const size_t length, XXH32_hash_t hash) : handle(handle), length(length), hash(hash)
 {
 }
 
@@ -77,7 +78,7 @@ size_t ShaderData::getLength() const
     return length & SHADER_LENGTH_MASK;
 }
 
-XXH64_hash_t ShaderData::getHash() const
+XXH32_hash_t ShaderData::getHash() const
 {
     return hash;
 }
@@ -107,6 +108,12 @@ void ShaderCache::loadSingle(const std::string& filePath)
 
     while (chunk < chunkEnd)
     {
+        if (chunk->version != ShaderTranslatorService::getVersion())
+        {
+            chunk = chunk->next();
+            continue;
+        }
+
         std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(chunk->uncompressedLength);
 
         if (chunk->uncompressedLength == chunk->compressedLength)
@@ -130,10 +137,10 @@ void ShaderCache::loadSingle(const std::string& filePath)
 }
 
 std::vector<std::unique_ptr<uint8_t[]>> ShaderCache::chunks;
-std::unordered_map<XXH64_hash_t, ShaderData> ShaderCache::shaders;
+std::unordered_map<XXH32_hash_t, ShaderData> ShaderCache::shaders;
 
-std::unordered_map<XXH64_hash_t, ComPtr<VertexShader>> ShaderCache::vertexShaders;
-std::unordered_map<XXH64_hash_t, ComPtr<ID3D11PixelShader>> ShaderCache::pixelShaders;
+std::unordered_map<XXH32_hash_t, ComPtr<VertexShader>> ShaderCache::vertexShaders;
+std::unordered_map<XXH32_hash_t, ComPtr<ID3D11PixelShader>> ShaderCache::pixelShaders;
 
 std::string ShaderCache::directoryPath;
 
@@ -239,7 +246,7 @@ void ShaderCache::clean()
 
 ShaderData ShaderCache::get(void* function, const size_t functionSize)
 {
-    const XXH64_hash_t hash = XXH64(function, functionSize, 0);
+    const XXH32_hash_t hash = XXH32(function, functionSize, 0);
 
     if (*(int*)function == MAKEFOURCC('D', 'X', 'B', 'C'))
         return { function, functionSize, hash };

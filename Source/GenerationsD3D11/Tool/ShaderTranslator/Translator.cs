@@ -8,6 +8,8 @@ namespace ShaderTranslator
 {
     public static class Translator
     {
+        public const int Version = 0;
+
         private static void PopulateSemantics(Dictionary<string, string> semantics)
         {
             semantics.Add("SV_Position", "svPos");

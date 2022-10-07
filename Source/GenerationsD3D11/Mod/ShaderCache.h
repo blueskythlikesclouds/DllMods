@@ -8,25 +8,25 @@ class ShaderData
 
     void* handle;
     size_t length;
-    XXH64_hash_t hash;
+    XXH32_hash_t hash;
 
 public:
-    ShaderData(void* handle, size_t length, XXH64_hash_t hash);
+    ShaderData(void* handle, size_t length, XXH32_hash_t hash);
 
     bool isCached() const;
 
     void* getBytes() const;
     size_t getLength() const;
-    XXH64_hash_t getHash() const;
+    XXH32_hash_t getHash() const;
 };
 
 class ShaderCache
 {
     static std::vector<std::unique_ptr<uint8_t[]>> chunks;
-    static std::unordered_map<XXH64_hash_t, ShaderData> shaders;
+    static std::unordered_map<XXH32_hash_t, ShaderData> shaders;
 
-    static std::unordered_map<XXH64_hash_t, ComPtr<VertexShader>> vertexShaders;
-    static std::unordered_map<XXH64_hash_t, ComPtr<ID3D11PixelShader>> pixelShaders;
+    static std::unordered_map<XXH32_hash_t, ComPtr<VertexShader>> vertexShaders;
+    static std::unordered_map<XXH32_hash_t, ComPtr<ID3D11PixelShader>> pixelShaders;
 
     static std::string directoryPath;
 

@@ -47,3 +47,8 @@ void ShaderTranslatorService::free(void* handle)
 {
     GCHandle::FromIntPtr(IntPtr(handle)).Free();
 }
+
+int ShaderTranslatorService::getVersion()
+{
+    return Translator::Version;
+}

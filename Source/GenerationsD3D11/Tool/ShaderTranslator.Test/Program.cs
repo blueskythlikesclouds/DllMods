@@ -73,16 +73,21 @@ foreach (var cacheInfo in cacheInfos)
         }
     }
 
-    var shaderMap = new Dictionary<ulong, byte[]>();
+    var shaderMap = new Dictionary<uint, (byte[] Original, byte[] Translated)>();
     var lockObject = new object();
 
     Parallel.ForEach(shaders, shader =>
     {
-        var hash = XXH64.DigestOf(shader.Data, shader.Position, shader.Length);
+        var hash = XXH32.DigestOf(shader.Data, shader.Position, shader.Length);
         lock (lockObject)
         {
-            if (shaderMap.ContainsKey(hash))
+            if (shaderMap.TryGetValue(hash, out var pair))
+            {
+                if (!pair.Original.SequenceEqual(shader.Data))
+                    throw new Exception("Hash collision detected!");
+
                 return;
+            }
         }
 
         Console.WriteLine(shader.Name);
@@ -95,7 +100,7 @@ foreach (var cacheInfo in cacheInfos)
         }
 
         lock (lockObject)
-            shaderMap[hash] = translated;
+            shaderMap[hash] = (shader.Data, translated);
     });
 
     byte[] bytes;
@@ -103,14 +108,13 @@ foreach (var cacheInfo in cacheInfos)
     using (var stream = new MemoryStream())
     using (var writer = new BinaryWriter(stream))
     {
-        foreach (var pair in shaderMap.OrderBy(x => x.Value.Length))
+        foreach (var pair in shaderMap.OrderBy(x => x.Value.Translated.Length))
         {
             writer.Write(pair.Key);
-            writer.Write(pair.Value.Length);
-            writer.Write(0); // padding
-            writer.Write(pair.Value);
+            writer.Write(pair.Value.Translated.Length);
+            writer.Write(pair.Value.Translated);
 
-            int padding = ((pair.Value.Length + 7) & ~7) - pair.Value.Length;
+            int padding = ((pair.Value.Translated.Length + 3) & ~3) - pair.Value.Translated.Length;
             for (int i = 0; i < padding; i++)
                 writer.Write((byte)0);
         }
@@ -126,6 +130,7 @@ foreach (var cacheInfo in cacheInfos)
     using (var stream = File.Create($@"D:\Steam\steamapps\common\Sonic Generations\mods\Direct3D 11\{cacheInfo.Key}.shadercache"))
     using (var writer = new BinaryWriter(stream))
     {
+        writer.Write(Translator.Version);
         writer.Write(length);
         writer.Write(bytes.Length);
         writer.Write(dst, 0, length);
