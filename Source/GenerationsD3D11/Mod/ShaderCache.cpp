@@ -108,7 +108,7 @@ void ShaderCache::loadSingle(const std::string& filePath)
 
     while (chunk < chunkEnd)
     {
-        if (chunk->version != ShaderTranslatorService::getVersion())
+        if (chunk->version != ShaderTranslatorService::getVersion() || !chunk->compressedLength || !chunk->uncompressedLength)
         {
             chunk = chunk->next();
             continue;
@@ -198,6 +198,11 @@ void ShaderCache::save()
     }
 
     FILE* file = fopen((directoryPath + "/user.shadercache").c_str(), "ab");
+    if (!file)
+    {
+        MessageBox(nullptr, TEXT("Unable to open \"user.shadercache\" in mod directory."), TEXT("GenerationsD3D11"), MB_ICONERROR);
+        return;
+    }
 
     uint8_t* src = data.get();
 

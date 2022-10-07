@@ -205,7 +205,7 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
         dir.erase(pos + 1);
 
     if (!Configuration::load(dir + "GenerationsD3D11.ini"))
-        MessageBox(NULL, L"Failed to parse GenerationsD3D11.ini", NULL, MB_ICONERROR);
+        MessageBox(nullptr, TEXT("Unable to open \"GenerationsD3D11.ini\" in mod directory."), TEXT("GenerationsD3D11"), MB_ICONERROR);
 
     ShaderCache::init(dir);
     ShaderCache::load();
