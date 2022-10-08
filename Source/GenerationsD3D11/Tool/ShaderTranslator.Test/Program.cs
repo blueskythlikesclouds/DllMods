@@ -5,7 +5,9 @@ using ShaderTranslator;
 
 if (args.Length > 0)
 {
-    File.WriteAllBytes(args[0] + ".dxbc", Translator.Translate(File.ReadAllBytes(args[0])));
+    string translated = Translator.Translate(File.ReadAllBytes(args[0]), out bool isPixelShader);
+    File.WriteAllText(args[0] + ".hlsl", translated);
+    File.WriteAllBytes(args[0] + ".dxbc", Translator.Compile(translated, isPixelShader));
     return;
 }
 

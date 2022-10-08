@@ -6,4 +6,19 @@
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Update="Resources\TranslatorInternal.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TranslatorInternal.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\TranslatorInternal.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TranslatorInternal.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

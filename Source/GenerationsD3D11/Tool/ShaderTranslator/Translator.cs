@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using ShaderTranslator.Resources;
 
 namespace ShaderTranslator
 {
@@ -47,8 +48,8 @@ namespace ShaderTranslator
                     hash == 602606931u || hash == 781526840u);
         }
 
-        // Color correction shader needs to be compiled without optimizations to match the
-        // floating-point accuracy of its DX9 counterpart. (mad -> mul + add)
+        // Color correction shader needs to be recompiled as
+        // the floating point accuracy in D3D9 doesn't match with D3D11.
         public static unsafe bool IsColorCorrectionShader(void* function, int functionSize)
         {
             uint hash;
@@ -71,6 +72,12 @@ namespace ShaderTranslator
 
         public static unsafe string Translate(void* function, int functionSize, out bool isPixelShader)
         {
+            if (IsColorCorrectionShader(function, functionSize))
+            {
+                isPixelShader = true;
+                return TranslatorInternal.ColorCorrection;
+            }
+
             string disassembly;
             {
                 ID3DBlob blob;
@@ -389,15 +396,15 @@ namespace ShaderTranslator
 
         public static unsafe byte[] Translate(void* function, int functionSize)
         {
-            return Compile(Translate(function, functionSize, out bool isPixelShader), isPixelShader, IsColorCorrectionShader(function, functionSize));
+            return Compile(Translate(function, functionSize, out bool isPixelShader), isPixelShader);
         }
 
-        public static unsafe byte[] Compile(string translated, bool isPixelShader, bool skipOptimizations)
+        public static unsafe byte[] Compile(string translated, bool isPixelShader)
         {
             ID3DBlob blob, errorBlob;
 
             int result = Compiler.Compile(translated, translated.Length, string.Empty, null, null, "main",
-                isPixelShader ? "ps_5_0" : "vs_5_0", skipOptimizations ? (1u << 2) : (1u << 15), 0, out blob, out errorBlob);
+                isPixelShader ? "ps_5_0" : "vs_5_0", 1u << 15, 0, out blob, out errorBlob);
 
             if (result != 0 && errorBlob != null)
                 throw new Exception(Marshal.PtrToStringAnsi(errorBlob.GetBufferPointer()));
