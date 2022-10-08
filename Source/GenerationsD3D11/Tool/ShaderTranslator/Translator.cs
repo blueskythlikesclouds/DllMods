@@ -209,7 +209,7 @@ namespace ShaderTranslator
 
             stringBuilder.AppendLine("#define FLT_MAX asfloat(0x7f7fffff)\n");
 
-            stringBuilder.AppendFormat("cbuffer cbGlobals{0} : register(b0) {{", isPixelShader ? "PS" : "VS");
+            stringBuilder.AppendFormat("cbuffer cbGlobals{0} : register(b0) {{\n", isPixelShader ? "PS" : "VS");
 
             foreach (var constant in constants)
             {
