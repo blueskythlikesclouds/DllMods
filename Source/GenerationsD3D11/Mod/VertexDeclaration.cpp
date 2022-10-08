@@ -113,24 +113,23 @@ bool VertexDeclaration::getIsFVF() const
 
 ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader, bool instance)
 {
-    const auto pair = inputLayouts.find({ vertexShader, instance });
-    if (pair != inputLayouts.end())
-        return pair->second.Get();
+    auto& inputLayout = inputLayouts[(size_t)vertexShader | (instance ? 1u : 0)]; // Can do this as lower 3 bits are always free.
 
-    for (auto& element : inputElements)
+    if (!inputLayout)
     {
-        if (element.InputSlot == 0)
-            continue;
+        for (auto& element : inputElements)
+        {
+            if (element.InputSlot == 0)
+                continue;
 
-        element.InputSlotClass = instance ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
-        element.InstanceDataStepRate = instance ? 1 : 0;
+            element.InputSlotClass = instance ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+            element.InstanceDataStepRate = instance ? 1 : 0;
+        }
+
+        inputLayout.Attach(vertexShader->createInputLayout(device, inputElements.data(), inputElements.size()));
     }
 
-    ID3D11InputLayout* inputLayout = vertexShader->createInputLayout(device, inputElements.data(), inputElements.size());
-    inputLayouts.insert(std::make_pair(std::make_pair(vertexShader, instance), inputLayout));
-    inputLayout->Release();
-
-    return inputLayout;
+    return inputLayout.Get();
 }
 
 FUNCTION_STUB(HRESULT, VertexDeclaration::GetDevice, Device** ppDevice)

@@ -10,20 +10,13 @@ class VertexDeclaration : public Unknown
     std::unique_ptr<D3DVERTEXELEMENT9[]> vertexElements;
     size_t vertexElementCount{};
     std::vector<D3D11_INPUT_ELEMENT_DESC> inputElements;
+
     bool hasBone{};
     bool has10BitNormal{};
     bool hasBinormal{};
     bool isFVF;
 
-    struct InputLayoutHash
-    {
-        std::size_t operator()(const std::pair<const VertexShader*, bool>& value) const noexcept
-        {
-            return XXH32(&value, (size_t)&value.second + sizeof(value.second) - (size_t)&value, 0);
-        }
-    };
-
-    std::unordered_map<std::pair<const VertexShader*, bool>, ComPtr<ID3D11InputLayout>, InputLayoutHash> inputLayouts;
+    std::unordered_map<size_t, ComPtr<ID3D11InputLayout>> inputLayouts;
 
     void addIfNotExist(LPCSTR semanticName, UINT semanticIndex, DXGI_FORMAT format);
 

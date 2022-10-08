@@ -66,60 +66,30 @@ void Device::flush()
 
     if (dirty & (1 << DirtyDepthStencilState))
     {
-        const XXH32_hash_t hash = XXH32(&depthStencilState, sizeof(depthStencilState), 0);
-        const auto pair = depthStencilStates.find(hash);
+        auto& ptr = depthStencilStates[XXH32(&depthStencilState, sizeof(depthStencilState), 0)];
+        if (!ptr)
+            device->CreateDepthStencilState(&depthStencilState, ptr.GetAddressOf());
 
-        ID3D11DepthStencilState* depthStencilStateObj = nullptr;
-
-        if (pair != depthStencilStates.end())
-            depthStencilStateObj = pair->second.Get();
-        else
-        {
-            device->CreateDepthStencilState(&depthStencilState, &depthStencilStateObj);
-            depthStencilStates.insert(std::make_pair(hash, depthStencilStateObj));
-            depthStencilStateObj->Release();
-        }
-
-        deviceContext->OMSetDepthStencilState(depthStencilStateObj, 0);
+        deviceContext->OMSetDepthStencilState(ptr.Get(), 0);
     }
 
     if (dirty & (1 << DirtyRasterizerState))
     {
-        const XXH32_hash_t hash = XXH32(&rasterizerState, sizeof(rasterizerState), 0);
-        const auto pair = rasterizerStates.find(hash);
+        auto& ptr = rasterizerStates[XXH32(&rasterizerState, sizeof(rasterizerState), 0)];
+        if (!ptr)
+            device->CreateRasterizerState(&rasterizerState, ptr.GetAddressOf());
 
-        ID3D11RasterizerState* rasterizerStateObj = nullptr;
-
-        if (pair != rasterizerStates.end())
-            rasterizerStateObj = pair->second.Get();
-        else
-        {
-            device->CreateRasterizerState(&rasterizerState, &rasterizerStateObj);
-            rasterizerStates.insert(std::make_pair(hash, rasterizerStateObj));
-            rasterizerStateObj->Release();
-        }
-
-        deviceContext->RSSetState(rasterizerStateObj);
+        deviceContext->RSSetState(ptr.Get());
     }
 
     if (dirty & (1 << DirtyBlendState))
     {
-        const XXH32_hash_t hash = XXH32(&blendState, sizeof(blendState), 0);
-        const auto pair = blendStates.find(hash);
-
-        ID3D11BlendState* blendStateObj = nullptr;
-
-        if (pair != blendStates.end())
-            blendStateObj = pair->second.Get();
-        else
-        {
-            device->CreateBlendState(&blendState, &blendStateObj);
-            blendStates.insert(std::make_pair(hash, blendStateObj));
-            blendStateObj->Release();
-        }
+        auto& ptr = blendStates[XXH32(&blendState, sizeof(blendState), 0)];
+        if (!ptr)
+            device->CreateBlendState(&blendState, ptr.GetAddressOf());
 
         const FLOAT blendFactor[4] { 1, 1, 1, 1 };
-        deviceContext->OMSetBlendState(blendStateObj, blendFactor, ~0);
+        deviceContext->OMSetBlendState(ptr.Get(), blendFactor, ~0);
     }
 
     if (dirty & (1 << DirtyTexture))
@@ -141,21 +111,11 @@ void Device::flush()
             if (!(dirtySamplers & (1 << i)))
                 continue;
 
-            const XXH32_hash_t hash = XXH32(&samplers[i], sizeof(samplers[i]), 0);
-            const auto pair = samplerStates.find(hash);
+            auto& ptr = samplerStates[XXH32(&samplers[i], sizeof(samplers[i]), 0)];
+            if (!ptr)
+                device->CreateSamplerState(&samplers[i], ptr.GetAddressOf());
 
-            ID3D11SamplerState* samplerStateObj;
-
-            if (pair != samplerStates.end())
-                samplerStateObj = pair->second.Get();
-            else
-            {
-                device->CreateSamplerState(&samplers[i], &samplerStateObj);
-                samplerStates.insert(std::make_pair(hash, samplerStateObj));
-                samplerStateObj->Release();
-            }
-
-            deviceContext->PSSetSamplers(i, 1, &samplerStateObj);
+            deviceContext->PSSetSamplers(i, 1, ptr.GetAddressOf());
         }
     }
 
@@ -990,17 +950,9 @@ FUNCTION_STUB(HRESULT, Device::GetVertexDeclaration, VertexDeclaration** ppDecl)
 
 HRESULT Device::SetFVF(DWORD FVF)
 {
-    ComPtr<VertexDeclaration> fvf;
-
-    const auto pair = fvfMap.find(FVF);
-    if (pair != fvfMap.end())
-        fvf = pair->second;
-
-    else
-    {
+    auto& fvf = fvfMap[FVF];
+    if (!fvf)
         fvf.Attach(new VertexDeclaration(FVF));
-        fvfMap.insert(std::make_pair(FVF, fvf));
-    }
 
     setDirty(vertexDeclaration, fvf.Get(), DirtyVertexShader);
     return S_OK;
