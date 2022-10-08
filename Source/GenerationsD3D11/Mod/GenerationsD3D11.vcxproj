@@ -59,7 +59,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Dependencies\lz4\include;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Dependencies\lz4\include;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;..\..\..\Dependencies\oneTBB\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>
@@ -68,8 +68,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3d12.lib;dxgi.lib;detours.lib;syelog.lib;liblz4_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\Dependencies\Detours\lib\x86;..\..\..\Dependencies\lz4\static;..\..\..\Include\BlueBlur;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3d12.lib;dxgi.lib;detours.lib;syelog.lib;liblz4_static.lib;tbb12_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Dependencies\Detours\lib\x86;..\..\..\Dependencies\lz4\static;..\..\..\Include\BlueBlur;..\..\..\Dependencies\oneTBB\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -84,7 +84,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Dependencies\lz4\include;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Dependencies\lz4\include;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;..\..\..\Dependencies\oneTBB\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>false</ExceptionHandling>
@@ -101,8 +101,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3d12.lib;dxgi.lib;detours.lib;syelog.lib;liblz4_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\Dependencies\Detours\lib\x86;..\..\..\Dependencies\lz4\static;..\..\..\Include\BlueBlur;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3d12.lib;dxgi.lib;detours.lib;syelog.lib;liblz4_static.lib;tbb12.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Dependencies\Detours\lib\x86;..\..\..\Dependencies\lz4\static;..\..\..\Include\BlueBlur;..\..\..\Dependencies\oneTBB\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -118,6 +118,7 @@
     <ClCompile Include="..\..\GenerationsD3D9Ex\MemoryHandler.cpp" />
     <ClCompile Include="BaseTexture.cpp" />
     <ClCompile Include="Configuration.cpp" />
+    <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="ScopedProfiler.cpp" />
     <ClCompile Include="DepthStencilSurface.cpp" />
     <ClCompile Include="DepthStencilTexture.cpp" />
@@ -128,6 +129,7 @@
     <ClCompile Include="RenderTargetSurface.cpp" />
     <ClCompile Include="RenderTargetTexture.cpp" />
     <ClCompile Include="Resource.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderCache.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainDefault.cpp" />
@@ -156,6 +158,8 @@
     <ClInclude Include="D3D9.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Include\GenerationsD3D11.h" />
+    <ClInclude Include="PixelShader.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderCache.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="RenderTargetSurface.h" />

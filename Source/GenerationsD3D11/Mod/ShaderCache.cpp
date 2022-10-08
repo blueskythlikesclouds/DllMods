@@ -1,10 +1,7 @@
 ﻿#include "ShaderCache.h"
-
+#include "PixelShader.h"
 #include "ShaderTranslator.h"
 #include "VertexShader.h"
-
-#define SHADER_IS_UNCACHED    (1 << 31)
-#define SHADER_LENGTH_MASK   ~(1 << 31)
 
 struct ChunkHeader
 {
@@ -59,28 +56,48 @@ struct ShaderHeader
     }
 };
 
-ShaderData::ShaderData(void* handle, const size_t length, XXH32_hash_t hash) : handle(handle), length(length), hash(hash)
+ShaderByteCode::ShaderByteCode() : handle(nullptr), length(0), hash(0), type(Type::Reference)
 {
 }
 
-bool ShaderData::isCached() const
+ShaderByteCode::~ShaderByteCode()
 {
-    return !(length & SHADER_IS_UNCACHED);
+    if (type == Type::Managed)
+        ShaderTranslatorService::free(handle);
+
+    else if (type == Type::Unique)
+        operator delete(handle);
 }
 
-void* ShaderData::getBytes() const
+void* ShaderByteCode::get() const
 {
-    return length & SHADER_IS_UNCACHED ? ShaderTranslatorService::getBytes(handle) : handle;
+    return type == Type::Managed ? ShaderTranslatorService::getBytes(handle) : handle;
 }
 
-size_t ShaderData::getLength() const
+CriticalSection ShaderCache::criticalSection;
+
+tbb::task_group ShaderCache::group;
+
+std::vector<std::unique_ptr<uint8_t[]>> ShaderCache::chunks;
+
+std::unordered_map<int, ShaderByteCode> ShaderCache::shaderByteCodes;
+
+std::unordered_map<int, ComPtr<VertexShader>> ShaderCache::vertexShaders;
+std::unordered_map<int, ComPtr<PixelShader>> ShaderCache::pixelShaders;
+
+std::string ShaderCache::directoryPath;
+
+HOOK(void, __fastcall, GameplayFlowStageEnter, 0xD05530, void* This)
 {
-    return length & SHADER_LENGTH_MASK;
+    originalGameplayFlowStageEnter(This);
+    ShaderCache::clean();
 }
 
-XXH32_hash_t ShaderData::getHash() const
+void ShaderCache::init(const std::string& dir)
 {
-    return hash;
+    directoryPath = dir;
+    ShaderTranslatorService::init(save);
+    INSTALL_HOOK(GameplayFlowStageEnter);
 }
 
 void ShaderCache::loadSingle(const std::string& filePath)
@@ -127,7 +144,14 @@ void ShaderCache::loadSingle(const std::string& filePath)
 
         while (shader < shaderEnd)
         {
-            shaders.insert(std::make_pair(shader->hash, ShaderData(shader->getData(), shader->length, shader->hash)));
+            ShaderByteCode byteCode;
+            byteCode.handle = shader->getData();
+            byteCode.length = shader->length;
+            byteCode.hash = shader->hash;
+            byteCode.type = ShaderByteCode::Type::Reference;
+
+            shaderByteCodes.insert(std::make_pair(shader->hash, std::move(byteCode)));
+
             shader = shader->next();
         }
 
@@ -136,46 +160,34 @@ void ShaderCache::loadSingle(const std::string& filePath)
     }
 }
 
-std::vector<std::unique_ptr<uint8_t[]>> ShaderCache::chunks;
-std::unordered_map<XXH32_hash_t, ShaderData> ShaderCache::shaders;
-
-std::unordered_map<XXH32_hash_t, ComPtr<VertexShader>> ShaderCache::vertexShaders;
-std::unordered_map<XXH32_hash_t, ComPtr<ID3D11PixelShader>> ShaderCache::pixelShaders;
-
-std::string ShaderCache::directoryPath;
-
-void ShaderCache::init(const std::string& dir)
-{
-    ShaderTranslatorService::init();
-    directoryPath = dir;
-}
-
 void ShaderCache::load()
 {
-    for (auto& file : std::filesystem::directory_iterator(directoryPath))
+    loadSingle(directoryPath + "/pregenerated_shader_cache.bin");
+    loadSingle(directoryPath + "/runtime_generated_shader_cache.bin");
+}
+
+namespace
+{
+    template<typename T>
+    void cleanSwap(T& value)
     {
-        if (!file.is_regular_file())
-            continue;
-
-        std::string extension = file.path().extension().string();
-        std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
-
-        if (extension == ".shadercache")
-            loadSingle(file.path().string());
+        std::swap(value, T());
     }
 }
 
 void ShaderCache::save()
 {
-    if (shaders.empty())
+    std::lock_guard lock(criticalSection);
+
+    if (shaderByteCodes.empty())
         return;
 
     ChunkHeader chunk{};
 
-    for (auto& pair : shaders)
+    for (auto& pair : shaderByteCodes)
     {
-        if (!pair.second.isCached())
-            chunk.uncompressedLength += ShaderHeader::computeTotalLength(pair.second.getLength());
+        if (pair.second.type == ShaderByteCode::Type::Managed)
+            chunk.uncompressedLength += ShaderHeader::computeTotalLength(pair.second.length);
     }
 
     if (!chunk.uncompressedLength)
@@ -185,28 +197,30 @@ void ShaderCache::save()
     std::unique_ptr<uint8_t[]> data = std::make_unique<uint8_t[]>(chunk.uncompressedLength + compressBound);
 
     ShaderHeader* shader = (ShaderHeader*)data.get();
-    for (auto& pair : shaders)
+    for (auto& pair : shaderByteCodes)
     {
-        if (pair.second.isCached())
+        if (pair.second.type != ShaderByteCode::Type::Managed)
             continue;
 
         shader->hash = pair.first;
-        shader->length = pair.second.getLength();
-        memcpy(shader->getData(), pair.second.getBytes(), pair.second.getLength());
+        shader->length = pair.second.length;
+        memcpy(shader->getData(), pair.second.get(), pair.second.length);
 
         shader = shader->next();
     }
 
-    FILE* file = fopen((directoryPath + "/user.shadercache").c_str(), "ab");
+    cleanSwap(shaderByteCodes);
+
+    FILE* file = fopen((directoryPath + "/runtime_generated_shader_cache.bin").c_str(), "ab");
     if (!file)
     {
-        MessageBox(nullptr, TEXT("Unable to open \"user.shadercache\" in mod directory."), TEXT("GenerationsD3D11"), MB_ICONERROR);
+        MessageBox(nullptr, TEXT("Unable to open \"runtime_generated_shader_cache.bin\" in mod directory."), TEXT("GenerationsD3D11"), MB_ICONERROR);
         return;
     }
 
     uint8_t* src = data.get();
 
-    chunk.compressedLength = LZ4_compress_default((const char*)data.get(), 
+    chunk.compressedLength = LZ4_compress_default((const char*)data.get(),
         (char*)(data.get() + chunk.uncompressedLength), chunk.uncompressedLength, compressBound);
 
     if (chunk.compressedLength == 0)
@@ -225,76 +239,84 @@ void ShaderCache::save()
     fclose(file);
 }
 
-namespace
-{
-    template<typename T>
-    void cleanSwap(T& value)
-    {
-        std::swap(value, T());
-    }
-}
-
 void ShaderCache::clean()
 {
     cleanSwap(chunks);
 
-    for (auto& pair : shaders)
     {
-        if (!pair.second.isCached())
-            ShaderTranslatorService::free(pair.second.handle);
+        std::lock_guard lock(criticalSection);
+
+        for (auto it = shaderByteCodes.begin(); it != shaderByteCodes.end();)
+        {
+            if (it->second.type != ShaderByteCode::Type::Managed)
+                it = shaderByteCodes.erase(it);
+            else
+                ++it;
+        }
     }
 
-    cleanSwap(shaders);
     cleanSwap(vertexShaders);
     cleanSwap(pixelShaders);
 }
 
-ShaderData ShaderCache::get(void* function, const size_t functionSize)
+template<typename T>
+ComPtr<T> ShaderCache::get(ID3D11Device* device, void* function, const size_t functionSize, std::unordered_map<int, ComPtr<T>>& shaders)
 {
-    const XXH32_hash_t hash = XXH32(function, functionSize, 0);
+    const int hash = XXH32(function, functionSize, 0);
 
-    if (*(int*)function == MAKEFOURCC('D', 'X', 'B', 'C'))
-        return { function, functionSize, hash };
+    criticalSection.lock();
+    auto& shader = shaders[hash];
+    criticalSection.unlock();
 
-    const auto pair = shaders.find(hash);
-    if (pair != shaders.end())
-        return pair->second;
+    if (!shader)
+    {
+        if (*(int*)function == MAKEFOURCC('D', 'X', 'B', 'C'))
+            shader.Attach(new T(device, function, functionSize));
 
-    int translatedSize = 0;
-    void* handle = ShaderTranslatorService::translate(function, (int)functionSize, translatedSize);
+        else
+        {
+            criticalSection.lock();
+            auto& byteCode = shaderByteCodes[hash];
+            criticalSection.unlock();
 
-    if (!handle)
-        return { function, functionSize, hash };
+            if (byteCode.handle)
+                shader.Attach(new T(device, byteCode.handle, byteCode.length));
 
-    ShaderData data = { handle, (size_t)translatedSize | SHADER_IS_UNCACHED, hash };
-    shaders.insert(std::make_pair(hash, data));
-    return data;
+            else
+            {
+                void* alsoFunction = operator new(functionSize);
+                memcpy(alsoFunction, function, functionSize);
+
+                shader.Attach(new T([alsoDevice = ComPtr<ID3D11Device>(device), alsoFunction, functionSize, hash](T* alsoShader)
+                    {
+                        int translatedSize;
+                        void* handle = ShaderTranslatorService::translate(alsoFunction, functionSize, translatedSize);
+                        operator delete(alsoFunction);
+
+                        criticalSection.lock();
+                        auto & code = shaderByteCodes[hash];
+                        criticalSection.unlock();
+
+                        code.handle = handle;
+                        code.length = translatedSize;
+                        code.hash = hash;
+                        code.type = ShaderByteCode::Type::Managed;
+
+                        alsoShader->update(alsoDevice.Get(), code.get(), code.length);
+                    }));
+            }
+        }
+    }
+
+    return shader;
 }
 
-void ShaderCache::getVertexShader(ID3D11Device* device, DWORD* pFunction, DWORD FunctionSize, VertexShader** ppShader)
+void ShaderCache::getVertexShader(ID3D11Device* device, void* function, size_t functionSize, VertexShader** ppShader)
 {
-    const auto data = get(pFunction, FunctionSize);
-    const auto pair = vertexShaders.find(data.getHash());
-
-    if (pair == vertexShaders.end())
-    {
-        *ppShader = new VertexShader(device, data);
-        vertexShaders.insert(std::make_pair(data.getHash(), *ppShader));
-    }
-    else
-        pair->second.CopyTo(ppShader);
+    get(device, function, functionSize, vertexShaders).CopyTo(ppShader);
 }
 
-void ShaderCache::getPixelShader(ID3D11Device* device, DWORD* pFunction, DWORD FunctionSize, ID3D11PixelShader** ppShader)
+void ShaderCache::getPixelShader(ID3D11Device* device, void* function, size_t functionSize, PixelShader** ppShader)
 {
-    const auto data = get(pFunction, FunctionSize);
-    const auto pair = pixelShaders.find(data.getHash());
-
-    if (pair == pixelShaders.end())
-    {
-        device->CreatePixelShader(data.getBytes(), data.getLength(), nullptr, ppShader);
-        pixelShaders.insert(std::make_pair(data.getHash(), *ppShader));
-    }
-    else
-        pair->second.CopyTo(ppShader);
+    get(device, function, functionSize, pixelShaders).CopyTo(ppShader);
 }

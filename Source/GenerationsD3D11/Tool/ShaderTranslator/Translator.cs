@@ -404,7 +404,7 @@ namespace ShaderTranslator
             ID3DBlob blob, errorBlob;
 
             int result = Compiler.Compile(translated, translated.Length, string.Empty, null, null, "main",
-                isPixelShader ? "ps_5_0" : "vs_5_0", 1u << 15, 0, out blob, out errorBlob);
+                isPixelShader ? "ps_5_0" : "vs_5_0", 0, 0, out blob, out errorBlob);
 
             if (result != 0 && errorBlob != null)
                 throw new Exception(Marshal.PtrToStringAnsi(errorBlob.GetBufferPointer()));

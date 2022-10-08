@@ -39,14 +39,6 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     pPictureData->m_Flags |= hh::db::eDatabaseDataFlags_IsMadeOne;
 }
 
-HOOK(void, __fastcall, GameplayFlowStageEnter, 0xD05530, void* This)
-{
-    originalGameplayFlowStageEnter(This);
-
-    ShaderCache::save();
-    ShaderCache::clean();
-}
-
 typedef VOID(WINAPI* LPD3DXFILL2D)
 (
     Eigen::Vector4f* pOut,
@@ -226,7 +218,6 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
     MemoryHandler::applyPatches();
 
     INSTALL_HOOK(LoadPictureData);
-    INSTALL_HOOK(GameplayFlowStageEnter);
     INSTALL_HOOK(FillTexture);
     INSTALL_HOOK(Direct3DCreate);
 

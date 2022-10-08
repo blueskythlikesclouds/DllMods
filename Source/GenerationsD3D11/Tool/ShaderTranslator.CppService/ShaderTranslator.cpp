@@ -6,15 +6,28 @@ using namespace IO;
 using namespace Runtime::InteropServices;
 using namespace ShaderTranslator;
 
+namespace
+{
+    void(*onProcessExit)();
+}
+
 Assembly^ OnAssemblyResolve(Object^ sender, ResolveEventArgs^ args)
 {
     auto directoryPath = Path::GetDirectoryName(args->RequestingAssembly->Location);
     return Assembly::LoadFile(Path::Combine(directoryPath, (gcnew AssemblyName(args->Name))->Name + ".dll"));
 }
 
-void ShaderTranslatorService::init()
+void OnProcessExit(Object^ sender, EventArgs^ args)
 {
+    onProcessExit();
+}
+
+void ShaderTranslatorService::init(void(*onProcessExit)())
+{
+    ::onProcessExit = onProcessExit;
+
     AppDomain::CurrentDomain->AssemblyResolve += gcnew ResolveEventHandler(&OnAssemblyResolve);
+    AppDomain::CurrentDomain->ProcessExit += gcnew EventHandler(&OnProcessExit);
 }
 
 void* ShaderTranslatorService::translate(void* function, int functionSize, int& translatedSize)

@@ -1,5 +1,6 @@
 #pragma once
 
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 
 #include <BlueBlur.h>
@@ -32,6 +33,8 @@
 #define inline __forceinline
 #include <xxhash.h>
 #undef inline
+
+#include <oneapi/tbb.h>
 
 #include <bitset>
 #include <cstdint>

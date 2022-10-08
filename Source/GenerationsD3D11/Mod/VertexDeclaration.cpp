@@ -113,7 +113,7 @@ bool VertexDeclaration::getIsFVF() const
 
 ID3D11InputLayout* VertexDeclaration::getInputLayout(ID3D11Device* device, const VertexShader* vertexShader, bool instance)
 {
-    auto& inputLayout = inputLayouts[(size_t)vertexShader | (instance ? 1u : 0)]; // Can do this as lower 3 bits are always free.
+    auto& inputLayout = inputLayouts[(size_t)vertexShader->getVertexShader() | (instance ? 1u : 0)]; // Can do this as lower 3 bits are always free.
 
     if (!inputLayout)
     {

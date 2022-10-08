@@ -4,6 +4,7 @@
 #include "DepthStencilSurface.h"
 #include "DepthStencilTexture.h"
 #include "FVF.wvu.h"
+#include "PixelShader.h"
 #include "RenderTargetSurface.h"
 #include "RenderTargetTexture.h"
 #include "ShaderCache.h"
@@ -156,7 +157,7 @@ void Device::flush()
         deviceContext->IASetIndexBuffer(reinterpret_cast<ID3D11Buffer*>(indexBuffer->getResource()), indexBuffer->getFormat(), 0);
 
     if (dirty & (1 << DirtyPixelShader) && pixelShader)
-        deviceContext->PSSetShader(pixelShader.Get(), nullptr, 0);
+        deviceContext->PSSetShader(pixelShader->getPixelShader(), nullptr, 0);
 
     if (dirty & (1 << DirtyPixelConstant))
     {
@@ -253,6 +254,12 @@ bool Device::reserveUploadVertexBuffer(const void* data, const size_t size)
     return true;
 }
 
+bool Device::shouldSkipDrawing() const
+{
+    std::lock_guard lock(ShaderCache::criticalSection);
+    return (pixelShader && !pixelShader->getPixelShader()) || (vertexShader && !vertexShader->getVertexShader());
+}
+
 Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scaling)
     : syncInterval(presentationParameters->PresentationInterval == 1 ? 1 : 0)
 {
@@ -326,7 +333,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
     bufferDesc.ByteWidth = (sizeof(globalsShared) + 15) & ~15;
     device->CreateBuffer(&bufferDesc, nullptr, globalsSharedBuffer.GetAddressOf());
 
-    fvfVertexShader.Attach(new VertexShader(device.Get(), ShaderData((void*)g_fvf_vs_main, sizeof(g_fvf_vs_main), 0)));
+    fvfVertexShader.Attach(new VertexShader(device.Get(), (void*)g_fvf_vs_main, sizeof(g_fvf_vs_main)));
 
     invalidateDirtyStates();
 }
@@ -850,7 +857,7 @@ FUNCTION_STUB(float, Device::GetNPatchMode)
 
 HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
-    if (PrimitiveType > D3DPT_TRIANGLESTRIP)
+    if (PrimitiveType > D3DPT_TRIANGLESTRIP || shouldSkipDrawing())
         return S_OK;
 
     setDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyPrimitiveTopology);
@@ -868,7 +875,7 @@ HRESULT Device::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, 
         
 HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
-    if (PrimitiveType > D3DPT_TRIANGLESTRIP)
+    if (PrimitiveType > D3DPT_TRIANGLESTRIP || shouldSkipDrawing())
         return S_OK;
 
     setDirty(primitiveTopology, (D3D_PRIMITIVE_TOPOLOGY)PrimitiveType, DirtyPrimitiveTopology);
@@ -886,7 +893,7 @@ HRESULT Device::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVer
         
 HRESULT Device::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
-    if (PrimitiveType > D3DPT_TRIANGLESTRIP)
+    if (PrimitiveType > D3DPT_TRIANGLESTRIP || shouldSkipDrawing())
         return S_OK;
 
     setDirty(vertexStrides[0], VertexStreamZeroStride, DirtyVertexBuffer);

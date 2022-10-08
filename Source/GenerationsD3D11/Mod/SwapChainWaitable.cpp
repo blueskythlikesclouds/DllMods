@@ -46,7 +46,7 @@ bool SwapChainWaitable::initialize(Device* device, D3DPRESENT_PARAMETERS* presen
 
     swapChain1.As(&swapChain);
 
-    swapChain->SetMaximumFrameLatency(max(1, presentationParameters->BackBufferCount - 1));
+    swapChain->SetMaximumFrameLatency(std::max(1u, presentationParameters->BackBufferCount - 1));
     waitHandle = swapChain->GetFrameLatencyWaitableObject();
 
     ComPtr<ID3D11Texture2D> backBuffer;

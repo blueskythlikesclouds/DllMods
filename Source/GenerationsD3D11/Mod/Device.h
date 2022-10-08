@@ -8,6 +8,7 @@ class Buffer;
 class CubeTexture;
 class D3D9;
 class DepthStencilSurface;
+class PixelShader;
 class RenderTargetSurface;
 class Surface;
 class SwapChain;
@@ -17,8 +18,6 @@ class VertexShader;
 
 typedef Buffer VertexBuffer;
 typedef Buffer IndexBuffer;
-
-typedef ID3D11PixelShader PixelShader;
 
 struct alignas(16) GlobalsVS
 {
@@ -142,6 +141,8 @@ class Device : public Unknown
     void invalidateDirtyStates();
 
     bool reserveUploadVertexBuffer(const void* data, size_t size);
+
+    bool shouldSkipDrawing() const;
 
 public:
     explicit Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scaling);

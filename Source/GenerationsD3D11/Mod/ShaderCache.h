@@ -1,45 +1,61 @@
 ﻿#pragma once
 
+#include "CriticalSection.h"
+
+class PixelShader;
 class VertexShader;
 
-class ShaderData
+class ShaderByteCode
 {
-    friend class ShaderCache;
-
+public:
+    enum class Type
+    {
+        Managed,
+        Reference,
+        Unique
+    };
+    
     void* handle;
     size_t length;
-    XXH32_hash_t hash;
+    int hash;
+    Type type;
 
-public:
-    ShaderData(void* handle, size_t length, XXH32_hash_t hash);
+    ShaderByteCode();
+    ~ShaderByteCode();
 
-    bool isCached() const;
-
-    void* getBytes() const;
-    size_t getLength() const;
-    XXH32_hash_t getHash() const;
+    void* get() const;
 };
 
 class ShaderCache
 {
+    friend class Device;
+    friend class VertexShader;
+    friend class PixelShader;
+
+    static CriticalSection criticalSection;
+
+    static tbb::task_group group;
+
     static std::vector<std::unique_ptr<uint8_t[]>> chunks;
 
-    static std::unordered_map<XXH32_hash_t, ShaderData> shaders;
-    static std::unordered_map<XXH32_hash_t, ComPtr<VertexShader>> vertexShaders;
-    static std::unordered_map<XXH32_hash_t, ComPtr<ID3D11PixelShader>> pixelShaders;
+    static std::unordered_map<int, ShaderByteCode> shaderByteCodes;
+
+    static std::unordered_map<int, ComPtr<VertexShader>> vertexShaders;
+    static std::unordered_map<int, ComPtr<PixelShader>> pixelShaders;
 
     static std::string directoryPath;
 
-    static void loadSingle(const std::string& filePath);
+    template<typename T>
+    static ComPtr<T> get(ID3D11Device* device, void* function, size_t functionSize, std::unordered_map<int, ComPtr<T>>& shaders);
 
 public:
     static void init(const std::string& dir);
+
+    static void loadSingle(const std::string& filePath);
     static void load();
     static void save();
     static void clean();
 
-    static ShaderData get(void* function, size_t functionSize);
-
-    static void getVertexShader(ID3D11Device* device, DWORD* pFunction, DWORD FunctionSize, VertexShader** ppShader);
-    static void getPixelShader(ID3D11Device* device, DWORD* pFunction, DWORD FunctionSize, ID3D11PixelShader** ppShader);
+    static void getVertexShader(ID3D11Device* device, void* function, size_t functionSize, VertexShader** ppShader);
+    static void getPixelShader(ID3D11Device* device, void* function, size_t functionSize, PixelShader** ppShader);
 };
