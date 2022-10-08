@@ -1,4 +1,4 @@
-cbuffer global : register(b0)
+cbuffer cbGlobals : register(b0)
 {
     float4 g_ViewportSize : packoffset(c180);
 }

@@ -118,6 +118,7 @@
     <ClCompile Include="..\..\GenerationsD3D9Ex\MemoryHandler.cpp" />
     <ClCompile Include="BaseTexture.cpp" />
     <ClCompile Include="Configuration.cpp" />
+    <ClCompile Include="ScopedProfiler.cpp" />
     <ClCompile Include="DepthStencilSurface.cpp" />
     <ClCompile Include="DepthStencilTexture.cpp" />
     <ClCompile Include="Device.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="SwapChainDefault.h" />
     <ClInclude Include="SwapChainWaitable.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="ScopedProfiler.h" />
     <ClInclude Include="VertexDeclaration.h" />
     <ClInclude Include="TypeConverter.h" />
     <ClInclude Include="Pch.h" />

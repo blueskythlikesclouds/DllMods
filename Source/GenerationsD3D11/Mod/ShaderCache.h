@@ -23,8 +23,8 @@ public:
 class ShaderCache
 {
     static std::vector<std::unique_ptr<uint8_t[]>> chunks;
-    static std::unordered_map<XXH32_hash_t, ShaderData> shaders;
 
+    static std::unordered_map<XXH32_hash_t, ShaderData> shaders;
     static std::unordered_map<XXH32_hash_t, ComPtr<VertexShader>> vertexShaders;
     static std::unordered_map<XXH32_hash_t, ComPtr<ID3D11PixelShader>> pixelShaders;
 

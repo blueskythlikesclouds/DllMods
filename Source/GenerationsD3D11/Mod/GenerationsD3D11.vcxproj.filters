@@ -67,6 +67,7 @@
       <Filter>Dependencies</Filter>
     </ClCompile>
     <ClCompile Include="IncludeImp.cpp" />
+    <ClCompile Include="ScopedProfiler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -132,6 +133,7 @@
     <ClInclude Include="Include\GenerationsD3D11.h">
       <Filter>Include</Filter>
     </ClInclude>
+    <ClInclude Include="ScopedProfiler.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Dependencies">
