@@ -388,6 +388,8 @@ FUNCTION_STUB(HRESULT, Device::Reset, D3DPRESENT_PARAMETERS* pPresentationParame
 
 HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
+    compilingShadersImageRenderer.render(this);
+
     swapChain->present(this, syncInterval);
 
     invalidateDirtyStates();

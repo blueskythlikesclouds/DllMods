@@ -28,9 +28,10 @@ public:
 
 class ShaderCache
 {
+    friend class CompilingShadersImageRenderer;
     friend class Device;
-    friend class VertexShader;
     friend class PixelShader;
+    friend class VertexShader;
 
     static CriticalSection criticalSection;
 
@@ -49,6 +50,8 @@ class ShaderCache
     static ComPtr<T> get(ID3D11Device* device, void* function, size_t functionSize, std::unordered_map<int, ComPtr<T>>& shaders);
 
 public:
+    static std::atomic<size_t> compilingShaderCount;
+
     static void init(const std::string& dir);
 
     static void loadSingle(const std::string& filePath);

@@ -74,6 +74,12 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="CompilingShadersImageRenderer.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="CompilingShadersImage.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -146,6 +152,12 @@
     <ClInclude Include="Shader.h">
       <Filter>Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="CompilingShadersImageRenderer.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="CompilingShadersImage.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Dependencies">
@@ -169,10 +181,19 @@
     <Filter Include="Textures">
       <UniqueIdentifier>{13288abc-ff3a-4ce5-99cc-cd0c19ddc91a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{c6a90f4f-567b-44e7-8d62-34cbb508d60a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FVF.wvu.hlsl">
       <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="CompilingShadersImage.wpu.hlsl">
+      <Filter>Misc</Filter>
+    </FxCompile>
+    <FxCompile Include="CompilingShadersImage.wvu.hlsl">
+      <Filter>Misc</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

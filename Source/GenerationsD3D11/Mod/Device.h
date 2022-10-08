@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "CompilingShadersImageRenderer.h"
 #include "CriticalSection.h"
 #include "Unknown.h"
 
@@ -44,6 +45,8 @@ struct alignas(16) GlobalsShared
 
 class Device : public Unknown
 {
+    friend class CompilingShadersImageRenderer;
+
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> deviceContext;
 
@@ -109,6 +112,8 @@ class Device : public Unknown
 
     std::unique_ptr<SwapChain> swapChain;
     UINT syncInterval;
+
+    CompilingShadersImageRenderer compilingShadersImageRenderer;
 
     void flush();
     void setDirty(void* dest, const void* src, size_t byteSize, size_t dirtyStateIndex);

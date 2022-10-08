@@ -85,6 +85,8 @@ std::unordered_map<int, ShaderByteCode> ShaderCache::shaderByteCodes;
 std::unordered_map<int, ComPtr<VertexShader>> ShaderCache::vertexShaders;
 std::unordered_map<int, ComPtr<PixelShader>> ShaderCache::pixelShaders;
 
+std::atomic<size_t> ShaderCache::compilingShaderCount;
+
 std::string ShaderCache::directoryPath;
 
 HOOK(void, __fastcall, GameplayFlowStageEnter, 0xD05530, void* This)
@@ -288,22 +290,26 @@ ComPtr<T> ShaderCache::get(ID3D11Device* device, void* function, const size_t fu
                 memcpy(alsoFunction, function, functionSize);
 
                 shader.Attach(new T([alsoDevice = ComPtr<ID3D11Device>(device), alsoFunction, functionSize, hash](T* alsoShader)
-                    {
-                        int translatedSize;
-                        void* handle = ShaderTranslatorService::translate(alsoFunction, functionSize, translatedSize);
-                        operator delete(alsoFunction);
+                {
+                    ++compilingShaderCount;
 
-                        criticalSection.lock();
-                        auto & code = shaderByteCodes[hash];
-                        criticalSection.unlock();
+                    int translatedSize;
+                    void* handle = ShaderTranslatorService::translate(alsoFunction, functionSize, translatedSize);
+                    operator delete(alsoFunction);
 
-                        code.handle = handle;
-                        code.length = translatedSize;
-                        code.hash = hash;
-                        code.type = ShaderByteCode::Type::Managed;
+                    criticalSection.lock();
+                    auto & code = shaderByteCodes[hash];
+                    criticalSection.unlock();
 
-                        alsoShader->update(alsoDevice.Get(), code.get(), code.length);
-                    }));
+                    code.handle = handle;
+                    code.length = translatedSize;
+                    code.hash = hash;
+                    code.type = ShaderByteCode::Type::Managed;
+
+                    alsoShader->update(alsoDevice.Get(), code.get(), code.length);
+
+                    --compilingShaderCount;
+                }));
             }
         }
     }
