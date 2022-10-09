@@ -19,10 +19,6 @@ void ShaderTranslator::init(const std::string& dir)
         MultiByteToWideChar(CP_UTF8, 0, filePathMultiByte.c_str(), -1, filePathWideChar, _countof(filePathWideChar));
 
         const auto module = LoadLibraryW(filePathWideChar);
-        if (!module)
-        {
-            MessageBoxW(0, L"NO!!!!!!!!!!!!!!!!", 0, 0);
-        }
 
         getProcAddress(module, "RegisterOnProcessExit", registerOnProcessExit);
         getProcAddress(module, "Translate", translate);

@@ -72,8 +72,6 @@ namespace ShaderTranslator
                 return Translate(ptr, function.Length);
         }
 
-        private static object obj = new object();
-
         public static unsafe string Translate(void* function, int functionSize, out bool isPixelShader)
         {
             if (IsColorCorrectionShader(function, functionSize))
@@ -87,13 +85,6 @@ namespace ShaderTranslator
                 ID3DBlob blob;
                 Compiler.Disassemble(function, functionSize, 0x50, null, out blob);
                 disassembly = Marshal.PtrToStringAnsi(blob.GetBufferPointer());
-            }
-
-            lock (obj)
-            {
-                File.AppendAllText(
-                    Path.Combine(AppContext.BaseDirectory, "disasm.txt"),
-                    disassembly);
             }
 
             int i;
@@ -402,16 +393,7 @@ namespace ShaderTranslator
 
             stringBuilder.AppendLine("}");
 
-            string ret = stringBuilder.ToString();
-
-            lock (obj)
-            {
-                File.AppendAllText(
-                    Path.Combine(AppContext.BaseDirectory, "trans.txt"),
-                    ret);
-            }
-
-            return ret;
+            return stringBuilder.ToString();
         }
 
         public static unsafe byte[] Translate(void* function, int functionSize)
@@ -432,19 +414,7 @@ namespace ShaderTranslator
             var bytes = new byte[blob.GetBufferSize()];
             Marshal.Copy(blob.GetBufferPointer(), bytes, 0, blob.GetBufferSize());
 
-            lock (obj)
-            {
-                var stream =
-                    File.Open(Path.Combine(AppContext.BaseDirectory,
-                        "binary.bin"), FileMode.Append, FileAccess.Write);
-
-                stream.Write(bytes, 0, bytes.Length);
-                stream.Close();
-            }
-
             return bytes;
         }
-
-        public static void Nop() {}
     }
 }
