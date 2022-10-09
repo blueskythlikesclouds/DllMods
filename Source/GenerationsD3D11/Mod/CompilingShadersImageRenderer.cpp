@@ -42,7 +42,6 @@ void CompilingShadersImageRenderer::render(Device* device)
 
     device->SetRenderTarget(0, device->swapChain->getRenderTargetSurface());
     device->SetDepthStencilSurface(nullptr);
-    device->SetVertexShader(vertexShader.Get());
     device->SetPixelShader(pixelShader.Get());
 
     device->SetTexture(0, texture.Get());
@@ -62,8 +61,13 @@ void CompilingShadersImageRenderer::render(Device* device)
     const auto lock = device->lock();
     const auto context = device->getContext();
 
+    ID3D11Buffer* buffers[] = { nullptr };
+    UINT strides[] = { 0 };
+    UINT offsets[] = { 0 };
+
+    context->VSSetShader(vertexShader->getVertexShader(), nullptr, 0);
     context->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
-    context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+    context->IASetVertexBuffers(0, 1, buffers, strides, offsets);
     context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
     context->IASetInputLayout(nullptr);
     context->Draw(4, 0);
