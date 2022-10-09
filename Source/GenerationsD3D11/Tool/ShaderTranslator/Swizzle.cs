@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ShaderTranslator
+﻿namespace ShaderTranslator
 {
     public enum Swizzle
     {
