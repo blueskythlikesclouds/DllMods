@@ -63,7 +63,7 @@ ShaderByteCode::ShaderByteCode() : handle(nullptr), length(0), hash(0), type(Typ
 ShaderByteCode::~ShaderByteCode()
 {
     if (type == Type::Managed)
-        ShaderTranslatorService::free(handle);
+        ShaderTranslator::free(handle);
 
     else if (type == Type::Unique)
         operator delete(handle);
@@ -71,7 +71,7 @@ ShaderByteCode::~ShaderByteCode()
 
 void* ShaderByteCode::get() const
 {
-    return type == Type::Managed ? ShaderTranslatorService::getBytes(handle) : handle;
+    return type == Type::Managed ? ShaderTranslator::get(handle) : handle;
 }
 
 CriticalSection ShaderCache::criticalSection;
@@ -91,15 +91,16 @@ std::string ShaderCache::directoryPath;
 
 HOOK(void, __fastcall, GameplayFlowStageEnter, 0xD05530, void* This)
 {
-    originalGameplayFlowStageEnter(This);
     ShaderCache::clean();
+    originalGameplayFlowStageEnter(This);
 }
 
-void ShaderCache::init(const std::string& dir)
+void ShaderCache::init()
 {
-    directoryPath = dir;
-    ShaderTranslatorService::init(save);
     INSTALL_HOOK(GameplayFlowStageEnter);
+
+    ShaderTranslator::init(directoryPath);
+    ShaderTranslator::registerOnProcessExit(save);
 }
 
 void ShaderCache::loadSingle(const std::string& filePath)
@@ -127,7 +128,7 @@ void ShaderCache::loadSingle(const std::string& filePath)
 
     while (chunk < chunkEnd)
     {
-        if (chunk->version != ShaderTranslatorService::getVersion() || !chunk->compressedLength || !chunk->uncompressedLength)
+        if (chunk->version != ShaderTranslator::version() || !chunk->compressedLength || !chunk->uncompressedLength)
         {
             chunk = chunk->next();
             continue;
@@ -294,7 +295,7 @@ ComPtr<T> ShaderCache::get(ID3D11Device* device, void* function, const size_t fu
                     ++compilingShaderCount;
 
                     int translatedSize;
-                    void* handle = ShaderTranslatorService::translate(alsoFunction, functionSize, translatedSize);
+                    void* handle = ShaderTranslator::translate(alsoFunction, functionSize, translatedSize);
                     operator delete(alsoFunction);
 
                     criticalSection.lock();

@@ -169,6 +169,9 @@ HICON __stdcall LoadIconImpl(HINSTANCE hInstance, LPCSTR lpIconName)
 
 HOOK(D3D9*, __cdecl, Direct3DCreate, 0xA5EDD0, UINT SDKVersion)
 {
+    ShaderCache::init();
+    ShaderCache::load();
+
     return new D3D9();
 }
 
@@ -199,8 +202,7 @@ extern "C" __declspec(dllexport) void Init(ModInfo* info)
     if (!Configuration::load(dir + "GenerationsD3D11.ini"))
         MessageBox(nullptr, TEXT("Unable to open \"GenerationsD3D11.ini\" in mod directory."), TEXT("GenerationsD3D11"), MB_ICONERROR);
 
-    ShaderCache::init(dir);
-    ShaderCache::load();
+    ShaderCache::directoryPath = dir;
 
 #if _DEBUG
     INSTALL_HOOK(MyOutputDebugStringA);

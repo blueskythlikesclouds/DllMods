@@ -59,7 +59,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Dependencies\lz4\include;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;..\..\..\Dependencies\oneTBB\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Dependencies\lz4\include;..\..\..\Include\BlueBlur;..\..\..\Dependencies\oneTBB\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>
@@ -84,7 +84,7 @@
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Dependencies\lz4\include;..\..\..\Include\BlueBlur;..\Tool\ShaderTranslator.CppService;..\..\..\Dependencies\oneTBB\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\Dependencies;..\..\..\Dependencies\Detours\include;..\..\..\Dependencies\DDSTextureLoader;..\..\..\Dependencies\D3D12MemoryAllocator\include;..\..\..\Dependencies\Loaders;..\..\..\Dependencies\xxHash;..\..\..\Dependencies\lz4\include;..\..\..\Include\BlueBlur;..\..\..\Dependencies\oneTBB\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>false</ExceptionHandling>
@@ -133,6 +133,7 @@
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderCache.cpp" />
+    <ClCompile Include="ShaderTranslator.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="SwapChainDefault.cpp" />
     <ClCompile Include="SwapChainWaitable.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderCache.h" />
+    <ClInclude Include="ShaderTranslator.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="RenderTargetSurface.h" />
     <ClInclude Include="RenderTargetTexture.h" />
@@ -181,9 +183,6 @@
     <ClInclude Include="VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Tool\ShaderTranslator.CppService\ShaderTranslator.CppService.vcxproj">
-      <Project>{a5f30b48-ba5e-4186-bcfb-100f573e8bac}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Tool\ShaderTranslator\ShaderTranslator.csproj">
       <Project>{72407155-a56d-416e-a369-73f64334d5e9}</Project>
     </ProjectReference>

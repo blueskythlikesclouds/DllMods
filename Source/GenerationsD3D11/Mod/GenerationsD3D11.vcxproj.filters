@@ -80,6 +80,9 @@
     <ClCompile Include="CompilingShadersImage.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderTranslator.cpp">
+      <Filter>Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -157,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="CompilingShadersImage.h">
       <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderTranslator.h">
+      <Filter>Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
