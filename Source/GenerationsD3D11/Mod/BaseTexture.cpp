@@ -8,7 +8,18 @@ FUNCTION_STUB(DWORD, BaseTexture::SetLOD, DWORD LODNew)
 
 FUNCTION_STUB(DWORD, BaseTexture::GetLOD)
 
-FUNCTION_STUB(DWORD, BaseTexture::GetLevelCount)
+DWORD BaseTexture::GetLevelCount()
+{
+    ComPtr<ID3D11Texture2D> tex;
+    if (resource && SUCCEEDED(resource.As(&tex)))
+    {
+        D3D11_TEXTURE2D_DESC desc;
+        tex->GetDesc(&desc);
+        return desc.MipLevels;
+    }
+
+    return 1;
+}
 
 FUNCTION_STUB(HRESULT, BaseTexture::SetAutoGenFilterType, D3DTEXTUREFILTERTYPE FilterType)
 
