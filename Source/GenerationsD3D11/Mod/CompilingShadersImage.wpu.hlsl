@@ -1,7 +1,7 @@
 cbuffer cbGlobals : register(b0)
 {
     float4 g_Alpha : packoffset(c150);
-};
+}
 
 Texture2D<float4> s0 : register(t0);
 SamplerState s0_s : register(s0);
