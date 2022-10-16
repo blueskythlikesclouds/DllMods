@@ -12,7 +12,7 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
     if (pPictureData->m_Flags & hh::db::eDatabaseDataFlags_IsMadeOne)
         return;
 
-    const ComPtr<Device> device = (Device*)pRenderingInfrastructure->m_RenderingDevice.m_pD3DDevice;
+    Device* device = (Device*)pRenderingInfrastructure->m_RenderingDevice.m_pD3DDevice;
 
     ComPtr<ID3D11Resource> texture;
     ComPtr<ID3D11ShaderResourceView> srv;
@@ -27,7 +27,7 @@ HOOK(void, __cdecl, LoadPictureData, 0x743DE0,
         texture->SetPrivateData(WKPDID_D3DDebugObjectName, strlen(name), name);
 #endif
 
-        pPictureData->m_pD3DTexture = (DX_PATCH::IDirect3DBaseTexture9*)(new Texture(device.Get(), texture.Get(), srv.Get()));
+        pPictureData->m_pD3DTexture = (DX_PATCH::IDirect3DBaseTexture9*)(new Texture(device, texture.Get(), srv.Get()));
         pPictureData->m_Type = hh::mr::ePictureType_Texture;
     }
     else
