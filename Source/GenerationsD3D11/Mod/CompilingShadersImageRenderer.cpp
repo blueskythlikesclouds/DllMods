@@ -3,6 +3,7 @@
 #include "CompilingShadersImage.h"
 #include "CompilingShadersImage.wpu.h"
 #include "CompilingShadersImage.wvu.h"
+#include "Configuration.h"
 #include "Device.h"
 #include "PixelShader.h"
 #include "RenderTargetSurface.h"
@@ -13,17 +14,27 @@
 
 void CompilingShadersImageRenderer::render(Device* device)
 {
-    if (alpha == 0.0f && ShaderCache::compilingShaderCount == 0)
+    if (ShaderCache::compilingShaderCount == 0 && (alpha == 0.0f || Configuration::compileShadersBeforeStarting))
         return;
 
-    if (ShaderCache::compilingShaderCount > 0)
-        alpha += 0.1f;
+    float alphaVec[4];
+
+    if (Configuration::compileShadersBeforeStarting)
+    {
+        alpha += 1.0f / 16.0f;
+        alphaVec[0] = sinf(alpha - 1.57079632679f) * 0.5f + 0.5f;
+    }
     else
-        alpha -= 0.1f;
+    {
+        if (ShaderCache::compilingShaderCount > 0)
+            alpha += 0.1f;
+        else
+            alpha -= 0.1f;
 
-    alpha = std::min(1.0f, std::max(0.0f, alpha));
+        alpha = std::min(1.0f, std::max(0.0f, alpha));
+        alphaVec[0] = alpha;
+    }
 
-    const float alphaVec[] = { alpha, 0.0f, 0.0f, 0.0f };
     device->SetPixelShaderConstantF(150, alphaVec, 1);
 
     if (!texture)
@@ -42,8 +53,11 @@ void CompilingShadersImageRenderer::render(Device* device)
 
     device->SetRenderTarget(0, device->swapChain->getRenderTargetSurface());
     device->SetDepthStencilSurface(nullptr);
-    device->SetPixelShader(pixelShader.Get());
 
+    if (Configuration::compileShadersBeforeStarting)
+        device->Clear(0, nullptr, D3DCLEAR_TARGET, 0, 1.0f, 0);
+
+    device->SetPixelShader(pixelShader.Get());
     device->SetTexture(0, texture.Get());
     device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
     device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);

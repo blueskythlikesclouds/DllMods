@@ -187,6 +187,12 @@ HOOK(void, WINAPI, MyOutputDebugStringW, &OutputDebugStringW, LPCWSTR lpOutputSt
     originalMyOutputDebugStringW(lpOutputString);
 }
 
+HOOK(void, __stdcall, InternalUpdate, 0xD6BE60, void* A1, void* A2)
+{
+    if (!Configuration::compileShadersBeforeStarting || ShaderCache::compilingShaderCount == 0)
+        originalInternalUpdate(A1, A2);
+}
+
 extern "C" __declspec(dllexport) void Init(ModInfo* info)
 {
 #if _DEBUG
@@ -294,4 +300,8 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
 
     // Patch SFD decode function to copy data when it's valid.
     WRITE_JUMP(0x1059130, sfdDecodeTrampoline);
+
+    // Don't update when compiling shaders at startup
+    if (Configuration::compileShadersBeforeStarting)
+        INSTALL_HOOK(InternalUpdate);
 }

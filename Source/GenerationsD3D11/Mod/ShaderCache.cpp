@@ -100,7 +100,12 @@ void ShaderCache::init()
     INSTALL_HOOK(GameplayFlowStageEnter);
 
     ShaderTranslator::init(directoryPath);
-    ShaderTranslator::registerOnProcessExit(save);
+    ShaderTranslator::registerOnProcessExit([]
+        {
+            group.cancel();
+            group.wait();
+            save();
+        });
 }
 
 void ShaderCache::loadSingle(const std::string& filePath)

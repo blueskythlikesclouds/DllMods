@@ -12,6 +12,8 @@ class Configuration
 public:
     static DisplayMode displayMode;
     static bool allowResizeInWindowed;
+    static bool disableShaderCompilerNotification;
+    static bool compileShadersBeforeStarting;
 
     static bool load(const std::string& filePath);
 };

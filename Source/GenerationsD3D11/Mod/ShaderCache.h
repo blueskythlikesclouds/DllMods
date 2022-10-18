@@ -44,12 +44,12 @@ class ShaderCache
     static std::unordered_map<int, ComPtr<VertexShader>> vertexShaders;
     static std::unordered_map<int, ComPtr<PixelShader>> pixelShaders;
 
-    static std::atomic<size_t> compilingShaderCount;
-
     template<typename T>
     static ComPtr<T> get(ID3D11Device* device, void* function, size_t functionSize, std::unordered_map<int, ComPtr<T>>& shaders);
 
 public:
+    static std::atomic<size_t> compilingShaderCount;
+
     static std::string directoryPath;
 
     static void init();

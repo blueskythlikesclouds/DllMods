@@ -1,6 +1,7 @@
 ﻿#include "Device.h"
 
 #include "Buffer.h"
+#include "Configuration.h"
 #include "DepthStencilSurface.h"
 #include "DepthStencilTexture.h"
 #include "FVF.wvu.h"
@@ -388,7 +389,8 @@ FUNCTION_STUB(HRESULT, Device::Reset, D3DPRESENT_PARAMETERS* pPresentationParame
 
 HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
-    compilingShadersImageRenderer.render(this);
+    if (!Configuration::disableShaderCompilerNotification)
+        compilingShadersImageRenderer.render(this);
 
     swapChain->present(this, syncInterval);
 
@@ -972,6 +974,10 @@ FUNCTION_STUB(HRESULT, Device::GetFVF, DWORD* pFVF)
 HRESULT Device::CreateVertexShader(CONST DWORD* pFunction, VertexShader** ppShader, DWORD FunctionSize)
 {
     ShaderCache::getVertexShader(device.Get(), const_cast<DWORD*>(pFunction), FunctionSize, ppShader);
+
+    if (Configuration::compileShadersBeforeStarting)
+        (void)(*ppShader)->getVertexShader(); // This is going to kick off the compilation thread
+
     return S_OK;
 }
 
@@ -1047,6 +1053,10 @@ FUNCTION_STUB(HRESULT, Device::GetIndices, IndexBuffer** ppIndexData)
 HRESULT Device::CreatePixelShader(CONST DWORD* pFunction, PixelShader** ppShader, DWORD FunctionSize)
 {
     ShaderCache::getPixelShader(device.Get(), const_cast<DWORD*>(pFunction), FunctionSize, ppShader);
+
+    if (Configuration::compileShadersBeforeStarting)
+        (void)(*ppShader)->getPixelShader(); // This is going to kick off the compilation thread
+
     return S_OK;
 }
 
