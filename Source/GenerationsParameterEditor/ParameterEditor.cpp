@@ -102,9 +102,6 @@ void ParameterEditor::update()
                 if (ImGui::MenuItem("Global light editor"))
                     GlobalLightEditor::visible ^= true;
 
-                if (ImGui::MenuItem("Material editor"))
-                    MaterialEditor::visible ^= true;
-
                 ImGui::EndMenu();
             }
 

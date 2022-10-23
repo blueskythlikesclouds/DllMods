@@ -85,6 +85,4 @@ extern "C" __declspec(dllexport) void Init(ModInfo* modInfo)
         WRITE_MEMORY(0x1AD99E8, char*, "shader_debug.arl");
         WRITE_MEMORY(0x1AD99EC, char*, "shader_debug_add.arl");
     }
-
-    MaterialEditor::init();
 }

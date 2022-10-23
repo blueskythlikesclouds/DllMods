@@ -139,7 +139,6 @@ void Context::update()
     Configuration::update();
     PlayerInfo::update();
     GlobalLightEditor::update();
-    MaterialEditor::update();
     DebugDrawTextImpl::update();
 
     ImGui::PopFont();

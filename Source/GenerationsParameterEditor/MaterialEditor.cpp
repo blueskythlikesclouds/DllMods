@@ -421,8 +421,26 @@ void MaterialEditor::update()
         }
 
         imguiParameters("Float4 Parameters", impl->curMaterial->m_Float4Params, ImGuiTreeNodeFlags_DefaultOpen);
+
+        if (impl->curMaterial->m_Float4Params.empty())
+            impl->curMaterial->m_MaterialFlags |= hh::mr::eMaterialFlags_Float4ParamsEmpty;
+        else
+            impl->curMaterial->m_MaterialFlags &= hh::mr::eMaterialFlags_Float4ParamsEmpty;
+
         imguiParameters("Int4 Parameters", impl->curMaterial->m_Int4Params, 0);
+
+        if (impl->curMaterial->m_Int4Params.empty())
+            impl->curMaterial->m_MaterialFlags |= hh::mr::eMaterialFlags_Int4ParamsEmpty;
+        else
+            impl->curMaterial->m_MaterialFlags &= hh::mr::eMaterialFlags_Int4ParamsEmpty;
+
         imguiParameters("Bool Parameters", impl->curMaterial->m_Bool4Params, 0);
+
+        if (impl->curMaterial->m_Bool4Params.empty())
+            impl->curMaterial->m_MaterialFlags |= hh::mr::eMaterialFlags_BoolParamsEmpty;
+        else
+            impl->curMaterial->m_MaterialFlags &= hh::mr::eMaterialFlags_BoolParamsEmpty;
+
     }
 
     ImGui::End();
