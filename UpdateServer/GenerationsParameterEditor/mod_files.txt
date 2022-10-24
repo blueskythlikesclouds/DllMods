@@ -1,5 +1,4 @@
 add Fonts/DroidSans.ttf
 add Fonts/DroidSansJapanese.ttf
 add GenerationsParameterEditor.dll
-add GenerationsParameterEditor.ini
 add mod.ini
