@@ -3,7 +3,7 @@
 #include "TypeConverter.h"
 
 Texture::Texture(Device* device, ID3D11Resource* resource, DXGI_FORMAT format)
-    : BaseTexture(device, resource), format(format)
+    : BaseTexture(device, resource), format(format), isShadow(false)
 {
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 
@@ -72,6 +72,16 @@ DXGI_FORMAT Texture::getFormat() const
 ID3D11ShaderResourceView* Texture::getSRV() const
 {
     return srv.Get();
+}
+
+bool Texture::getIsShadow() const
+{
+    return isShadow;
+}
+
+void Texture::setIsShadow(const bool value)
+{
+    isShadow = value;
 }
 
 HRESULT Texture::GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc)

@@ -457,7 +457,10 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
         *ppTexture = new RenderTargetTexture(this, texture.Get(), format);
 
     else if (Usage & D3DUSAGE_DEPTHSTENCIL)
+    {
         *ppTexture = new DepthStencilTexture(this, texture.Get(), format);
+        (*ppTexture)->setIsShadow(Format == D3DFMT_D24S8);
+    }
 
     else
         *ppTexture = new Texture(this, texture.Get(), format);
@@ -755,7 +758,7 @@ HRESULT Device::SetTexture(DWORD Stage, BaseTexture* pTexture)
     {
         size_t filter = samplers[Stage].Filter & ~0x80;
         
-        if (textures[Stage] && textures[Stage]->getFormat() == DXGI_FORMAT_D24_UNORM_S8_UINT)
+        if (textures[Stage] && textures[Stage]->getIsShadow())
             filter |= 0x80; // Comparison state
 
         setSamplerState(samplers[Stage].Filter, (D3D11_FILTER)filter, Stage);

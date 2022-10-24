@@ -8,6 +8,7 @@ class Texture : public BaseTexture
 {
     DXGI_FORMAT format{};
     ComPtr<ID3D11ShaderResourceView> srv;
+    bool isShadow;
 
 public:
     explicit Texture(Device* device, ID3D11Resource* resource, DXGI_FORMAT format);
@@ -15,6 +16,9 @@ public:
 
     DXGI_FORMAT getFormat() const;
     ID3D11ShaderResourceView* getSRV() const;
+
+    bool getIsShadow() const;
+    void setIsShadow(const bool value);
 
     virtual HRESULT GetLevelDesc(UINT Level, D3DSURFACE_DESC* pDesc) final;
     virtual HRESULT GetSurfaceLevel(UINT Level, Surface** ppSurfaceLevel);
