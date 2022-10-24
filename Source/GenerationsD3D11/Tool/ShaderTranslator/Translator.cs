@@ -199,9 +199,69 @@ namespace ShaderTranslator
                     instructions.Add(new Instruction(lines[i]));
             }
 
-            var constants = ConstantParser.Parse(function, functionSize).OrderBy(x => x.Type).ThenBy(x => x.Register).ToList();
-            var constantMap = new Dictionary<string, string>();
+            var constants = ConstantParser.Parse(function, functionSize);
 
+            // Auto-populate a constant table if nothing was found in the file.
+            if (constants == null)
+            {
+                constants = new List<Constant>();
+
+                int float4Size = isPixelShader ? 224 : 256;
+
+                for (int j = 0; j < float4Size;)
+                {
+                    int k;
+                    for (k = j; k < float4Size; k++)
+                    {
+                        if (definitions.ContainsKey(k))
+                            break;
+                    }
+
+                    int size = k - j;
+                    if (size > 0)
+                    {
+                        constants.Add(new Constant
+                        {
+                            Name = $"g_C{j}", 
+                            Register = j, 
+                            Size = size,
+                            Type = ConstantType.Float4
+                        });
+                    }
+
+                    j = k + 1;
+                }
+
+                const int boolSize = 16;
+
+                for (int j = 0; j < boolSize; j++)
+                {
+                    constants.Add(new Constant
+                    {
+                        Name = $"g_B{j}",
+                        Register = j,
+                        Size = 1,
+                        Type = ConstantType.Bool
+                    });
+                }
+
+                foreach (var sampler in samplers)
+                {
+                    string register = sampler.Key.Substring(1);
+
+                    constants.Add(new Constant
+                    {
+                        Name = $"g_S{register}", 
+                        Register = int.Parse(register),
+                        Size = 1, 
+                        Type = ConstantType.Sampler
+                    });
+                }
+            }
+
+            constants = constants.OrderBy(x => x.Type).ThenBy(x => x.Register).ToList();
+
+            var constantMap = new Dictionary<string, string>();
             var stringBuilder = new StringBuilder();
 
             stringBuilder.AppendLine("#define _rep(x, y) for (int i##y = 0; i##y < x; ++i##y)");

@@ -13,22 +13,22 @@ namespace ShaderTranslator
 
         public static unsafe List<Constant> Parse(void* function, int functionSize)
         {
-            var constants = new List<Constant>();
-
             int* instr = (int*)function;
             byte* end = (byte*)function + functionSize;
-
-            var stringBuilder = new StringBuilder();
 
             while (instr < end)
             {
                 if (*(instr++) != 0x42415443)
                     continue;
 
+                var constants = new List<Constant>();
+
                 byte* ctab = (byte*)instr;
 
                 int constantCount = *(int*)(ctab + 12);
                 int constantsOffset = *(int*)(ctab + 16);
+
+                var stringBuilder = new StringBuilder();
 
                 for (int i = 0; i < constantCount; i++)
                 {
@@ -68,10 +68,10 @@ namespace ShaderTranslator
                     constants.Add(constant);
                 }
 
-                break;
+                return constants;
             }
 
-            return constants;
+            return null;
         }
     }
 }
