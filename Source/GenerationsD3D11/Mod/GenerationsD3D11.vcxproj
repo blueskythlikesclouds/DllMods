@@ -183,11 +183,6 @@
     <ClInclude Include="VertexShader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Tool\ShaderTranslator\ShaderTranslator.csproj">
-      <Project>{72407155-a56d-416e-a369-73f64334d5e9}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <FxCompile Include="CompilingShadersImage.wpu.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
