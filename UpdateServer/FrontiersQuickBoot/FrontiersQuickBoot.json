@@ -1,0 +1,259 @@
+{
+  "Groups": [
+    {
+      "Name": "Mod",
+      "DisplayName": "Mod",
+      "Elements": [
+        {
+          "Name": "StageId",
+          "DisplayName": "Stage",
+		  "Description": [
+			"The stage to boot into."
+		  ],
+          "Type": "StageId",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "w1d01"
+        },
+        {
+          "Name": "Type",
+          "DisplayName": "Boot Type",
+		  "Description": [
+		    "Determines the boot type."
+		  ],
+          "Type": "Type",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "2"
+        },
+		{
+          "Name": "SaveSlot",
+		  "Description": [
+		    "Save slot to load when directly booting into an island.",
+			"",
+			"If the save slot does not exist, the first available slot is going to be loaded."
+		  ],
+          "DisplayName": "Save Slot",
+          "Type": "SaveSlot",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "3"
+		},
+		{
+          "Name": "DisableAutoSave",
+		  "Description": [
+		    "Disables auto save if an island was directly booted into.",
+			"",
+			"This option is for preventing save data corruption when directly booting into islands."
+		  ],
+          "DisplayName": "Disable Auto Save",
+          "Type": "bool",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "true"
+		}
+      ]
+    }
+  ],
+  "Enums": {
+    "Type": [
+	  {
+        "DisplayName": "Normal",
+        "Value": "0",
+      },
+      {
+        "DisplayName": "Title",
+        "Value": "1",
+      },
+      {
+        "DisplayName": "Stage",
+        "Value": "2",
+      }
+    ],
+	"StageId": [
+      {
+        "DisplayName": "Cyber Space 1-1 (Green Hill)",
+        "Value": "w6d01"
+      },
+      {
+        "DisplayName": "Cyber Space 1-2 (Sky Sanctuary)",
+        "Value": "w8d01"
+      },
+      {
+        "DisplayName": "Cyber Space 1-3 (Highway)",
+        "Value": "w9d04"
+      },
+      {
+        "DisplayName": "Cyber Space 1-4 (Green Hill)",
+        "Value": "w6d02"
+      },
+      {
+        "DisplayName": "Cyber Space 1-5 (Chemical Plant)",
+        "Value": "w7d04"
+      },
+      {
+        "DisplayName": "Cyber Space 1-6 (Green Hill)",
+        "Value": "w6d06"
+      },
+      {
+        "DisplayName": "Cyber Space 1-7 (Highway)",
+        "Value": "w9d06"
+      },
+      {
+        "DisplayName": "Cyber Space 2-1 (Green Hill)",
+        "Value": "w6d05"
+      },
+      {
+        "DisplayName": "Cyber Space 2-2 (Sky Sanctuary)",
+        "Value": "w8d03"
+      },
+      {
+        "DisplayName": "Cyber Space 2-3 (Chemical Plant)",
+        "Value": "w7d02"
+      },
+      {
+        "DisplayName": "Cyber Space 2-4 (Chemical Plant)",
+        "Value": "w7d06"
+      },
+      {
+        "DisplayName": "Cyber Space 2-5 (Sky Sanctuary)",
+        "Value": "w8d04"
+      },
+      {
+        "DisplayName": "Cyber Space 2-6 (Green Hill)",
+        "Value": "w6d03"
+      },
+      {
+        "DisplayName": "Cyber Space 2-7 (Sky Sanctuary)",
+        "Value": "w8d05"
+      },
+      {
+        "DisplayName": "Cyber Space 3-1 (Green Hill)",
+        "Value": "w6d04"
+      },
+      {
+        "DisplayName": "Cyber Space 3-2 (Green Hill)",
+        "Value": "w6d08"
+      },
+      {
+        "DisplayName": "Cyber Space 3-3 (Sky Sanctuary)",
+        "Value": "w8d02"
+      },
+      {
+        "DisplayName": "Cyber Space 3-4 (Green Hill)",
+        "Value": "w6d09"
+      },
+      {
+        "DisplayName": "Cyber Space 3-5 (Green Hill)",
+        "Value": "w6d07"
+      },
+      {
+        "DisplayName": "Cyber Space 3-6 (Sky Sanctuary)",
+        "Value": "w8d06"
+      },
+      {
+        "DisplayName": "Cyber Space 3-7 (Chemical Plant)",
+        "Value": "w7d03"
+      },
+      {
+        "DisplayName": "Cyber Space 4-1 (Chemical Plant)",
+        "Value": "w7d08"
+      },
+      {
+        "DisplayName": "Cyber Space 4-2 (Highway)",
+        "Value": "w9d02"
+      },
+      {
+        "DisplayName": "Cyber Space 4-3 (Chemical Plant)",
+        "Value": "w7d01"
+      },
+      {
+        "DisplayName": "Cyber Space 4-4 (Highway)",
+        "Value": "w9d03"
+      },
+      {
+        "DisplayName": "Cyber Space 4-5 (Green Hill)",
+        "Value": "w6d10"
+      },
+      {
+        "DisplayName": "Cyber Space 4-6 (Chemical Plant)",
+        "Value": "w7d07"
+      },
+      {
+        "DisplayName": "Cyber Space 4-7 (Highway)",
+        "Value": "w9d05"
+      },
+      {
+        "DisplayName": "Cyber Space 4-8 (Chemical Plant)",
+        "Value": "w7d05"
+      },
+      {
+        "DisplayName": "Cyber Space 4-9 (Highway)",
+        "Value": "w9d07"
+      },
+      {
+        "DisplayName": "Kronos Island",
+        "Value": "w1r03"
+      },
+      {
+        "DisplayName": "Ares Island",
+        "Value": "w2r01"
+      },
+      {
+        "DisplayName": "Chaos Island",
+        "Value": "w3r01"
+      },
+      {
+        "DisplayName": "Rhea Island",
+        "Value": "w1r05"
+      },
+      {
+        "DisplayName": "Ouranos Island",
+        "Value": "w1r04"
+      },
+	  {
+		"DisplayName": "Tutorial",
+		"Value": "w5t01"
+	  },
+	  {
+		"DisplayName": "Fishing",
+		"Value": "w1f01"
+	  },
+	  {
+		"DisplayName": "Hacking 1",
+		"Value": "w1h01"
+	  },
+	  {
+		"DisplayName": "Hacking 2",
+		"Value": "w1h02"
+	  },
+	  {
+		"DisplayName": "Hacking 3",
+		"Value": "w1h03"
+	  },
+	  {
+		"DisplayName": "The End",
+		"Value": "w5r01"
+	  }
+    ],
+	"SaveSlot": [
+	  {
+		"DisplayName": "Auto",
+		"Value": "3"
+	  },
+	  {
+		"DisplayName": "Manual 1",
+		"Value": "0"
+	  },
+	  {
+		"DisplayName": "Manual 2",
+		"Value": "1"
+	  },
+	  {
+		"DisplayName": "Manual 2",
+		"Value": "2"
+	  }
+	]
+  },
+  "IniFile": "FrontiersQuickBoot.ini"
+}

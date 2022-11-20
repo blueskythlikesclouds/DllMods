@@ -67,13 +67,13 @@ const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
 #define WRITE_JUMP(location, function) \
     do { \
         WRITE_MEMORY(location, uint8_t, 0xE9); \
-        WRITE_MEMORY(location + 1, uint32_t, (uint32_t)(function) - (size_t)(location) - 5); \
+        WRITE_MEMORY(location + 1, uint32_t, (uint32_t)((size_t)(function) - (size_t)(location) - 5)); \
     } while(0)
 	
 #define WRITE_CALL(location, function) \
     do { \
         WRITE_MEMORY(location, uint8_t, 0xE8); \
-        WRITE_MEMORY(location + 1, uint32_t, (uint32_t)(function) - (size_t)(location) - 5); \
+        WRITE_MEMORY(location + 1, uint32_t, (uint32_t)((size_t)(function) - (size_t)(location) - 5)); \
     } while(0)
 
 #define WRITE_NOP(location, count) \

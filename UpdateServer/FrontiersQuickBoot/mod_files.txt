@@ -1,0 +1,4 @@
+add FrontiersQuickBoot.dll
+add FrontiersQuickBoot.ini
+add FrontiersQuickBoot.json
+add mod.ini

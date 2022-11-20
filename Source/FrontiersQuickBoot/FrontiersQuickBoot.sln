@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrontiersQuickBoot", "FrontiersQuickBoot.vcxproj", "{3C9150FF-E133-4436-A4C3-A24E500379E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Clang|x64 = Clang|x64
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C9150FF-E133-4436-A4C3-A24E500379E1}.Clang|x64.ActiveCfg = Clang|x64
+		{3C9150FF-E133-4436-A4C3-A24E500379E1}.Clang|x64.Build.0 = Clang|x64
+		{3C9150FF-E133-4436-A4C3-A24E500379E1}.Debug|x64.ActiveCfg = Debug|x64
+		{3C9150FF-E133-4436-A4C3-A24E500379E1}.Debug|x64.Build.0 = Debug|x64
+		{3C9150FF-E133-4436-A4C3-A24E500379E1}.Release|x64.ActiveCfg = Release|x64
+		{3C9150FF-E133-4436-A4C3-A24E500379E1}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20A52504-0358-44B4-A9C1-9F080D13C0F3}
+	EndGlobalSection
+EndGlobal
