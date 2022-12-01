@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace ShaderTranslator.Bridge
+namespace ShaderTranslator
 {
-    public static unsafe class Impl
+    public static unsafe class Bridge
     {
         public delegate void OnProcessExitDelegate();
 

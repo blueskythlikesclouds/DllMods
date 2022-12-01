@@ -1,9 +1,10 @@
+add D3DCompiler_47.dll
 add GenerationsD3D11.dll
 add GenerationsD3D11.json
-add ShaderTranslator.Bridge.dll
 add mod.ini
 add pregenerated_shader_cache.bin
-delete ShaderTranslator.dll
+add ShaderTranslator.dll
+delete ShaderTranslator.Bridge.dll
 delete blueblur.shadercache
 delete soft.shadercache
 delete user.shadercache

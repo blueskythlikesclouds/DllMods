@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderTranslator", "Tool\Sh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderTranslator.Tool", "Tool\ShaderTranslator.Tool\ShaderTranslator.Tool.csproj", "{8585CF9D-A608-4D85-B9BA-EF595AD882D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShaderTranslator.Bridge", "Tool\ShaderTranslator.Bridge\ShaderTranslator.Bridge.csproj", "{1FB25D41-DA44-4CD0-8F66-55CA33219E40}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -33,9 +31,6 @@ Global
 		{8585CF9D-A608-4D85-B9BA-EF595AD882D7}.Debug|x86.Build.0 = Debug|Any CPU
 		{8585CF9D-A608-4D85-B9BA-EF595AD882D7}.Release|x86.ActiveCfg = Release|Any CPU
 		{8585CF9D-A608-4D85-B9BA-EF595AD882D7}.Release|x86.Build.0 = Release|Any CPU
-		{1FB25D41-DA44-4CD0-8F66-55CA33219E40}.Debug|x86.ActiveCfg = Debug|x86
-		{1FB25D41-DA44-4CD0-8F66-55CA33219E40}.Release|x86.ActiveCfg = Release|x86
-		{1FB25D41-DA44-4CD0-8F66-55CA33219E40}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,7 +39,6 @@ Global
 		{A7F23076-1635-4C81-A067-04A229B823CD} = {F4533414-FB31-4A6D-A274-BC0C183566AE}
 		{72407155-A56D-416E-A369-73F64334D5E9} = {6742FDE3-CCDB-44C9-BA36-8143660E018E}
 		{8585CF9D-A608-4D85-B9BA-EF595AD882D7} = {6742FDE3-CCDB-44C9-BA36-8143660E018E}
-		{1FB25D41-DA44-4CD0-8F66-55CA33219E40} = {6742FDE3-CCDB-44C9-BA36-8143660E018E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0080769-B7C5-4CA8-9EF2-60426F62CA02}

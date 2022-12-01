@@ -13,7 +13,7 @@ void ShaderTranslator::init(const std::string& dir)
 {
     if (!translate)
     {
-        const auto filePathMultiByte = dir + "/ShaderTranslator.Bridge.dll";
+        const auto filePathMultiByte = dir + "/ShaderTranslator.dll";
 
         wchar_t filePathWideChar[0x400];
         MultiByteToWideChar(CP_UTF8, 0, filePathMultiByte.c_str(), -1, filePathWideChar, _countof(filePathWideChar));

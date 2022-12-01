@@ -73,14 +73,19 @@ namespace ShaderTranslator.Resources {
         ///Texture2D&lt;float4&gt; s0 : register(t0);
         ///SamplerState s0_s : register(s0);
         ///
-        ///// https://www.chilliant.com/rgb2hsv.html
+        ///#define EPSILON 1e-10
         ///
-        ///static const float Epsilon = 1e-10;
-        ///
-        ///float3 RGBtoHCV(in float3 RGB)
+        ///float3 hue2rgb(in float H)
         ///{
-        ///    // Based on work by Sam Hocevar and Emil Persson
-        ///    float4 P = (RGB.g &lt; RGB.b) ? float4(RGB.bg, -1.0, 2.0 / 3.0) : float4( [rest of string was truncated]&quot;;.
+        ///	float r = abs(H * 6 - 3) - 1;
+        ///	float g = 2 - abs(H * 6 - 2);
+        ///	float b = 2 - abs(H * 6 - 4);
+        ///	return saturate(float3(r, g, b));
+        ///}
+        ///
+        ///float3 rgb2ybr(in float3 rgb)
+        ///{
+        ///	float y = dot(rgb,  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ColorCorrection {
             get {
