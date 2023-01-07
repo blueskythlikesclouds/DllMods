@@ -24,12 +24,6 @@
     <ClCompile Include="..\..\Dependencies\imgui\imgui_draw.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Dependencies\imgui\imgui_impl_dx9.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Dependencies\imgui\imgui_impl_dx11.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Dependencies\imgui\imgui_impl_win32.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -40,6 +34,7 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="MaterialEditor.cpp" />
+    <ClCompile Include="CsdImGui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -57,6 +52,7 @@
     <ClInclude Include="DebugDrawTextImpl.h" />
     <ClInclude Include="Include\DebugDrawText.h" />
     <ClInclude Include="MaterialEditor.h" />
+    <ClInclude Include="CsdImGui.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="imgui">

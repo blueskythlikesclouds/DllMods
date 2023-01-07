@@ -18,12 +18,6 @@ HOOK(LRESULT, __stdcall, WndProc, 0xE7B6C0, HWND hWnd, UINT Msg, WPARAM wParam, 
     return originalWndProc(hWnd, Msg, wParam, lParam);
 }
 
-VTABLE_HOOK(HRESULT, WINAPI, IDirect3DDevice9, Reset, D3DPRESENT_PARAMETERS* pPresentationParameters)
-{
-    Context::reset();
-    return originalIDirect3DDevice9Reset(This, pPresentationParameters);
-}
-
 extern "C" __declspec(dllexport) void OnFrame()
 {
     const SynchronizedObject::Lock lock(*APPLICATION_DOCUMENT);
@@ -50,9 +44,6 @@ extern "C" __declspec(dllexport) void OnFrame()
             return;
 
         Context::initialize(window, device);
-
-        if (Context::getBackend() == Backend::DX9)
-            INSTALL_VTABLE_HOOK(IDirect3DDevice9, device, Reset, 16);
     }
 
     const uint32_t parameterEditor = *(uint32_t*)(applicationDocument + 516);

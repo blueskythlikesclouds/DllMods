@@ -1,5 +1,6 @@
 ﻿#include "Context.h"
 #include "Configuration.h"
+#include "CsdImGui.h"
 #include "DebugDrawTextImpl.h"
 #include "GlobalLightEditor.h"
 #include "MaterialEditor.h"
@@ -14,8 +15,6 @@ std::string Context::imGuiIniPath = "ImGui.ini";
 
 HWND Context::window;
 IUnknown* Context::device;
-Backend Context::backend;
-
 ImFont* Context::font;
 
 std::string Context::getModDirectoryPath()
@@ -34,11 +33,6 @@ bool Context::isInitialized()
     return window && device;
 }
 
-Backend Context::getBackend()
-{
-    return backend;
-}
-
 void Context::initialize(HWND window, IUnknown* device)
 {
     Context::window = window;
@@ -47,44 +41,7 @@ void Context::initialize(HWND window, IUnknown* device)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    backend = Backend::Unknown;
-    {
-        IDirect3DDevice9* d3d9Device = nullptr;
-
-        if (SUCCEEDED(device->QueryInterface(&d3d9Device)))
-        {
-            backend = Backend::DX9;
-
-            ImGui_ImplDX9_Init(d3d9Device);
-
-            d3d9Device->Release();
-        }
-    }
-
-    if (backend == Backend::Unknown)
-    {
-        ID3D11Device* d3d11Device = nullptr;
-
-        if (SUCCEEDED(device->QueryInterface(&d3d11Device)))
-        {
-            backend = Backend::DX11;
-
-            ID3D11DeviceContext* d3d11Context = nullptr;
-            d3d11Device->GetImmediateContext(&d3d11Context);
-
-            ImGui_ImplDX11_Init(d3d11Device, d3d11Context);
-
-            d3d11Device->Release();
-            d3d11Context->Release();
-        }
-    }
-
-    if (backend == Backend::Unknown)
-    {
-        MessageBoxW(window, L"Failed to initialize Parameter Editor", L"Parameter Editor", MB_ICONERROR);
-        exit(-1);
-    }
-
+    CsdImGui::init();
     ImGui_ImplWin32_Init(window);
 
     ImGuiIO& io = ImGui::GetIO();
@@ -113,18 +70,6 @@ void Context::initialize(HWND window, IUnknown* device)
 
 void Context::update()
 {
-    switch (backend)
-    {
-    case Backend::DX9:
-        ImGui_ImplDX9_NewFrame();
-        break;
-
-    case Backend::DX11:
-        ImGui_ImplDX11_NewFrame();
-        break;
-    }
-
-    ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
     if (GetAsyncKeyState(VK_ESCAPE) & 1)
@@ -146,30 +91,7 @@ void Context::update()
     ImGui::EndFrame();
     ImGui::Render();
 
-    switch (backend)
-    {
-    case Backend::DX9:
-        ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-        break;
-
-    case Backend::DX11:
-        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-        break;
-    }
-}
-
-void Context::reset()
-{
-    switch (backend)
-    {
-    case Backend::DX9:
-        ImGui_ImplDX9_InvalidateDeviceObjects();
-        break;
-
-    case Backend::DX11:
-        ImGui_ImplDX11_InvalidateDeviceObjects();
-        break;
-    }
+    CsdImGui::render(ImGui::GetDrawData());
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
