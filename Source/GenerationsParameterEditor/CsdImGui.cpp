@@ -178,6 +178,7 @@ void CsdImGui::render(const ImDrawData* drawData)
     device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
     device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
     device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+    device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
     device->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
     device->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_INVSRCALPHA);
     device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
