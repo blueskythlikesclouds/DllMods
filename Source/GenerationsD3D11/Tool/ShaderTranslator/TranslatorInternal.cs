@@ -1,4 +1,8 @@
-cbuffer cbGlobalsPS : register(b0)
+﻿namespace ShaderTranslator
+{
+    internal static class TranslatorInternal
+    {
+        public static string ColorCorrection = @"cbuffer cbGlobalsPS : register(b0)
 {
     // x = params.brightness
     // y = params.contrast
@@ -71,4 +75,6 @@ float4 main(in float4 unused : SV_POSITION, in float4 texCoord : TEXCOORD0) : SV
 	hsv.y = saturate(hsv.y * cY.w * cY.w);
 
 	return float4(saturate(hsv2rgb(hsv)), 1.0);
+}";
+    }
 }

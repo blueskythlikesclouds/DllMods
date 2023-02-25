@@ -1,15 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net472;net7.0</TargetFrameworks>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup>
-    <DllExportIdent>3149DCA0-2357-4151-9608-BEE2C924E37E</DllExportIdent>
+    <DllExportIdent>5B21743C-2265-42DF-A0CA-35080C8CEEAA</DllExportIdent>
     <DllExportMetaLibName>DllExport.dll</DllExportMetaLibName>
     <DllExportNamespace>ShaderTranslator</DllExportNamespace>
     <DllExportDDNSCecil>true</DllExportDDNSCecil>
-    <PlatformTarget>x86</PlatformTarget>
+    <DllExportSkipOnAnyCpu>false</DllExportSkipOnAnyCpu>
+    <DllExportPlatform>Auto</DllExportPlatform>
     <DllExportOrdinalsBase>1</DllExportOrdinalsBase>
     <DllExportGenExpLib>false</DllExportGenExpLib>
     <DllExportOurILAsm>false</DllExportOurILAsm>
@@ -21,19 +22,6 @@
     <DllExportPreProcType>0</DllExportPreProcType>
     <DllExportPostProcType>0</DllExportPostProcType>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Update="Resources\TranslatorInternal.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>TranslatorInternal.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\TranslatorInternal.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TranslatorInternal.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DllExport">
       <Version>1.7.4</Version>
