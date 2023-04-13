@@ -28,7 +28,7 @@ static const std::array<uint32_t, 256> CRC32_TABLE = [&]() -> const std::array<u
     return crc32Table;
 }();
 
-static uint32_t generateCrc32Hash(const uint32_t seed, void* data, const size_t length)
+static uint32_t generateCrc32Hash(const uint32_t seed, const void* data, const size_t length)
 {
     uint32_t c = seed ^ 0xFFFFFFFF;
     const uint8_t* u = (uint8_t*)data;

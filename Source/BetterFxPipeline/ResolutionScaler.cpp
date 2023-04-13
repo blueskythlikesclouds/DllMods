@@ -85,9 +85,9 @@ void ResolutionScaler::applyPatches()
         INSTALL_HOOK(InitializeSurfaceInfo);
 
     // Replace Devil's Details' shaders
-    WRITE_MEMORY(0x64C88D, uint32_t, _countof(g_ps30_main));
-    WRITE_MEMORY(0x64C897, void*, g_ps30_main);
+    WRITE_MEMORY(0x64C88D, uint32_t, _countof(COPY_TEXTURE_PS));
+    WRITE_MEMORY(0x64C897, void*, COPY_TEXTURE_PS);
 
-    WRITE_MEMORY(0x64C855, uint32_t, _countof(g_vs30_main));
-    WRITE_MEMORY(0x64C85F, void*, g_vs30_main);
+    WRITE_MEMORY(0x64C855, uint32_t, _countof(COPY_TEXTURE_VS));
+    WRITE_MEMORY(0x64C85F, void*, COPY_TEXTURE_VS);
 }
