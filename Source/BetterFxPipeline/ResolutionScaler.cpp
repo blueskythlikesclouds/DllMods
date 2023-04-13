@@ -90,6 +90,4 @@ void ResolutionScaler::applyPatches()
 
     WRITE_MEMORY(0x64C855, uint32_t, _countof(g_vs30_main));
     WRITE_MEMORY(0x64C85F, void*, g_vs30_main);
-
-    WRITE_MEMORY(0x64CBF7, uint32_t, 440); // SetPixelShaderConstantF
 }
