@@ -201,5 +201,8 @@
     <FxCompile Include="CompilingShadersImage.wvu.hlsl">
       <Filter>Misc</Filter>
     </FxCompile>
+    <FxCompile Include="FVF.wpu.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

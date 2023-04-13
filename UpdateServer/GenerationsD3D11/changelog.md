@@ -1,3 +1,7 @@
+# GenerationsD3D11 v1.3
+
+* Fixed tutorial & staffroll videos not displaying properly.
+
 # GenerationsD3D11 v1.2
 
 * Changed how shader translator is loaded to overcome false positives reported by anti-virus software.

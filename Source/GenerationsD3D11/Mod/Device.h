@@ -80,6 +80,7 @@ class Device : public Unknown
     ComPtr<ID3D11Buffer> globalsVSBuffer;
     ComPtr<ID3D11Buffer> globalsSharedBuffer;
     ComPtr<VertexShader> fvfVertexShader;
+    ComPtr<ID3D11PixelShader> fvfPixelShader;
 
     CriticalSection criticalSection;
 

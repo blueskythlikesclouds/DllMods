@@ -4,6 +4,7 @@
 #include "Configuration.h"
 #include "DepthStencilSurface.h"
 #include "DepthStencilTexture.h"
+#include "FVF.wpu.h"
 #include "FVF.wvu.h"
 #include "PixelShader.h"
 #include "RenderTargetSurface.h"
@@ -157,8 +158,8 @@ void Device::flush()
     if (dirty & (1 << DirtyIndexBuffer) && indexBuffer)
         deviceContext->IASetIndexBuffer(reinterpret_cast<ID3D11Buffer*>(indexBuffer->getResource()), indexBuffer->getFormat(), 0);
 
-    if (dirty & (1 << DirtyPixelShader) && pixelShader)
-        deviceContext->PSSetShader(pixelShader->getPixelShader(), nullptr, 0);
+    if (dirty & (1 << DirtyPixelShader) && (pixelShader || (vertexDeclaration && vertexDeclaration->getIsFVF())))
+        deviceContext->PSSetShader(pixelShader ? pixelShader->getPixelShader() : fvfPixelShader.Get(), nullptr, 0);
 
     if (dirty & (1 << DirtyPixelConstant))
     {
@@ -334,7 +335,8 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
     bufferDesc.ByteWidth = (sizeof(globalsShared) + 15) & ~15;
     device->CreateBuffer(&bufferDesc, nullptr, globalsSharedBuffer.GetAddressOf());
 
-    fvfVertexShader.Attach(new VertexShader(device.Get(), (void*)g_fvf_vs_main, sizeof(g_fvf_vs_main)));
+    fvfVertexShader.Attach(new VertexShader(device.Get(), (void*)FVF_VS, sizeof(FVF_VS)));
+    device->CreatePixelShader((void*)FVF_PS, sizeof(FVF_PS), nullptr, fvfPixelShader.GetAddressOf());
 
     invalidateDirtyStates();
 }

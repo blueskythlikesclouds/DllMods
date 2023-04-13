@@ -3,7 +3,7 @@ cbuffer cbGlobals : register(b0)
     float4 g_ViewportSize : packoffset(c180);
 }
 
-void fvf_vs_main(in float4 vPosition : POSITION, in float4 vColor : COLOR, in float4 vTexCoord : TEXCOORD,
+void main(in float4 vPosition : POSITION, in float4 vColor : COLOR, in float4 vTexCoord : TEXCOORD,
     out float4 oPosition : SV_Position,
     out float4 oTexCoord : TEXCOORD,
     out float4 oTexCoord1 : TEXCOORD1,
