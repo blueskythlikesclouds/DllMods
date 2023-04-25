@@ -280,7 +280,7 @@ void main(
 
     uint4 matIndexA = uint4(s_TerrainSplatMap.GatherRed(s_TerrainSplatMap_sampler_s, trrTexCoord) * 255.0 + 0.5);
     uint4 matIndexB = uint4(s_TerrainSplatMap.GatherGreen(s_TerrainSplatMap_sampler_s, trrTexCoord) * 255.0 + 0.5);
-    float4 matBlend = s_TerrainNormalMap.GatherAlpha(s_TerrainNormalMap_s, trrTexCoord, 2);
+    float4 matBlend = s_TerrainNormalMap.GatherAlpha(s_TerrainNormalMap_s, trrTexCoord);
 
     float4 matAlbedo[4];
     matAlbedo[0] = 0.0;
