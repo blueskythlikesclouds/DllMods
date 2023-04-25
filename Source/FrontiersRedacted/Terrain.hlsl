@@ -161,7 +161,7 @@ Texture2DArray<float4> s_TerrainDetailNormalHeightMap : register(t5);
 Texture2DArray<float4> s_TerrainDetailParameterMap : register(t6);
 Texture2DArray<float4> s_TerrainBaseAlbedoMap : register(t7);
 Texture2DArray<float4> s_TerrainBaseParameterMap : register(t8);
-Texture2DArray<float4> s_TerrainSplatMap : register(t9);
+Texture2D<float4> s_TerrainSplatMap : register(t9);
 Texture2D<float4> s_DentBuffer : register(t10);
 
 static const float2 UV_SCALES[] =
@@ -278,9 +278,9 @@ void main(
     float3 tangent = normalize(cross(normal, float3(0, 0, 1)));
     float3 binormal = normalize(cross(normal, tangent));
 
-    uint4 matIndexA = uint4(s_TerrainSplatMap.GatherRed(s_TerrainSplatMap_sampler_s, float3(trrTexCoord, 0)) * 255.0 + 0.5);
-    uint4 matIndexB = uint4(s_TerrainSplatMap.GatherRed(s_TerrainSplatMap_sampler_s, float3(trrTexCoord, 1)) * 255.0 + 0.5);
-    float4 matBlend = s_TerrainSplatMap.GatherRed(s_TerrainSplatMap_sampler_s, float3(trrTexCoord, 2));
+    uint4 matIndexA = uint4(s_TerrainSplatMap.GatherRed(s_TerrainSplatMap_sampler_s, trrTexCoord) * 255.0 + 0.5);
+    uint4 matIndexB = uint4(s_TerrainSplatMap.GatherGreen(s_TerrainSplatMap_sampler_s, trrTexCoord) * 255.0 + 0.5);
+    float4 matBlend = s_TerrainNormalMap.GatherAlpha(s_TerrainNormalMap_s, trrTexCoord, 2);
 
     float4 matAlbedo[4];
     matAlbedo[0] = 0.0;
@@ -323,8 +323,8 @@ void main(
         }
     }
 
-    uint4 dimensions;
-    s_TerrainSplatMap.GetDimensions(0, dimensions.x, dimensions.y, dimensions.z, dimensions.w);
+    uint3 dimensions;
+    s_TerrainSplatMap.GetDimensions(0, dimensions.x, dimensions.y, dimensions.z);
 
     float2 fraction = frac(trrTexCoord * dimensions.xy + 0.5);
 
