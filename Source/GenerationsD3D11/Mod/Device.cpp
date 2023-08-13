@@ -440,7 +440,7 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
 
     // Default usage textures are guaranteed to be modified on CPU
     // as we load DDS textures using DDSTextureLoader11
-    if (!Usage)
+    if (Usage == 0 || (Usage & D3DUSAGE_DYNAMIC))
     {
         desc.Usage = D3D11_USAGE_DYNAMIC;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
