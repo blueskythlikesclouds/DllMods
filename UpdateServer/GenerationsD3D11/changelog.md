@@ -1,3 +1,11 @@
+# GenerationsD3D11 v1.4
+
+* Minor maintenance changes.
+* Fixed locking for dynamic usage textures.
+* Fixed implementation of scissor rectangles.
+* Fixed collision meshes not rendering properly.
+* Fixed game icon getting overriden in some HUD mods.
+
 # GenerationsD3D11 v1.3
 
 * Fixed tutorial & staffroll videos not displaying properly.
