@@ -230,8 +230,12 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
     INSTALL_HOOK(Direct3DCreate);
 
     // Patch the window function to load the icon in the executable.
-    WRITE_CALL(0xE7B843, LoadIconImpl);
-    WRITE_NOP(0xE7B848, 1);
+    // However, check whether any mods already wrote over this first.
+    if (*reinterpret_cast<uint8_t*>(0xE7B843) == 0xFF)
+    {
+        WRITE_CALL(0xE7B843, LoadIconImpl);
+        WRITE_NOP(0xE7B848, 1);
+    }
 
     // Hide window when it's first created because it's not a pleasant sight to see it centered/resized afterwards.
     WRITE_MEMORY(0xE7B8F7, uint8_t, 0x00);
