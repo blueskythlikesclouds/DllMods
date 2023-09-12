@@ -696,6 +696,10 @@ HRESULT Device::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
         setDirty(blendState.RenderTarget[0].BlendOp, (D3D11_BLEND_OP)Value, DirtyBlendState);
         break;
 
+    case D3DRS_SCISSORTESTENABLE:
+        setDirty(rasterizerState.ScissorEnable, (BOOL)Value, DirtyRasterizerState);
+        break;
+
     case D3DRS_SLOPESCALEDEPTHBIAS:
         setDirty(rasterizerState.SlopeScaledDepthBias, *(float*)&Value, DirtyRasterizerState);
         break;

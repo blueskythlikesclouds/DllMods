@@ -104,10 +104,10 @@ class Device : public Unknown
     ComPtr<IndexBuffer> indexBuffer;
     ComPtr<PixelShader> pixelShader;
 
-    std::unordered_map<int, ComPtr<ID3D11DepthStencilState>> depthStencilStates;
-    std::unordered_map<int, ComPtr<ID3D11RasterizerState>> rasterizerStates;
-    std::unordered_map<int, ComPtr<ID3D11BlendState>> blendStates;
-    std::unordered_map<int, ComPtr<ID3D11SamplerState>> samplerStates;
+    XXHashMap<ComPtr<ID3D11DepthStencilState>> depthStencilStates;
+    XXHashMap<ComPtr<ID3D11RasterizerState>> rasterizerStates;
+    XXHashMap<ComPtr<ID3D11BlendState>> blendStates;
+    XXHashMap<ComPtr<ID3D11SamplerState>> samplerStates;
     std::unordered_map<int, ComPtr<VertexDeclaration>> fvfMap;
 
     SwapChain swapChain;

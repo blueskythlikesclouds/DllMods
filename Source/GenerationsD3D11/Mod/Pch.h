@@ -49,3 +49,14 @@
 #include <LostCodeLoader.h>
 
 using Microsoft::WRL::ComPtr;
+
+struct XXHash
+{
+    std::size_t operator()(XXH32_hash_t value) const
+    {
+        return value;
+    }
+};
+
+template<typename T>
+using XXHashMap = std::unordered_map<XXH32_hash_t, T, XXHash>;
