@@ -144,10 +144,15 @@ static void __fastcall materialDataSetMadeOne(Hedgehog::Mirage::CMaterialData* m
     if (materialData->m_spShaderListData != nullptr)
     {
         const auto& shaderName = materialData->m_spShaderListData->m_TypeAndName;
-        const size_t sepIndex = shaderName.find(' ');
 
-        const auto shaderNameView = std::string_view(
+        size_t sepIndex = shaderName.find(' ');
+
+        auto shaderNameView = std::string_view(
             shaderName.data() + sepIndex + 1, shaderName.size() - sepIndex - 1);
+
+        sepIndex = shaderNameView.find('[');
+        if (sepIndex != std::string_view::npos)
+            shaderNameView = shaderNameView.substr(0, sepIndex);
 
         if (s_involvedShaderNames.find(shaderNameView) != s_involvedShaderNames.end())
         {
