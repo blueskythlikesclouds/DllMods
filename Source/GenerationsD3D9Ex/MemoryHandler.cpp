@@ -1,42 +1,48 @@
 ﻿#include "MemoryHandler.h"
 
-constexpr const char* ALLOC_SIGNATURE = " D3D9Ex ";
+#ifndef MEMORY_SIGNATURE
+#define MEMORY_SIGNATURE " D3D9Ex "
+#endif
 
-HANDLE hHeap = GetProcessHeap();
+static_assert(sizeof(MEMORY_SIGNATURE) == (8 + 1));
 
-HOOK(HANDLE*, __cdecl, GetHeapHandle, 0x660CF0, HANDLE& hHandle, size_t index)
+static HANDLE processHeap = GetProcessHeap();
+
+HOOK(HANDLE*, __cdecl, GetHeapHandle, 0x660CF0, HANDLE& handle, size_t index)
 {
-    hHandle = hHeap;
-    return &hHandle;
+    handle = processHeap;
+    return &handle;
 }
 
-void* __cdecl alloc(const size_t byteSize)
+static void* __cdecl alloc(size_t byteSize)
 {
-    void* pMem = HeapAlloc(hHeap, 0, byteSize + 8);
-    if (((uintptr_t)pMem % 16) == 0)
+    void* memory = HeapAlloc(processHeap, 0, byteSize + 8);
+
+    if ((reinterpret_cast<uintptr_t>(memory) & 0xF) == 0)
     {
-        void* pMemRealloc = HeapReAlloc(hHeap, HEAP_REALLOC_IN_PLACE_ONLY, pMem, byteSize);
-        return pMemRealloc ? pMemRealloc : pMem;
+        HeapReAlloc(processHeap, HEAP_REALLOC_IN_PLACE_ONLY, memory, byteSize);
+        return memory;
     }
 
-    memcpy(pMem, ALLOC_SIGNATURE, 8);
-    return &((uintptr_t*)pMem)[2];
+    memcpy(memory, MEMORY_SIGNATURE, 8);
+    return static_cast<uint8_t*>(memory) + 8;
 }
 
-void __cdecl dealloc(void* pMem)
+static void __cdecl dealloc(void* memory)
 {
-    if (!pMem)
+    if (!memory)
         return;
 
-    uintptr_t* pSignature = &((uintptr_t*)pMem)[-2];
-    if (memcmp(pSignature, ALLOC_SIGNATURE, 8) == 0)
+    uint8_t* signature = static_cast<uint8_t*>(memory) - 8;
+
+    if (memcmp(signature, MEMORY_SIGNATURE, 8) == 0)
     {
-        memset(pSignature, 0, sizeof(*pSignature));
-        HeapFree(hHeap, 0, pSignature);
+        memset(signature, 0, 8);
+        HeapFree(processHeap, 0, signature);
     }
     else
     {
-        HeapFree(hHeap, 0, pMem);
+        HeapFree(processHeap, 0, memory);
     }
 }
 
