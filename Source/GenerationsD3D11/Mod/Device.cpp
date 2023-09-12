@@ -6,15 +6,15 @@
 #include "DepthStencilTexture.h"
 #include "FVF.wpu.h"
 #include "FVF.wvu.h"
+#include "IndexBuffer.h"
 #include "PixelShader.h"
 #include "RenderTargetSurface.h"
 #include "RenderTargetTexture.h"
 #include "ShaderCache.h"
 #include "Surface.h"
-#include "SwapChainDefault.h"
-#include "SwapChainWaitable.h"
 #include "Texture.h"
 #include "TypeConverter.h"
+#include "VertexBuffer.h"
 #include "VertexDeclaration.h"
 #include "VertexShader.h"
 
@@ -305,12 +305,7 @@ Device::Device(D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scali
     infoQueue->AddStorageFilterEntries(&filter);
 #endif
 
-    if (presentationParameters->Windowed)
-        swapChain = std::make_unique<SwapChainWaitable>();
-    else
-        swapChain = std::make_unique<SwapChainDefault>();
-
-    swapChain->initialize(this, presentationParameters, scaling);
+    swapChain.initialize(this, presentationParameters, scaling);
 
     depthStencilState = CD3D11_DEPTH_STENCIL_DESC(CD3D11_DEFAULT());
     rasterizerState = CD3D11_RASTERIZER_DESC(CD3D11_DEFAULT());
@@ -394,7 +389,7 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
     if (!Configuration::disableShaderCompilerNotification)
         compilingShadersImageRenderer.render(this);
 
-    swapChain->present(this, syncInterval);
+    swapChain.present(this, syncInterval);
 
     invalidateDirtyStates();
     return S_OK;
@@ -402,7 +397,7 @@ HRESULT Device::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDe
 
 HRESULT Device::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, Surface** ppBackBuffer)
 {
-    *ppBackBuffer = swapChain->getRenderTargetSurface();
+    *ppBackBuffer = swapChain.getRenderTargetSurface();
     (*ppBackBuffer)->AddRef();
 
     return S_OK;

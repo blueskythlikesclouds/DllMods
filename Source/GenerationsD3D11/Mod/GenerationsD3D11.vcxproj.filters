@@ -27,7 +27,7 @@
     <ClCompile Include="Buffer.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
-    <ClCompile Include="SwapChainWaitable.cpp">
+    <ClCompile Include="SwapChain.cpp">
       <Filter>Device</Filter>
     </ClCompile>
     <ClCompile Include="DepthStencilSurface.cpp">
@@ -46,9 +46,6 @@
       <Filter>Device</Filter>
     </ClCompile>
     <ClCompile Include="D3D9.cpp">
-      <Filter>Device</Filter>
-    </ClCompile>
-    <ClCompile Include="SwapChainDefault.cpp">
       <Filter>Device</Filter>
     </ClCompile>
     <ClCompile Include="..\..\GenerationsD3D9Ex\MemoryHandler.cpp">
@@ -83,6 +80,12 @@
     <ClCompile Include="ShaderTranslator.cpp">
       <Filter>Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -109,9 +112,6 @@
     <ClInclude Include="Buffer.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="SwapChainWaitable.h">
-      <Filter>Device</Filter>
-    </ClInclude>
     <ClInclude Include="SwapChain.h">
       <Filter>Device</Filter>
     </ClInclude>
@@ -134,9 +134,6 @@
       <Filter>Device</Filter>
     </ClInclude>
     <ClInclude Include="CriticalSection.h">
-      <Filter>Device</Filter>
-    </ClInclude>
-    <ClInclude Include="SwapChainDefault.h">
       <Filter>Device</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCache.h">
@@ -163,6 +160,12 @@
     </ClInclude>
     <ClInclude Include="ShaderTranslator.h">
       <Filter>Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -5,9 +5,14 @@ class RenderTargetSurface;
 
 class SwapChain
 {
-public:
-    virtual RenderTargetSurface* getRenderTargetSurface() = 0;
+private:
+    ComPtr<IDXGISwapChain2> swapChain;
+    ComPtr<RenderTargetSurface> renderTargetSurface;
+    HANDLE waitHandle{};
 
-    virtual bool initialize(Device* device, D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scaling) = 0;
-    virtual void present(Device* device, UINT syncInterval) = 0;
+public:
+    RenderTargetSurface* getRenderTargetSurface() const;
+    
+    bool initialize(Device* device, D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scaling);
+    void present(Device* device, UINT syncInterval) const;
 };

@@ -7,6 +7,11 @@ RenderTargetTexture::RenderTargetTexture(Device* device, ID3D11Resource* resourc
 {
 }
 
+RenderTargetTexture::RenderTargetTexture(Device* device, ID3D11Resource* resource, ID3D11ShaderResourceView* srv)
+    : Texture(device, resource, srv)
+{
+}
+
 HRESULT RenderTargetTexture::GetSurfaceLevel(UINT Level, Surface** ppSurfaceLevel)
 {
     if (!surfaces[Level])

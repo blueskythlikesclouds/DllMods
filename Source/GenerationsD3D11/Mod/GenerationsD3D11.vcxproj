@@ -120,6 +120,7 @@
     <ClCompile Include="CompilingShadersImage.cpp" />
     <ClCompile Include="CompilingShadersImageRenderer.cpp" />
     <ClCompile Include="Configuration.cpp" />
+    <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="ScopedProfiler.cpp" />
     <ClCompile Include="DepthStencilSurface.cpp" />
@@ -135,9 +136,9 @@
     <ClCompile Include="ShaderCache.cpp" />
     <ClCompile Include="ShaderTranslator.cpp" />
     <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="SwapChainDefault.cpp" />
-    <ClCompile Include="SwapChainWaitable.cpp" />
+    <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexDeclaration.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="TypeConverter.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="D3D9.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Include\GenerationsD3D11.h" />
+    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderCache.h" />
@@ -172,10 +174,9 @@
     <ClInclude Include="RenderTargetTexture.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Surface.h" />
-    <ClInclude Include="SwapChainDefault.h" />
-    <ClInclude Include="SwapChainWaitable.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ScopedProfiler.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexDeclaration.h" />
     <ClInclude Include="TypeConverter.h" />
     <ClInclude Include="Pch.h" />

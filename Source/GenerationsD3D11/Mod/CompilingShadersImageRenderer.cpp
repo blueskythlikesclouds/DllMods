@@ -51,7 +51,7 @@ void CompilingShadersImageRenderer::render(Device* device)
         texture.Attach(new Texture(device, tex.Get(), srv.Get()));
     }
 
-    device->SetRenderTarget(0, device->swapChain->getRenderTargetSurface());
+    device->SetRenderTarget(0, device->swapChain.getRenderTargetSurface());
     device->SetDepthStencilSurface(nullptr);
 
     if (Configuration::compileShadersBeforeStarting)

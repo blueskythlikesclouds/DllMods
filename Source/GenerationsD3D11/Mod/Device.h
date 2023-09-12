@@ -2,6 +2,7 @@
 
 #include "CompilingShadersImageRenderer.h"
 #include "CriticalSection.h"
+#include "SwapChain.h"
 #include "Unknown.h"
 
 class BaseTexture;
@@ -12,13 +13,11 @@ class DepthStencilSurface;
 class PixelShader;
 class RenderTargetSurface;
 class Surface;
-class SwapChain;
 class Texture;
+class VertexBuffer;
+class IndexBuffer;
 class VertexDeclaration;
 class VertexShader;
-
-typedef Buffer VertexBuffer;
-typedef Buffer IndexBuffer;
 
 struct alignas(16) GlobalsVS
 {
@@ -111,7 +110,7 @@ class Device : public Unknown
     std::unordered_map<int, ComPtr<ID3D11SamplerState>> samplerStates;
     std::unordered_map<int, ComPtr<VertexDeclaration>> fvfMap;
 
-    std::unique_ptr<SwapChain> swapChain;
+    SwapChain swapChain;
     UINT syncInterval;
 
     CompilingShadersImageRenderer compilingShadersImageRenderer;

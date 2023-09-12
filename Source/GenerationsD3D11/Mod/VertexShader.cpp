@@ -40,7 +40,7 @@ ID3D11VertexShader* VertexShader::getVertexShader() const
 ID3D11InputLayout* VertexShader::createInputLayout(ID3D11Device* device, const D3D11_INPUT_ELEMENT_DESC* inputElements, const size_t inputElementCount) const
 {
     ID3D11InputLayout* inputLayout = nullptr;
-    device->CreateInputLayout(inputElements, inputElementCount, byteCode.get(), byteSize, &inputLayout);
+    HRESULT hr = device->CreateInputLayout(inputElements, inputElementCount, byteCode.get(), byteSize, &inputLayout);
 
     return inputLayout;
 }

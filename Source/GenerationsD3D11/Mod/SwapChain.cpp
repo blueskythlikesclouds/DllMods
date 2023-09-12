@@ -1,16 +1,16 @@
-﻿#include "SwapChainWaitable.h"
+﻿#include "SwapChain.h"
 
 #include "Device.h"
 #include "RenderTargetSurface.h"
 #include "TypeConverter.h"
 #include "RenderTargetTexture.h"
 
-RenderTargetSurface* SwapChainWaitable::getRenderTargetSurface()
+RenderTargetSurface* SwapChain::getRenderTargetSurface() const
 {
     return renderTargetSurface.Get();
 }
 
-bool SwapChainWaitable::initialize(Device* device, D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scaling)
+bool SwapChain::initialize(Device* device, D3DPRESENT_PARAMETERS* presentationParameters, DXGI_SCALING scaling)
 {
     ComPtr<IDXGIFactory3> dxgiFactory;
     CreateDXGIFactory2(
@@ -53,13 +53,13 @@ bool SwapChainWaitable::initialize(Device* device, D3DPRESENT_PARAMETERS* presen
     swapChain->GetBuffer(0, IID_PPV_ARGS(backBuffer.GetAddressOf()));
 
     ComPtr<RenderTargetTexture> renderTargetTexture;
-    renderTargetTexture.Attach(new RenderTargetTexture(device, backBuffer.Get(), DXGI_FORMAT_UNKNOWN));
+    renderTargetTexture.Attach(new RenderTargetTexture(device, backBuffer.Get(), nullptr));
     renderTargetTexture->GetSurfaceLevel(0, reinterpret_cast<Surface**>(renderTargetSurface.GetAddressOf()));
 
     return true;
 }
 
-void SwapChainWaitable::present(Device* device, UINT syncInterval)
+void SwapChain::present(Device* device, UINT syncInterval) const
 {
     while (WaitForSingleObjectEx(waitHandle, 0, FALSE));
     swapChain->Present(syncInterval, 0);

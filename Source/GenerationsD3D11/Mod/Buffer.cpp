@@ -34,13 +34,13 @@ HRESULT Buffer::Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD F
         D3D11_MAPPED_SUBRESOURCE mappedSubResource;
         device->getContext()->Map(resource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubResource);
 
-        *ppbData = mappedSubResource.pData;
+        *ppbData = static_cast<uint8_t*>(mappedSubResource.pData) + OffsetToLock;
     }
 
     else 
     {
         uploadBuffer = std::make_unique<uint8_t[]>(length);
-        *ppbData = uploadBuffer.get();
+        *ppbData = uploadBuffer.get() + OffsetToLock;
     }
 
     return S_OK;
@@ -71,5 +71,3 @@ HRESULT Buffer::Unlock()
 
     return S_OK;
 }
-
-FUNCTION_STUB(HRESULT, Buffer::GetDesc, D3DINDEXBUFFER_DESC *pDesc)

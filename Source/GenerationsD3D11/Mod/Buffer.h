@@ -4,6 +4,7 @@
 
 class Buffer : public Resource
 {
+protected:
     size_t length;
     D3D11_BIND_FLAG bindFlags;
     DXGI_FORMAT format;
@@ -17,5 +18,4 @@ public:
 
     virtual HRESULT Lock(UINT OffsetToLock, UINT SizeToLock, void** ppbData, DWORD Flags) final;
     virtual HRESULT Unlock() final;
-    virtual HRESULT GetDesc(D3DINDEXBUFFER_DESC* pDesc) final;
 };
