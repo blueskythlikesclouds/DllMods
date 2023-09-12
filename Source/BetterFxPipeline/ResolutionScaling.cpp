@@ -30,4 +30,5 @@ HOOK(void, __stdcall, InitializeSurfaceInfo, 0x653A00, void* A1, uint32_t* A2, v
 void ResolutionScaling::init()
 {
     INSTALL_HOOK(InitializeSurfaceInfo);
+    WRITE_MEMORY(0x10C6039, uint32_t, Configuration::shadowResolution);
 }

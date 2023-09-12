@@ -266,7 +266,6 @@ void DeprecatedCode::init()
         return;
 
     WRITE_JUMP(0x10C7E35, renderGameSceneMidAsmHook);
-    WRITE_MEMORY(0x10C6039, uint32_t, Configuration::shadowResolution);
 
     if (Configuration::enableTerrainShadowCast)
     {
