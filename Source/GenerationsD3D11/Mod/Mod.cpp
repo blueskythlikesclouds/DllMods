@@ -304,4 +304,10 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
     // Don't update when compiling shaders at startup
     if (Configuration::compileShadersBeforeStarting)
         INSTALL_HOOK(InternalUpdate);
+
+    // Sonic Team felt silly and decided to do GPU readback
+    // to compute the AABB of Havok meshes when rendering them.
+    // I'm not going to support this so just set the bounding sphere
+    // to infinite from origin.
+    WRITE_MEMORY(0x11AF3C2, uint8_t, 0xEB);
 }
