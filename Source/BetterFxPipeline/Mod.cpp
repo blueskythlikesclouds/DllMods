@@ -1,79 +1,42 @@
-#include "BloomScaleFixer.h"
+#include "AntiAliasing.h"
+#include "BloomResolutionFix.h"
+#include "BloomTypeImpl.h"
 #include "Configuration.h"
-#include "ShadowHandler.h"
-#include "DofScaleFixer.h"
-#include "FxaaRenderer.h"
-#include "FxPipelineEnabler.h"
-#include "LoadingScreenFixer.h"
-#include "LostCodeLoader.h"
-#include "ParameterFixer.h"
-#include "ParticlePostProcessor.h"
-#include "ResolutionScaler.h"
-#include "SceneEffectOverrider.h"
-#include "ShadowCaster.h"
-#include "BloomTypeHandler.h"
-#include "LightShaftRenderer.h"
-#include "ReflectionFixer.h"
-#include "ShaderLoader.h"
-#include "StereoShaderReplacer.h"
-#include "ShaderPatcher.h"
+#include "DeprecatedCode.h"
+#include "DirectionalShadowImpl.h"
+#include "LightShaftImpl.h"
+#include "LuminanceRangeFix.h"
+#include "ParameterManager.h"
+#include "ParticlePostProcessing.h"
+#include "ResolutionScaling.h"
+#include "ShaderCodePatch.h"
+#include "ShaderListPatch.h"
+#include "ShadowCastImpl.h"
+#include "SkyReflectionFix.h"
 
-extern "C" __declspec(dllexport) void __cdecl OnFrame()
+extern "C" void __declspec(dllexport) Init()
 {
-    BloomTypeHandler::update();
-    SceneEffectOverrider::update();
-    ShadowHandler::update();
-    LightShaftRenderer::update();
+    if (!Configuration::load())
+        MessageBox(nullptr, TEXT("Unable to locate BetterFxPipeline.ini"), TEXT("Better FxPipeline"), MB_ICONERROR);
+
+    LuminanceRangeFix::init();
+    SkyReflectionFix::init();
+    ParameterManager::init();
+    DirectionalShadowImpl::init();
+    BloomTypeImpl::init();
+    LightShaftImpl::init();
+    ShaderListPatch::init();
+    ResolutionScaling::init();
+    AntiAliasing::init();
+    ShadowCastImpl::init();
+    ShaderCodePatch::init();
+    BloomResolutionFix::init();
+    ParticlePostProcessing::init();
 }
 
-extern "C" __declspec(dllexport) void __cdecl Init(ModInfo *info)
+extern "C" void __declspec(dllexport) PostInit()
 {
-    std::string dir = info->CurrentMod->Path;
-
-    size_t pos = dir.find_last_of("\\/");
-    if (pos != std::string::npos)
-        dir.erase(pos + 1);
-
-    if (!Configuration::load(dir + "BetterFxPipeline.ini"))
-        MessageBox(NULL, L"Failed to parse BetterFxPipeline.ini", NULL, MB_ICONERROR);
-
-    ShaderLoader::applyPatches();
-
-    ShadowHandler::applyPatches();
-
-    ParameterFixer::applyPatches();
-
-    ShaderPatcher::applyPatches();
-
-    BloomScaleFixer::applyPatches();
-
-    DofScaleFixer::applyPatches();
-
-    if (Configuration::postProcessingOnParticles)
-        ParticlePostProcessor::applyPatches();
-
-    BloomTypeHandler::applyPatches();
-
-    FxaaRenderer::applyPatches();
-
-    ShadowCaster::applyPatches();
-
-    if (Configuration::enableResolutionScale)
-        ResolutionScaler::applyPatches();
-
-    LightShaftRenderer::applyPatches();
-
-    ReflectionFixer::applyPatches();
-
-    StereoShaderReplacer::applyPatches();
+    DeprecatedCode::init();
 }
 
-extern "C" __declspec(dllexport) void __cdecl PostInit()
-{
-    // Enable FxPipeline if PBR Shaders mod is enabled
-    if (!GetModuleHandle(TEXT("GenerationsPBRShaders.dll"))) 
-        return;
-
-    FxPipelineEnabler::applyPatches();
-    LoadingScreenFixer::applyPatches();
-}
+BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) { return TRUE; }

@@ -56,11 +56,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);WIN32_LEAN_AND_MEAN;NOMINMAX;XXH_STATIC_LINKING_ONLY;XXH_INLINE_ALL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\xxHash;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -77,13 +77,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions);WIN32_LEAN_AND_MEAN;NOMINMAX;XXH_STATIC_LINKING_ONLY;XXH_INLINE_ALL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\Loaders;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Dependencies;..\..\Dependencies\Detours\include;..\..\Dependencies\xxHash;..\..\Include\BlueBlur;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>false</ExceptionHandling>
@@ -98,84 +98,48 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AntiAliasing.cpp" />
+    <ClCompile Include="BloomResolutionFix.cpp" />
+    <ClCompile Include="BloomTypeImpl.cpp" />
     <ClCompile Include="Configuration.cpp" />
-    <ClCompile Include="LightShaftRenderer.cpp" />
-    <ClCompile Include="ReflectionFixer.cpp" />
-    <ClCompile Include="ShadowHandler.cpp" />
-    <ClCompile Include="BloomScaleFixer.cpp" />
-    <ClCompile Include="DllMain.cpp" />
-    <ClCompile Include="DofScaleFixer.cpp" />
-    <ClCompile Include="FxaaRenderer.cpp" />
-    <ClCompile Include="ShaderLoader.cpp" />
-    <ClCompile Include="ParameterFixer.cpp" />
-    <ClCompile Include="FxPipelineEnabler.cpp" />
-    <ClCompile Include="LoadingScreenFixer.cpp" />
+    <ClCompile Include="DeprecatedCode.cpp" />
+    <ClCompile Include="DirectionalShadowImpl.cpp" />
+    <ClCompile Include="LightShaftImpl.cpp" />
+    <ClCompile Include="LuminanceRangeFix.cpp" />
     <ClCompile Include="Mod.cpp" />
-    <ClCompile Include="ShadowCaster.cpp" />
-    <ClCompile Include="ParticlePostProcessor.cpp" />
+    <ClCompile Include="ParameterManager.cpp" />
+    <ClCompile Include="ParticlePostProcessing.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="ResolutionScaler.cpp" />
-    <ClCompile Include="SceneEffectOverrider.cpp" />
-    <ClCompile Include="BloomTypeHandler.cpp" />
-    <ClCompile Include="StereoShaderReplacer.cpp" />
-    <ClCompile Include="ShaderPatcher.cpp" />
+    <ClCompile Include="ResolutionScaling.cpp" />
+    <ClCompile Include="ShaderCodePatch.cpp" />
+    <ClCompile Include="ShaderListPatch.cpp" />
+    <ClCompile Include="ShadowCastImpl.cpp" />
+    <ClCompile Include="SkyReflectionFix.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AntiAliasing.h" />
+    <ClInclude Include="BloomResolutionFix.h" />
+    <ClInclude Include="BloomTypeImpl.h" />
     <ClInclude Include="Configuration.h" />
-    <ClInclude Include="LightShaftRenderer.h" />
-    <ClInclude Include="ReflectionFixer.h" />
-    <ClInclude Include="ShadowHandler.h" />
-    <ClInclude Include="BloomScaleFixer.h" />
-    <ClInclude Include="DofScaleFixer.h" />
-    <ClInclude Include="FxaaRenderer.h" />
-    <ClInclude Include="ShaderLoader.h" />
-    <ClInclude Include="ParameterFixer.h" />
-    <ClInclude Include="FxPipelineEnabler.h" />
-    <ClInclude Include="Hash.h" />
-    <ClInclude Include="LoadingScreenFixer.h" />
-    <ClInclude Include="ShadowCaster.h" />
-    <ClInclude Include="ParticlePostProcessor.h" />
+    <ClInclude Include="DeprecatedCode.h" />
+    <ClInclude Include="DirectionalShadowImpl.h" />
+    <ClInclude Include="LightShaftImpl.h" />
+    <ClInclude Include="LuminanceRangeFix.h" />
+    <ClInclude Include="ParameterManager.h" />
+    <ClInclude Include="ParticlePostProcessing.h" />
     <ClInclude Include="Pch.h" />
-    <ClInclude Include="ResolutionScaler.h" />
-    <ClInclude Include="SceneEffectOverrider.h" />
-    <ClInclude Include="BloomTypeHandler.h" />
-    <ClInclude Include="StereoShaderReplacer.h" />
-    <ClInclude Include="ShaderPatcher.h" />
+    <ClInclude Include="ResolutionScaling.h" />
+    <ClInclude Include="ShaderCodePatch.h" />
+    <ClInclude Include="ShaderListPatch.h" />
+    <ClInclude Include="ShadowCastImpl.h" />
+    <ClInclude Include="SkyReflectionFix.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="CopyTexture.wpu.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">3.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">3.0</ShaderModel>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)CopyTexture.wpu.h</HeaderFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ObjectFileOutput>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)CopyTexture.wpu.h</HeaderFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </ObjectFileOutput>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">COPY_TEXTURE_PS</VariableName>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">COPY_TEXTURE_PS</VariableName>
-    </FxCompile>
-    <FxCompile Include="CopyTexture.wvu.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">3.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">3.0</ShaderModel>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)CopyTexture.wvu.h</HeaderFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ObjectFileOutput>
-      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)CopyTexture.wvu.h</HeaderFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </ObjectFileOutput>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">COPY_TEXTURE_VS</VariableName>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">COPY_TEXTURE_VS</VariableName>
-    </FxCompile>
     <FxCompile Include="MotionBlur.wpu.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

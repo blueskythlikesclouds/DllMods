@@ -1,45 +1,26 @@
 ﻿#include "Configuration.h"
 
-bool Configuration::forceIgnoreFinalLightColorAdjustment = false;
-bool Configuration::postProcessingOnParticles = false;
-BloomType Configuration::bloomType = BloomType::MTFx;
-bool Configuration::enhancedMotionBlur = false;
-
-FxaaIntensity Configuration::fxaaIntensity = FxaaIntensity::DISABLED;
-
-uint32_t Configuration::shadowResolution = 4096;
-float Configuration::ambientShadowBiasObject = -1;
-float Configuration::ambientShadowBiasTerrain = -1;
-bool Configuration::enableTerrainShadowCast = false;
-bool Configuration::forceCastShadow = false;
-ShadowType Configuration::shadowType = ShadowType::Default;
-LambertShadowMode Configuration::lambertShadowObject = LambertShadowMode::ENABLE;
-LambertShadowMode Configuration::lambertShadowTerrain = LambertShadowMode::ENABLE;
-
-bool Configuration::enableResolutionScale = false;
-int Configuration::width = -1;
-int Configuration::height = -1;
-
-bool Configuration::load(const std::string& filePath)
+bool Configuration::load()
 {
-    const INIReader reader(filePath);
+    const INIReader reader("BetterFxPipeline.ini");
+
     if (reader.ParseError() != 0)
         return false;
 
     forceIgnoreFinalLightColorAdjustment = reader.GetBoolean("Renderer", "ForceIgnoreFinalLightColorAdjustment", false);
-    fxaaIntensity = (FxaaIntensity)reader.GetInteger("Renderer", "FxaaIntensity", (uint32_t)FxaaIntensity::DISABLED);
+    fxaaIntensity = static_cast<FxaaIntensity>(reader.GetInteger("Renderer", "FxaaIntensity", static_cast<uint32_t>(FxaaIntensity::Disabled)));
     postProcessingOnParticles = reader.GetBoolean("Renderer", "PostProcessingOnParticles", false);
-    bloomType = (BloomType)reader.GetInteger("Renderer", "BloomType", 0);
+    bloomType = static_cast<BloomType>(reader.GetInteger("Renderer", "BloomType", 0));
     enhancedMotionBlur = reader.GetBoolean("Renderer", "EnhancedMotionBlur", false);
 
-    shadowResolution = (uint32_t)max(1, reader.GetInteger("Shadows", "ShadowResolution", 4096));
-    ambientShadowBiasObject = reader.GetFloat("Shadows", "AmbientShadowBiasObject", -1);
-    ambientShadowBiasTerrain = reader.GetFloat("Shadows", "AmbientShadowBiasTerrain", -1);
+    shadowResolution = static_cast<uint32_t>(std::max(1l, reader.GetInteger("Shadows", "ShadowResolution", 4096)));
+    ambientShadowBiasObject = reader.GetFloat("Shadows", "AmbientShadowBiasObject", -1.0f);
+    ambientShadowBiasTerrain = reader.GetFloat("Shadows", "AmbientShadowBiasTerrain", -1.0f);
     enableTerrainShadowCast = reader.GetBoolean("Shadows", "EnableTerrainShadowCast", false);
     forceCastShadow = reader.GetBoolean("Shadows", "ForceCastShadow", false);
-    shadowType = (ShadowType)reader.GetInteger("Shadows", "ShadowType", (long)ShadowType::Default);
-    lambertShadowObject = (LambertShadowMode)reader.GetInteger("Shadows", "LambertShadowObject", (uint32_t)LambertShadowMode::ENABLE);
-    lambertShadowTerrain = (LambertShadowMode)reader.GetInteger("Shadows", "LambertShadowTerrain", (uint32_t)LambertShadowMode::ENABLE);
+    shadowType = static_cast<ShadowType>(reader.GetInteger("Shadows", "ShadowType", static_cast<long>(ShadowType::Default)));
+    lambertShadowObject = static_cast<LambertShadowMode>(reader.GetInteger("Shadows", "LambertShadowObject", static_cast<uint32_t>(LambertShadowMode::Default)));
+    lambertShadowTerrain = static_cast<LambertShadowMode>(reader.GetInteger("Shadows", "LambertShadowTerrain", static_cast<uint32_t>(LambertShadowMode::Default)));
 
     enableResolutionScale = reader.GetBoolean("InternalResolution", "Scale", false);
     width = enableResolutionScale ? reader.GetInteger("InternalResolution", "Width", -1) : -1;

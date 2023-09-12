@@ -2,21 +2,21 @@
 
 enum class LambertShadowMode : uint32_t
 {
-    ENABLE = 0,
-    FORCE_DISABLE = 1,
-    FORCE_ENABLE = 2
+    Default = 0,
+    Disable = 1,
+    Enable = 2
 };
 
 enum class FxaaIntensity : uint32_t
 {
-    DISABLED = 0,
-    INTENSITY_0 = 1,
-    INTENSITY_1 = 2,
-    INTENSITY_2 = 3,
-    INTENSITY_3 = 4,
-    INTENSITY_4 = 5,
-    INTENSITY_5 = 6,
-    INTENSITY_6 = 7,
+    Disabled = 0,
+    Intensity0 = 1,
+    Intensity1 = 2,
+    Intensity2 = 3,
+    Intensity3 = 4,
+    Intensity4 = 5,
+    Intensity5 = 6,
+    Intensity6 = 7,
 };
 
 enum class BloomType : uint32_t
@@ -36,24 +36,24 @@ enum class ShadowType : uint32_t
 class Configuration
 {
 public:
-    static bool forceIgnoreFinalLightColorAdjustment;
-    static FxaaIntensity fxaaIntensity;
-    static bool postProcessingOnParticles;
-    static BloomType bloomType;
-    static bool enhancedMotionBlur;
+    static inline bool forceIgnoreFinalLightColorAdjustment;
+    static inline FxaaIntensity fxaaIntensity;
+    static inline bool postProcessingOnParticles;
+    static inline BloomType bloomType;
+    static inline bool enhancedMotionBlur;
 
-    static uint32_t shadowResolution;
-    static float ambientShadowBiasObject;
-    static float ambientShadowBiasTerrain;
-    static bool enableTerrainShadowCast;
-    static bool forceCastShadow;
-    static ShadowType shadowType;
-    static LambertShadowMode lambertShadowObject;
-    static LambertShadowMode lambertShadowTerrain;
+    static inline uint32_t shadowResolution = 4096;
+    static inline float ambientShadowBiasObject = -1.0f;
+    static inline float ambientShadowBiasTerrain = -1.0f;
+    static inline bool enableTerrainShadowCast;
+    static inline bool forceCastShadow;
+    static inline ShadowType shadowType;
+    static inline LambertShadowMode lambertShadowObject;
+    static inline LambertShadowMode lambertShadowTerrain;
 
-    static bool enableResolutionScale;
-    static int width;
-    static int height;
+    static inline bool enableResolutionScale;
+    static inline int32_t width = -1;
+    static inline int32_t height = -1;
 
-    static bool load(const std::string& filePath);
+    static bool load();
 };

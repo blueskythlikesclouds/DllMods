@@ -1,16 +1,15 @@
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-
-#include <BlueBlur.h>
-
 #include <Windows.h>
 #include <detours.h>
 
-#include <array>
 #include <cstdint>
 #include <cstdio>
 
-#include <INIReader.h>
+#include <string>
+#include <unordered_set>
 
+#include <BlueBlur.h>
 #include <Helpers.h>
+#include <INIReader.h>
+#include <xxhash.h>
