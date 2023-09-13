@@ -37,8 +37,8 @@ extern "C" void __declspec(dllexport) Init()
 extern "C" void __declspec(dllexport) PostInit()
 {
     // Check for the old .fxpipeline.exe patch and disallow it.
-    if (*reinterpret_cast<uint32_t*>(0x16E2168) != 0x57B4B0 ||
-        *reinterpret_cast<uint32_t*>(0xD1D38F) != 0x16E2168)
+    if (*reinterpret_cast<uint32_t*>(0x16E2168) == 0x578A80 ||
+        *reinterpret_cast<uint32_t*>(0xD1D38F) == 0x13DE0E0)
     {
         MessageBox(
             nullptr,
