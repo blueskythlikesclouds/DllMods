@@ -42,7 +42,7 @@ HOOK(void, __cdecl, PixelShaderCodeMake, 0x7341B0,
     {
         const XXH32_hash_t hash = XXH32(data, length, 0);
         if (hash == 0xDAF93F45 || hash == 0xEC6513C7)
-            originalPixelShaderCodeMake(name, MOTION_BLUR_PS, sizeof(MOTION_BLUR_PS), database, renderingInfrastructure, delay);
+            return originalPixelShaderCodeMake(name, MOTION_BLUR_PS, sizeof(MOTION_BLUR_PS), database, renderingInfrastructure, delay);
     }
 
     return originalPixelShaderCodeMake(name, data, length, database, renderingInfrastructure, delay);
@@ -55,6 +55,7 @@ void ShaderCodePatch::init()
     if (Configuration::enhancedMotionBlur)
         INSTALL_HOOK(PixelShaderCodeMake);
 
+    // Stereo -> Regular
     WRITE_MEMORY(0x15CA65F, char, 'r');
     WRITE_MEMORY(0x15CA66B, char, 'r');
     WRITE_MEMORY(0x15CA6CB, char, 'r');
