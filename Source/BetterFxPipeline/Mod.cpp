@@ -36,6 +36,19 @@ extern "C" void __declspec(dllexport) Init()
 
 extern "C" void __declspec(dllexport) PostInit()
 {
+    // Check for the old .fxpipeline.exe patch and disallow it.
+    if (*reinterpret_cast<uint32_t*>(0x16E2168) != 0x57B4B0 ||
+        *reinterpret_cast<uint32_t*>(0xD1D38F) != 0x16E2168)
+    {
+        MessageBox(
+            nullptr,
+            TEXT("Better FxPipeline is incompatible with the FxPipeline Renderer. Please disable the code or restore the original game executable (verify game files through Steam) in order to use this mod."),
+            TEXT("Better FxPipeline"),
+            MB_ICONERROR);
+
+        exit(-1);
+    }
+
     DeprecatedCode::init();
 }
 

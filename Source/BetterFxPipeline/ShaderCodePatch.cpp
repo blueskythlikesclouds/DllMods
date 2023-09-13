@@ -38,11 +38,24 @@ HOOK(void, __cdecl, PixelShaderCodeMake, 0x7341B0,
     Hedgehog::Mirage::CRenderingInfrastructure* renderingInfrastructure,
     bool delay)
 {
-    if (length == 1544 || length == 1732)
+    if ((Configuration::enhancedMotionBlur && (length == 1544 || length == 1732)) || length == 2640)
     {
         const XXH32_hash_t hash = XXH32(data, length, 0);
-        if (hash == 0xDAF93F45 || hash == 0xEC6513C7)
+
+        if (Configuration::enhancedMotionBlur && ((length == 1544 && hash == 0xDAF93F45) || (length == 1732 && hash == 0xEC6513C7)))
             return originalPixelShaderCodeMake(name, MOTION_BLUR_PS, sizeof(MOTION_BLUR_PS), database, renderingInfrastructure, delay);
+
+        // Disallow the Unleashed FxPipeline Shaders mod as it is not required and causes graphical issues.
+        if (length == 2640 && hash == 0x7EDFE3DC)
+        {
+            MessageBox(
+                nullptr, 
+                TEXT("Better FxPipeline is incompatible with the \"Unleashed FxPipeline Shaders\" mod. Please disable it in order to use this mod."), 
+                TEXT("Better FxPipeline"),
+                MB_ICONERROR);
+
+            exit(-1);
+        }
     }
 
     return originalPixelShaderCodeMake(name, data, length, database, renderingInfrastructure, delay);
@@ -51,9 +64,7 @@ HOOK(void, __cdecl, PixelShaderCodeMake, 0x7341B0,
 void ShaderCodePatch::init()
 {
     INSTALL_HOOK(VertexShaderCodeMake);
-
-    if (Configuration::enhancedMotionBlur)
-        INSTALL_HOOK(PixelShaderCodeMake);
+    INSTALL_HOOK(PixelShaderCodeMake);
 
     // Stereo -> Regular
     WRITE_MEMORY(0x15CA65F, char, 'r');
