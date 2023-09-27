@@ -8,6 +8,7 @@ Repository containing several mod projects for various games.
 
 * [Better FxPipeline](https://gamebanana.com/mods/50765)
 * [Direct3D 9 Ex](https://gamebanana.com/mods/50770)
+* [Direct3D 11](https://gamebanana.com/mods/407367)
 * [Free Camera](https://gamebanana.com/mods/50768)
 * [Mirror Mode](https://gamebanana.com/mods/329243)
 * [Parameter Editor](https://gamebanana.com/mods/50769)
