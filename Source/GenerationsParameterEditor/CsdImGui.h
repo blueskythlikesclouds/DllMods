@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <imgui/imgui.h>
 
 struct CsdImGui
 {

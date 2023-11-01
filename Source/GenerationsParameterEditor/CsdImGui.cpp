@@ -1,5 +1,4 @@
 ﻿#include "CsdImGui.h"
-
 #include <wrl/client.h>
 
 using Microsoft::WRL::ComPtr;
@@ -22,7 +21,7 @@ void CsdImGui::render(const ImDrawData* drawData)
         return;
     }
 
-    hh::mr::CMirageDatabaseWrapper wrapper(applicationDocument->m_pMember->m_spDatabase.get());
+    Hedgehog::Mirage::CMirageDatabaseWrapper wrapper(applicationDocument->m_pMember->m_spDatabase.get());
 
     const auto csdVS = wrapper.GetVertexShaderCodeData("csd");
     const auto csdPS = wrapper.GetPixelShaderCodeData("csd");
@@ -234,14 +233,14 @@ void CsdImGui::render(const ImDrawData* drawData)
 
 DX_PATCH::IDirect3DBaseTexture9* CsdImGui::makePicture(uint8_t* ddsData, size_t ddsDataSize)
 {
-    auto picture = boost::make_shared<hh::mr::CPictureData>();
-    picture->m_Flags = 0;
+    Hedgehog::Mirage::CPictureData picture;
+    picture.m_Flags = 0;
 
-    hh::mr::CPictureData::Make(picture.get(), ddsData, ddsDataSize, 
+    Hedgehog::Mirage::CPictureData::Make(
+        &picture, 
+        ddsData, 
+        ddsDataSize, 
         Sonic::CApplicationDocument::GetInstance()->m_pMember->m_spRenderingInfrastructure.get());
 
-    auto texture = picture->m_pD3DTexture;
-    picture->m_pD3DTexture = nullptr;
-
-    return texture;
+    return std::exchange(picture.m_pD3DTexture, nullptr);
 }
