@@ -1,3 +1,7 @@
+# Better FxPipeline v2.3.1
+
+* Fixed the issue where particles were overly bright when both the "FXAA intensity" and "post processing on particles" options were enabled.
+
 # Better FxPipeline v2.3
 
 * Refactored the codebase.

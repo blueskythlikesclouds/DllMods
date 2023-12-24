@@ -27,11 +27,11 @@ extern "C" void __declspec(dllexport) Init()
     LightShaftImpl::init();
     ShaderListPatch::init();
     ResolutionScaling::init();
+    ParticlePostProcessing::init();
     AntiAliasing::init();
     ShadowCastImpl::init();
     ShaderCodePatch::init();
     BloomResolutionFix::init();
-    ParticlePostProcessing::init();
 }
 
 extern "C" void __declspec(dllexport) PostInit()
