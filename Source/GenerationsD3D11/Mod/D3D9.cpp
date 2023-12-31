@@ -69,7 +69,7 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
     if (displayMode != DisplayMode::Windowed && *(uint8_t*)0xA5EB5B != 0x89) // Check if Borderless Fullscreen patch is enabled in HMM
         displayMode = DisplayMode::BorderlessFullscreen;
 
-    LONG_PTR windowStyle = WS_POPUP;
+    LONG_PTR style = WS_POPUP;
 
     MONITORINFO monitorInfo;
     monitorInfo.cbSize = sizeof(MONITORINFO);
@@ -78,7 +78,10 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
     GetMonitorInfo(d3d9->GetAdapterMonitor(Adapter), &monitorInfo);
     d3d9 = nullptr;
 
-    uint32_t x, y, width, height;
+    LONG x, y, width, height;
+
+    const LONG backBufferWidth = static_cast<LONG>(pPresentationParameters->BackBufferWidth);
+    const LONG backBufferHeight = static_cast<LONG>(pPresentationParameters->BackBufferHeight);
 
     if (displayMode == DisplayMode::Borderless || displayMode == DisplayMode::Windowed)
     {
@@ -88,29 +91,29 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
         x = monitorInfo.rcWork.left;
         y = monitorInfo.rcWork.top;
 
-        if (pPresentationParameters->BackBufferWidth > width)
+        if (backBufferWidth > width)
         {
             width = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
             x = monitorInfo.rcMonitor.left;
         }
 
-        if (pPresentationParameters->BackBufferHeight > height)
+        if (backBufferHeight > height)
         {
             height = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
             y = monitorInfo.rcMonitor.top;
         }
 
-        x += (width - pPresentationParameters->BackBufferWidth) / 2;
-        y += (height - pPresentationParameters->BackBufferHeight) / 2;
+        x += (width - backBufferWidth) / 2;
+        y += (height - backBufferHeight) / 2;
 
-        width = pPresentationParameters->BackBufferWidth;
-        height = pPresentationParameters->BackBufferHeight;
+        width = backBufferWidth;
+        height = backBufferHeight;
 
         if (displayMode == DisplayMode::Windowed)
         {
-            windowStyle = WS_OVERLAPPEDWINDOW;
+            style = WS_OVERLAPPEDWINDOW;
             if (!Configuration::allowResizeInWindowed)
-                windowStyle &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+                style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
         }
     }
     else
@@ -141,7 +144,7 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
     ShowWindow(pPresentationParameters->hDeviceWindow, SW_SHOW);
     AttachThreadInput(windowThreadProcessId, currentThreadId, FALSE);
 
-    SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | windowStyle);
+    SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | style);
     SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_TOP, x, y, width, height, SWP_FRAMECHANGED);
 
     // In windowed, title bar and border are included when setting width/height. Let's fix that and not be like Lost World/Forces.
@@ -151,22 +154,23 @@ HRESULT D3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindo
         GetWindowRect(pPresentationParameters->hDeviceWindow, &windowRect);
         GetClientRect(pPresentationParameters->hDeviceWindow, &clientRect);
 
-        uint32_t windowWidth = windowRect.right - windowRect.left;
-        uint32_t windowHeight = windowRect.bottom - windowRect.top;
+        const LONG windowWidth = windowRect.right - windowRect.left;
+        const LONG windowHeight = windowRect.bottom - windowRect.top;
 
-        uint32_t clientWidth = clientRect.right - clientRect.left;
-        uint32_t clientHeight = clientRect.bottom - clientRect.top;
+        const LONG clientWidth = clientRect.right - clientRect.left;
+        const LONG clientHeight = clientRect.bottom - clientRect.top;
 
-        uint32_t deltaX = windowWidth - clientWidth;
-        uint32_t deltaY = windowHeight - clientHeight;
+        const LONG deltaX = windowWidth - clientWidth;
+        const LONG deltaY = windowHeight - clientHeight;
 
-        width += deltaX;
-        height += deltaY;
-
-        x -= deltaX / 2;
-        y -= deltaY / 2;
-
-        SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_TOP, x, y, width, height, SWP_FRAMECHANGED);
+        SetWindowPos(
+            pPresentationParameters->hDeviceWindow,
+            HWND_TOP,
+            x - deltaX / 2,
+            y - deltaY / 2,
+            width + deltaX,
+            height + deltaY,
+            SWP_FRAMECHANGED);
     }
 
     return S_OK;

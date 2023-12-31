@@ -314,4 +314,7 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
     // I'm not going to support this so just set the bounding sphere
     // to infinite from origin.
     WRITE_MEMORY(0x11AF3C2, uint8_t, 0xEB);
+
+    // Disable unnecessary sky rendering that angers the debug layer.
+    WRITE_MEMORY(0x13DDB20, uint32_t, 0);
 }

@@ -108,7 +108,7 @@ class Device : public Unknown
     XXHashMap<ComPtr<ID3D11RasterizerState>> rasterizerStates;
     XXHashMap<ComPtr<ID3D11BlendState>> blendStates;
     XXHashMap<ComPtr<ID3D11SamplerState>> samplerStates;
-    std::unordered_map<int, ComPtr<VertexDeclaration>> fvfMap;
+    std::unordered_map<DWORD, ComPtr<VertexDeclaration>> fvfMap;
 
     SwapChain swapChain;
     UINT syncInterval;
