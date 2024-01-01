@@ -93,7 +93,10 @@ HRESULT D3D9Ex::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWin
 
     GetMonitorInfo((Configuration::useConfigWorkaround ? d3d : d3dEx)->GetAdapterMonitor(Adapter), &monitorInfo);
 
-    uint32_t x, y, width, height;
+    LONG x, y, width, height;
+
+    const LONG backBufferWidth = static_cast<LONG>(pPresentationParameters->BackBufferWidth);
+    const LONG backBufferHeight = static_cast<LONG>(pPresentationParameters->BackBufferHeight);
 
     if (displayMode == DisplayMode::BORDERLESS || displayMode == DisplayMode::WINDOWED)
     {
@@ -103,23 +106,23 @@ HRESULT D3D9Ex::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWin
         x = monitorInfo.rcWork.left;
         y = monitorInfo.rcWork.top;
 
-        if (pPresentationParameters->BackBufferWidth > width)
+        if (backBufferWidth > width)
         {
             width = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
             x = monitorInfo.rcMonitor.left;
         }
 
-        if (pPresentationParameters->BackBufferHeight > height)
+        if (backBufferHeight > height)
         {
             height = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
             y = monitorInfo.rcMonitor.top;
         }
 
-        x += (width - pPresentationParameters->BackBufferWidth) / 2;
-        y += (height - pPresentationParameters->BackBufferHeight) / 2;
+        x += (width - backBufferWidth) / 2;
+        y += (height - backBufferHeight) / 2;
 
-        width = pPresentationParameters->BackBufferWidth;
-        height = pPresentationParameters->BackBufferHeight;
+        width = backBufferWidth;
+        height = backBufferHeight;
 
         if (displayMode == DisplayMode::WINDOWED)
         {
@@ -141,6 +144,14 @@ HRESULT D3D9Ex::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWin
     if (displayMode == DisplayMode::WINDOWED)
         ShowCursor(true);
 
+    // Force the window to the foreground.
+    const DWORD windowThreadProcessId = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+    const DWORD currentThreadId = GetCurrentThreadId();
+    AttachThreadInput(windowThreadProcessId, currentThreadId, TRUE);
+    BringWindowToTop(pPresentationParameters->hDeviceWindow);
+    ShowWindow(pPresentationParameters->hDeviceWindow, SW_SHOW);
+    AttachThreadInput(windowThreadProcessId, currentThreadId, FALSE);
+
     SetWindowLongPtr(pPresentationParameters->hDeviceWindow, GWL_STYLE, WS_VISIBLE | windowStyle);
     SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_TOP, x, y, width, height, SWP_FRAMECHANGED);
 
@@ -151,22 +162,23 @@ HRESULT D3D9Ex::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWin
         GetWindowRect(pPresentationParameters->hDeviceWindow, &windowRect);
         GetClientRect(pPresentationParameters->hDeviceWindow, &clientRect);
 
-        uint32_t windowWidth = windowRect.right - windowRect.left;
-        uint32_t windowHeight = windowRect.bottom - windowRect.top;
+        const LONG windowWidth = windowRect.right - windowRect.left;
+        const LONG windowHeight = windowRect.bottom - windowRect.top;
 
-        uint32_t clientWidth = clientRect.right - clientRect.left;
-        uint32_t clientHeight = clientRect.bottom - clientRect.top;
+        const LONG clientWidth = clientRect.right - clientRect.left;
+        const LONG clientHeight = clientRect.bottom - clientRect.top;
 
-        uint32_t deltaX = windowWidth - clientWidth;
-        uint32_t deltaY = windowHeight - clientHeight;
+        const LONG deltaX = windowWidth - clientWidth;
+        const LONG deltaY = windowHeight - clientHeight;
 
-        width += deltaX;
-        height += deltaY;
-
-        x -= deltaX / 2;
-        y -= deltaY / 2;
-
-        SetWindowPos(pPresentationParameters->hDeviceWindow, HWND_TOP, x, y, width, height, SWP_FRAMECHANGED);
+        SetWindowPos(
+            pPresentationParameters->hDeviceWindow,
+            HWND_TOP,
+            x - deltaX / 2,
+            y - deltaY / 2,
+            width + deltaX,
+            height + deltaY,
+            SWP_FRAMECHANGED);
     }
 
     pPresentationParameters->Windowed = displayMode != DisplayMode::FULLSCREEN; 
