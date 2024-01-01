@@ -1,3 +1,7 @@
+# GenerationsD3D11 v1.5
+
+* Fixed the game window not appearing correctly on some multi-monitor systems.
+
 # GenerationsD3D11 v1.4
 
 * Minor maintenance changes.
