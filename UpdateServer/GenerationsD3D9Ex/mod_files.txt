@@ -1,4 +1,3 @@
 add GenerationsD3D9Ex.dll
-add GenerationsD3D9Ex.ini
 add GenerationsD3D9Ex.json
 add mod.ini
