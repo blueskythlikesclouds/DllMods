@@ -51,5 +51,5 @@ public:
     const bool loadObjectsInRange;
     const bool frameAdvance;
 
-    Configuration(INIReader* reader);
+    Configuration(const INIReader& reader);
 };

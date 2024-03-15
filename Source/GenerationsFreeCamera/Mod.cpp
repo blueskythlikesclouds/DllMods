@@ -1,24 +1,23 @@
-#include "Camera.h"
 #include "Configuration.h"
 #include "FreeCamera.h"
-#include "InputState.h"
 #include "UpdateDirector.h"
 
 #include <unordered_map>
 #include <unordered_set>
 
-FUNCTION_PTR(void*, __thiscall, playerProcessMsgSetPosition, 0xE772D0, void* This, void* message);
+BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) { return TRUE; }
+
+FUNCTION_PTR(void, __thiscall, procMsgSetPosition, 0xE772D0, Sonic::Player::CPlayer* This, Sonic::Message::MsgSetPosition& msg);
 
 const char* const DISPLAY_COMMAND = (const char*)0x15C7104;
 bool* const ENABLE_HUD = (bool*)0x1A430D7;
 bool* const ENABLE_BLUR = (bool*)0x1A43103;
 bool* const ENABLE_DOF = (bool*)0x1A4358D;
-void** const PLAYER_CONTEXT = (void**)0x1E5E2F0;
 const char* const STAGE_ID = (const char*)0x1E774D4;
 
-Configuration* config;
+std::unique_ptr<Configuration> config;
 
-std::unordered_map<Camera*, FreeCamera*> cameras;
+std::unordered_map<Sonic::CCamera*, std::unique_ptr<FreeCamera>> cameras;
 
 bool enableFreeCamera;
 bool pauseGame;
@@ -35,16 +34,16 @@ bool isStart;
 
 float timeParam;
 
-HOOK(void, __fastcall, UpdateCamera, 0x10FB770, Camera* This, void* Edx, uint32_t a2)
+HOOK(void, __fastcall, UpdateCamera, 0x10FB770, Sonic::CCamera* This, void* _, const Hedgehog::Universe::SUpdateInfo& updateInfo)
 {
     if (!cameras[This] || !enableFreeCamera)
-        originalUpdateCamera(This, Edx, a2);
+        originalUpdateCamera(This, _, updateInfo);
 }
 
-void __cdecl addCamera(Camera* camera)
+void __cdecl addCamera(Sonic::CCamera* camera)
 {
     if (!cameras[camera])
-        cameras[camera] = new FreeCamera(config, camera);
+        cameras[camera] = std::make_unique<FreeCamera>(config.get(), camera);
 }
 
 uint32_t addCameraTrampolineReturnAddress = 0x10FC943;
@@ -63,16 +62,10 @@ void __declspec(naked) addCameraTrampoline()
     }
 }
 
-HOOK(void*, __fastcall, CameraDestructor, 0x10FB630, Camera* This, void* Edx)
+HOOK(void*, __fastcall, CameraDestructor, 0x10FB630, Sonic::CCamera* This)
 {
-    auto it = cameras.find(This);
-    if (it != cameras.end())
-    {
-        delete it->second;
-        cameras.erase(it);
-    }
-
-    return originalCameraDestructor(This, Edx);
+    cameras.erase(This);
+    return originalCameraDestructor(This);
 }
 
 uint32_t stageStateUpdatingMidAsmHookReturnAddress = 0xD06D9A;
@@ -159,11 +152,11 @@ HOOK(void*, __fastcall, UpdateApplication, 0xE7BED0, void* This, void* Edx, floa
 
     timeParam = elapsedTime;
 
-    InputState* inputState = getInputState();
+    const Sonic::SPadState& padState = Sonic::CInputState::GetInstance()->GetPadState();
 
-    isSelect = inputState->isDown(SELECT);
+    isSelect = padState.IsDown(Sonic::eKeyState_Select);
 
-    if (isSelect && inputState->isDown(START) && !handledPauseRequest)
+    if (isSelect && padState.IsDown(Sonic::eKeyState_Start) && !handledPauseRequest)
     {
         pauseGame = enableFreeCamera && !pauseGame;
         handledPauseRequest = true;
@@ -194,39 +187,27 @@ HOOK(void*, __fastcall, UpdateApplication, 0xE7BED0, void* This, void* Edx, floa
     if (!enableFreeCamera)
         return originalUpdateApplication(This, Edx, elapsedTime, a3);
 
-    for (auto& it : cameras)
-        it.second->update(elapsedTime);
+    for (const auto& [_, freeCamera] : cameras)
+        freeCamera->update(padState, elapsedTime);
 
-    isTeleport = config->teleportPlayer.isTapped(inputState);
+    isTeleport = config->teleportPlayer.isDown(padState);
 
     const bool previousPauseGame = pauseGame;
+    const auto playerContext = Sonic::Player::CPlayerSpeedContext::GetInstance();
 
-    if (!wasTeleport && isTeleport && *PLAYER_CONTEXT)
+    if (!wasTeleport && isTeleport && playerContext)
     {
-        void* player = *(void**)((uint32_t)*PLAYER_CONTEXT + 0x110);
-
-        struct MsgSetPosition
+        for (auto& [camera, _] : cameras)
         {
-            uint8_t gap0[16];
-            Eigen::Vector3f value;
-            uint8_t gap1C[4];
-        };
-
-        for (auto& it : cameras)
-        {
-            if (!it.first->field468)
+            if (!*reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(camera) + 0x468))
                 continue;
 
-            alignas(16) MsgSetPosition msgSetPosition;
-            msgSetPosition.value = it.first->position + it.first->direction * 2 * ((float)M_PI / 4.0f / it.first->fieldOfView);
-            msgSetPosition.value.y() -= 0.5f;
-            playerProcessMsgSetPosition(player, &msgSetPosition);
+            Sonic::Message::MsgSetPosition msg(camera->m_MyCamera.m_Position + camera->m_MyCamera.m_Direction * 2 * ((float)M_PI / 4.0f / camera->m_FieldOfView));
+            msg.m_Position.y() -= 0.5f;
 
-            // Reset velocity
-            uint32_t result = *(uint32_t*)((uint32_t)player + 172);
-            *(Eigen::Vector3f*)(result + 656) = Eigen::Vector3f(0, 0, 0);
-            *(bool*)(result + 1512) = true;
-            *(bool*)(result + 1513) = false;
+            procMsgSetPosition(playerContext->m_pPlayer, msg);
+
+            playerContext->SetVelocity(Hedgehog::Math::CVector::Zero());
 
             pauseGame = false;
             break;
@@ -243,7 +224,7 @@ HOOK(void*, __fastcall, UpdateApplication, 0xE7BED0, void* This, void* Edx, floa
     *ENABLE_BLUR &= !config->disableBlur;
     *ENABLE_DOF &= !config->disableDepthOfField;
 
-    isStart = inputState->isDown(START);
+    isStart = padState.IsDown(Sonic::eKeyState_Start);
     pauseGame &= config->frameAdvance ? wasStart || !isStart : !isStart;
     wasStart = isStart;
 
@@ -293,7 +274,7 @@ extern "C" void __declspec(dllexport) Init()
     if (reader.ParseError() != 0)
         MessageBox(NULL, L"Failed to parse GenerationsFreeCamera.ini", NULL, MB_ICONERROR);
 
-    config = new Configuration(&reader);
+    config = std::make_unique<Configuration>(Configuration(reader));
 
     INSTALL_HOOK(UpdateCamera);
 

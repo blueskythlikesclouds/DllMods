@@ -1,28 +1,25 @@
 ﻿#include "FreeCamera.h"
-#include "InputState.h"
 
 const uint32_t* const WIDTH = (uint32_t*)0x1DFDDDC;
 const uint32_t* const HEIGHT = (uint32_t*)0x1DFDDE0;
 
-void FreeCamera::update(const float elapsedTime)
+void FreeCamera::update(const Sonic::SPadState& padState, const float elapsedTime)
 {
     const float factor = elapsedTime / (1.0f / 60.0f);
 
-    InputState* inputState = getInputState();
-
-    const bool slowDown = config->slowDown.isDown(inputState);
-    const bool speedUp = config->speedUp.isDown(inputState);
-    const bool descend = config->descend.isDown(inputState);
-    const bool ascend = config->ascend.isDown(inputState);
-    const bool resetMoveSpeed = config->resetMoveSpeed.isTapped(inputState);
-    const bool decreaseMoveSpeed = config->decreaseMoveSpeed.isDown(inputState);
-    const bool increaseMoveSpeed = config->increaseMoveSpeed.isDown(inputState);
-    const bool resetRotation = config->resetRotation.isTapped(inputState);
-    const bool rotateLeft = config->rotateLeft.isDown(inputState);
-    const bool rotateRight = config->rotateRight.isDown(inputState);
-    const bool resetFieldOfView = config->resetFieldOfView.isTapped(inputState);
-    const bool decreaseFieldOfView = config->decreaseFieldOfView.isDown(inputState);
-    const bool increaseFieldOfView = config->increaseFieldOfView.isDown(inputState);
+    const bool slowDown = config->slowDown.isDown(padState);
+    const bool speedUp = config->speedUp.isDown(padState);
+    const bool descend = config->descend.isDown(padState);
+    const bool ascend = config->ascend.isDown(padState);
+    const bool resetMoveSpeed = config->resetMoveSpeed.isTapped(padState);
+    const bool decreaseMoveSpeed = config->decreaseMoveSpeed.isDown(padState);
+    const bool increaseMoveSpeed = config->increaseMoveSpeed.isDown(padState);
+    const bool resetRotation = config->resetRotation.isTapped(padState);
+    const bool rotateLeft = config->rotateLeft.isDown(padState);
+    const bool rotateRight = config->rotateRight.isDown(padState);
+    const bool resetFieldOfView = config->resetFieldOfView.isTapped(padState);
+    const bool decreaseFieldOfView = config->decreaseFieldOfView.isDown(padState);
+    const bool increaseFieldOfView = config->increaseFieldOfView.isDown(padState);
 
     if (resetRotation)
     {
@@ -34,8 +31,8 @@ void FreeCamera::update(const float elapsedTime)
         if (slowDown || speedUp)
             rotateSpeed *= speedUp ? config->rotateSpeedSpeedUpMultiplier : config->rotateSpeedSlowDownMultiplier;
 
-        const float pitch = inputState->rightStickVertical * rotateSpeed;
-        const float yaw = inputState->rightStickHorizontal * rotateSpeed;
+        const float pitch = padState.RightStickVertical * rotateSpeed;
+        const float yaw = padState.RightStickHorizontal * rotateSpeed;
         const float roll = (rotateLeft ? -rotateSpeed : rotateRight ? +rotateSpeed : 0.0f);
 
         Eigen::Vector3f yawAxis = Eigen::Vector3f::UnitY();
@@ -60,17 +57,17 @@ void FreeCamera::update(const float elapsedTime)
     const Eigen::Vector3f rightDirection = (rotation * Eigen::Vector3f::UnitX()).normalized();
     const Eigen::Vector3f upDirection = Eigen::Vector3f::UnitY();
 
-    position += (frontDirection * inputState->leftStickVertical + rightDirection * inputState->leftStickHorizontal + upDirection * (ascend ? config->descendAscendSpeed : descend ? -config->descendAscendSpeed : 0.0f)) * currentMoveSpeed;
+    position += (frontDirection * padState.LeftStickVertical + rightDirection * padState.LeftStickHorizontal + upDirection * (ascend ? config->descendAscendSpeed : descend ? -config->descendAscendSpeed : 0.0f)) * currentMoveSpeed;
 
     if (resetFieldOfView || increaseFieldOfView || decreaseFieldOfView)
-        fieldOfView = fmodf(resetFieldOfView ? config->defaultFieldOfView : fieldOfView + (increaseFieldOfView ? config->fieldOfViewIncreaseRatio : config->fieldOfViewDecreaseRatio), 180.0f);
+        fieldOfView = fmodf(resetFieldOfView ? config->defaultFieldOfView : fieldOfView + (increaseFieldOfView ? config->fieldOfViewIncreaseRatio : config->fieldOfViewDecreaseRatio) * elapsedTime * 60.0f, 180.0f);
 
-    camera->viewMatrix = (Eigen::Translation3f(position) * rotation).inverse().matrix();
-    camera->inputViewMatrix = camera->viewMatrix;
-    camera->fieldOfView = 2.0f * atan(tan(DEGREES_TO_RADIANS(fieldOfView / 2.0f) * (16.0f / 9.0f / min(aspectRatio, 16.0f / 9.0f))));
-    camera->projectionMatrix = Eigen::CreatePerspectiveMatrix(camera->fieldOfView, aspectRatio, camera->zNear, camera->zFar);
-    camera->position = position;
-    camera->direction = frontDirection;
+    camera->m_MyCamera.m_View = (Eigen::Translation3f(position) * rotation).inverse().matrix();
+    camera->m_MyCamera.m_InputView = camera->m_MyCamera.m_View;
+    camera->m_FieldOfView = 2.0f * atan(tan(DEGREES_TO_RADIANS(fieldOfView / 2.0f) * (16.0f / 9.0f / min(aspectRatio, 16.0f / 9.0f))));
+    camera->m_MyCamera.m_Projection = Eigen::CreatePerspectiveMatrix(camera->m_FieldOfView, aspectRatio, camera->m_MyCamera.m_Near, camera->m_MyCamera.m_Far);
+    camera->m_MyCamera.m_Position = position;
+    camera->m_MyCamera.m_Direction = frontDirection;
     // Setting aspect ratio has issues with the ultrawide code, so don't do it
     // camera->aspectRatio = aspectRatio;
 }
@@ -78,7 +75,7 @@ void FreeCamera::update(const float elapsedTime)
 void FreeCamera::reset()
 {
     Eigen::Affine3f viewMatrix;
-    viewMatrix = camera->viewMatrix.inverse();
+    viewMatrix = camera->m_MyCamera.m_View.inverse();
 
     position = viewMatrix.translation();
     rotation = Eigen::Quaternionf(viewMatrix.rotation()).normalized();
@@ -87,7 +84,7 @@ void FreeCamera::reset()
     aspectRatio = (float)*WIDTH / (float)*HEIGHT;
 }
 
-FreeCamera::FreeCamera(Configuration* config, Camera* camera) : config(config), camera(camera)
+FreeCamera::FreeCamera(Configuration* config, Sonic::CCamera* camera) : config(config), camera(camera)
 {
     reset();
 }

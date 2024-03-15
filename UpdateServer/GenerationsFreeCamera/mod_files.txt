@@ -1,4 +1,3 @@
 add GenerationsFreeCamera.dll
-add GenerationsFreeCamera.ini
 add GenerationsFreeCamera.json
 add mod.ini

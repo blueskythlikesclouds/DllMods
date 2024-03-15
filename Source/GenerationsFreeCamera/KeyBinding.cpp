@@ -1,62 +1,62 @@
 ﻿#include "KeyBinding.h"
 #include <unordered_map>
 
-std::unordered_map<std::string, Keys> keyNameMap =
+std::unordered_map<std::string, Sonic::EKeyState> keyNameMap =
 {
-    { "NONE", NONE },
-    { "A", A },
-    { "B", B },
-    { "X", X },
-    { "Y", Y },
-    { "DPAD_UP", DPAD_UP },
-    { "DPAD_DOWN", DPAD_DOWN },
-    { "DPAD_LEFT", DPAD_LEFT },
-    { "DPAD_RIGHT", DPAD_RIGHT },
-    { "START", START },
-    { "SELECT", SELECT },
-    { "LEFT_BUMPER", LEFT_BUMPER },
-    { "RIGHT_BUMPER", RIGHT_BUMPER },
-    { "LEFT_TRIGGER", LEFT_TRIGGER },
-    { "RIGHT_TRIGGER", RIGHT_TRIGGER },
-    { "LEFT_STICK", LEFT_STICK },
-    { "RIGHT_STICK", RIGHT_STICK }
+    { "NONE", Sonic::eKeyState_None },
+    { "A", Sonic::eKeyState_A },
+    { "B", Sonic::eKeyState_B },
+    { "X", Sonic::eKeyState_X },
+    { "Y", Sonic::eKeyState_Y },
+    { "DPAD_UP", Sonic::eKeyState_DpadUp },
+    { "DPAD_DOWN", Sonic::eKeyState_DpadDown },
+    { "DPAD_LEFT", Sonic::eKeyState_DpadLeft },
+    { "DPAD_RIGHT", Sonic::eKeyState_DpadRight },
+    { "START", Sonic::eKeyState_Start },
+    { "SELECT", Sonic::eKeyState_Select },
+    { "LEFT_BUMPER", Sonic::eKeyState_LeftBumper },
+    { "RIGHT_BUMPER", Sonic::eKeyState_RightBumper },
+    { "LEFT_TRIGGER", Sonic::eKeyState_LeftTrigger },
+    { "RIGHT_TRIGGER", Sonic::eKeyState_RightTrigger },
+    { "LEFT_STICK", Sonic::eKeyState_LeftStick },
+    { "RIGHT_STICK", Sonic::eKeyState_RightStick }
 };
 
-Keys KeyBinding::getKey() const
+Sonic::EKeyState KeyBinding::getKey() const
 {
     return key;
 }
 
-bool KeyBinding::isDown(InputState* inputState) const
+bool KeyBinding::isDown(const Sonic::SPadState& padState) const
 {
-    return key != 0 ? (inputState->downState & key) == key : false;
+    return key != 0 ? (padState.DownState & key) == key : false;
 }
 
-bool KeyBinding::isUp(InputState* inputState) const
+bool KeyBinding::isUp(const Sonic::SPadState& padState) const
 {
-    return key != 0 ? (inputState->upState & key) == key : true;
+    return key != 0 ? (padState.UpState & key) == key : true;
 }
 
-bool KeyBinding::isTapped(InputState* inputState) const
+bool KeyBinding::isTapped(const Sonic::SPadState& padState) const
 {
-    return key != 0 ? (inputState->tappedState & key) == key : false;
+    return key != 0 ? (padState.TappedState & key) == key : false;
 }
 
-bool KeyBinding::isReleased(InputState* inputState) const
+bool KeyBinding::isReleased(const Sonic::SPadState& padState) const
 {
-    return key != 0 ? (inputState->releasedState & key) == key : false;
+    return key != 0 ? (padState.ReleasedState & key) == key : false;
 }
 
-KeyBinding::KeyBinding(INIReader* reader, const std::string& section, const std::string& name, const Keys fallback)
+KeyBinding::KeyBinding(const INIReader& reader, const std::string& section, const std::string& name, const Sonic::EKeyState fallback)
 {
-    std::string keyName = reader->Get(section, name, "");
+    std::string keyName = reader.Get(section, name, "");
 
     if (!keyName.empty())
     {
         std::transform(keyName.begin(), keyName.end(), keyName.begin(), std::toupper);
 
         key = keyNameMap[keyName];
-        if (key == NONE)
+        if (key == Sonic::eKeyState_None)
             key = fallback;
     }
     else

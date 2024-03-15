@@ -1,13 +1,12 @@
 ﻿#pragma once
 
-#include "Camera.h"
 #include "Configuration.h"
 
 class FreeCamera
 {
     Configuration* config;
 
-    Camera* camera;
+    Sonic::CCamera* camera;
 
     Eigen::Vector3f position;
     Eigen::Quaternionf rotation;
@@ -17,10 +16,10 @@ class FreeCamera
     float aspectRatio;
 
 public:
-    void update(float elapsedTime);
+    void update(const Sonic::SPadState& padState, float elapsedTime);
     void reset();
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    FreeCamera(Configuration* config, Camera* camera);
+    FreeCamera(Configuration* config, Sonic::CCamera* camera);
 };

@@ -102,11 +102,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CriticalSection.cpp" />
-    <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="FreeCamera.cpp" />
     <ClCompile Include="Configuration.cpp" />
-    <ClCompile Include="InputState.cpp" />
     <ClCompile Include="KeyBinding.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
@@ -115,19 +112,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="String.cpp" />
     <ClCompile Include="UpdateDirector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="CriticalSection.h" />
     <ClInclude Include="FreeCamera.h" />
     <ClInclude Include="Configuration.h" />
-    <ClInclude Include="InputState.h" />
     <ClInclude Include="KeyBinding.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Pch.h" />
-    <ClInclude Include="String.h" />
     <ClInclude Include="UpdateDirector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

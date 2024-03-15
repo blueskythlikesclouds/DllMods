@@ -1,6 +1,6 @@
 #include "UpdateDirector.h"
 
-FUNCTION_PTR(void*, __thiscall, fun662010, 0x662010, void* This, String* value);
+FUNCTION_PTR(void*, __thiscall, fun662010, 0x662010, void* This, const Hedgehog::Base::CSharedString& value);
 FUNCTION_PTR(void*, __thiscall, fun77AC20, 0x77AC20, void* This, uint32_t a2);
 FUNCTION_PTR(void*, __thiscall, fun77ACC0, 0x77ACC0, void* This, uint32_t a2);
 
@@ -15,9 +15,7 @@ uint32_t funD66F90FunctionAddress = 0xD66F90;
 
 void addUpdateCommand(void* context, const float elapsedTime, const char* name)
 {
-    String string(name);
-
-    fun662010((void*)(*(uint32_t*)((uint32_t)context + 4) + 216), &string);
+    fun662010((void*)(*(uint32_t*)((uint32_t)context + 4) + 216), name);
     *(float*)(*(uint32_t*)((uint32_t)context + 4) + 208) = elapsedTime;
     uint32_t v3 = *(uint32_t*)((uint32_t)context + 4);
     if (*(uint32_t*)(v3 + 36))
@@ -26,9 +24,7 @@ void addUpdateCommand(void* context, const float elapsedTime, const char* name)
 
 void addRenderCommand(void* context, const float elapsedTime, const char* name)
 {
-    String string(name);
-
-    fun662010((void*)(*(uint32_t*)((uint32_t)context + 4) + 216), &string);
+    fun662010((void*)(*(uint32_t*)((uint32_t)context + 4) + 216), name);
     *(float*)(*(uint32_t*)((uint32_t)context + 4) + 208) = elapsedTime;
     uint32_t v3 = *(uint32_t*)((uint32_t)context + 4);
     if (*(uint32_t*)(v3 + 36))

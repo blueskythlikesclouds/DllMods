@@ -1,18 +1,16 @@
 ﻿#pragma once
 
-#include "InputState.h"
-
 class KeyBinding
 {
 protected:
-    Keys key;
+    Sonic::EKeyState key;
 public:
-    Keys getKey() const;
+    Sonic::EKeyState getKey() const;
 
-    bool isDown(InputState* inputState) const;
-    bool isUp(InputState* inputState) const;
-    bool isTapped(InputState* inputState) const;
-    bool isReleased(InputState* inputState) const;
+    bool isDown(const Sonic::SPadState& padState) const;
+    bool isUp(const Sonic::SPadState& padState) const;
+    bool isTapped(const Sonic::SPadState& padState) const;
+    bool isReleased(const Sonic::SPadState& padState) const;
 
-    KeyBinding(INIReader* reader, const std::string& section, const std::string& name, Keys fallback = NONE);
+    KeyBinding(const INIReader& reader, const std::string& section, const std::string& name, Sonic::EKeyState fallback = Sonic::EKeyState::eKeyState_None);
 };
