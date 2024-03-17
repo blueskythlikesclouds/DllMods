@@ -120,7 +120,6 @@
     <ClInclude Include="CorrectCubemapsImpl.h" />
     <ClInclude Include="GammaCorrectionImpl.h" />
     <ClInclude Include="HalfPixelCorrectionImpl.h" />
-    <ClInclude Include="ModLoader.h" />
     <ClInclude Include="Pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

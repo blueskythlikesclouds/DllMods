@@ -16,6 +16,5 @@
     <ClInclude Include="HalfPixelCorrectionImpl.h" />
     <ClInclude Include="AntiAliasingImpl.h" />
     <ClInclude Include="CorrectCubemapsImpl.h" />
-    <ClInclude Include="ModLoader.h" />
   </ItemGroup>
 </Project>
