@@ -37,7 +37,7 @@ Patch "Fix Depth of Field Draw Order" in "Fixes/Graphics" by "Sajid & ĐeäTh" d
     static int p_RetAddress = (int)ASLR(0x00904E94);
 //
 {
-    if (!depthOfField)
+    if (!WiiUAccurateVisualsConfig.depthOfField)
         _isInitialised = true;
 
 	if (!WiiUAccurateVisualsConfig.isInitialised || _isInitialised)
@@ -71,7 +71,7 @@ Patch "Fix Depth Effects on Intel GPUs" in "Fixes/Graphics" by "Skyth"
 	static bool _isInitialised = false;
 //
 {
-    if (!depthOfField)
+    if (!WiiUAccurateVisualsConfig.depthOfField)
         _isInitialised = true;
 
 	if (!WiiUAccurateVisualsConfig.isInitialised || _isInitialised)
