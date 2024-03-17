@@ -1,3 +1,0 @@
-add disk/sonic2013_patch_0/FxGammaCorrection.pac
-add LostWorldGammaCorrection.dll
-add mod.ini
