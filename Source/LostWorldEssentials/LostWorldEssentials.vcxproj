@@ -101,11 +101,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AntiAliasingImpl.cpp" />
+    <ClCompile Include="AntiAliasing.cpp" />
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="CubeMapFix.cpp" />
-    <ClCompile Include="GammaCorrectionImpl.cpp" />
-    <ClCompile Include="HalfPixelCorrectionImpl.cpp" />
+    <ClCompile Include="GammaCorrection.cpp" />
+    <ClCompile Include="HalfPixelCorrection.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -113,13 +113,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="WindowResolutionFix.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AntiAliasingImpl.h" />
+    <ClInclude Include="AntiAliasing.h" />
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="CubeMapFix.h" />
-    <ClInclude Include="GammaCorrectionImpl.h" />
-    <ClInclude Include="HalfPixelCorrectionImpl.h" />
+    <ClInclude Include="GammaCorrection.h" />
+    <ClInclude Include="HalfPixelCorrection.h" />
     <ClInclude Include="Pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

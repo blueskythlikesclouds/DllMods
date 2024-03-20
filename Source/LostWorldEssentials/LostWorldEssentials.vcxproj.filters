@@ -4,17 +4,18 @@
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Configuration.cpp" />
-    <ClCompile Include="GammaCorrectionImpl.cpp" />
-    <ClCompile Include="HalfPixelCorrectionImpl.cpp" />
-    <ClCompile Include="AntiAliasingImpl.cpp" />
-    <ClCompile Include="CorrectCubemapsImpl.cpp" />
+    <ClCompile Include="GammaCorrection.cpp" />
+    <ClCompile Include="HalfPixelCorrection.cpp" />
+    <ClCompile Include="AntiAliasing.cpp" />
+    <ClCompile Include="CubeMapFix.cpp" />
+    <ClCompile Include="WindowResolutionFix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
     <ClInclude Include="Configuration.h" />
-    <ClInclude Include="GammaCorrectionImpl.h" />
-    <ClInclude Include="HalfPixelCorrectionImpl.h" />
-    <ClInclude Include="AntiAliasingImpl.h" />
-    <ClInclude Include="CorrectCubemapsImpl.h" />
+    <ClInclude Include="GammaCorrection.h" />
+    <ClInclude Include="HalfPixelCorrection.h" />
+    <ClInclude Include="AntiAliasing.h" />
+    <ClInclude Include="CubeMapFix.h" />
   </ItemGroup>
 </Project>

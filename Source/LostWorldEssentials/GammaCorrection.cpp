@@ -1,4 +1,4 @@
-#include "GammaCorrectionImpl.h"
+#include "GammaCorrection.h"
 
 #include "Configuration.h"
 
@@ -122,7 +122,7 @@ void injectDrawInstanceParam(SDrawInstanceParam* drawInstanceParam)
 	WRITE_MEMORY(&drawInstanceParam->childParamCount, size_t, drawInstanceParam->childParamCount + 1);
 }
 
-void GammaCorrectionImpl::init()
+void GammaCorrection::init(ModInfo_t* modInfo)
 {
 	if (!Configuration::gammaCorrection)
 		return;
@@ -134,6 +134,9 @@ void GammaCorrectionImpl::init()
 	//
 	// Inject FxGammaCorrection
 	//
+
+    // Bind shader
+	modInfo->API->BindFile(modInfo->CurrentMod, "+shader.pac", "disk/sonic2013_patch_0/FxGammaCorrection.pac", 1);
 
     // Sacrifice HfSSAO
 	WRITE_MEMORY(ASLR(0xEB7DE8), char*, "FxFilterT");

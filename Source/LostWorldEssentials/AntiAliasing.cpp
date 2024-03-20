@@ -1,8 +1,8 @@
-#include "AntiAliasingImpl.h"
+#include "AntiAliasing.h"
 
 #include "Configuration.h"
 
-void AntiAliasingImpl::init()
+void AntiAliasing::init()
 {
 	if (Configuration::fxaaIntensity < FxaaIntensity::Intensity0)
 		return;

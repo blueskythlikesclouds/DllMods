@@ -1,4 +1,4 @@
-#include "HalfPixelCorrectionImpl.h"
+#include "HalfPixelCorrection.h"
 
 #include "Configuration.h"
 
@@ -22,8 +22,14 @@ HOOK(void, __cdecl, HUDSetupShader, ASLR(0x0052FD60), bool a1, int vs_type, int 
 	}
 }
 
-void HalfPixelCorrectionImpl::init()
+void HalfPixelCorrection::init(ModInfo_t* modInfo)
 {
-	if (Configuration::halfPixelCorrection)
-	    INSTALL_HOOK(HUDSetupShader);
+	if (!Configuration::halfPixelCorrection)
+		return;
+
+	// Bind shader
+	modInfo->API->BindFile(modInfo->CurrentMod, "+shader.pac", "disk/sonic2013_patch_0/HalfPixelCorrection.pac", 1);
+
+	// Install hook
+    INSTALL_HOOK(HUDSetupShader);
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-struct AntiAliasingImpl
+struct AntiAliasing
 {
 	static void init();
 };

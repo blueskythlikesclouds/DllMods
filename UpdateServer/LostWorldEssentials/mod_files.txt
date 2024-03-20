@@ -1,5 +1,3 @@
-delete disk/sonic2013_patch_0/FxGammaCorrection.pac
-delete LostWorldGammaCorrection.dll
 add disk/sonic2013_patch_0/xswe01/xswe01_trr_cmn_fix.pac
 add disk/sonic2013_patch_0/xsky01/xsky01_trr_cmn_fix.pac
 add disk/sonic2013_patch_0/xsky01/xsky01_obj_fix.pac
@@ -61,6 +59,7 @@ add disk/sonic2013_patch_0/+shader.pac
 add dlc/0010/sonic2013_dlc_0010/zdlc01/zdlc01_obj_fix.pac
 add dlc/0010/sonic2013_dlc_0010/zdlc01/zdlc01_trr_cmn_fix.pac
 add LostWorldEssentials.dll
+delete LostWorldGammaCorrection.dll
 add LostWorldEssentials.hmm
 add LostWorldEssentials.ini
 add LostWorldEssentials.json
