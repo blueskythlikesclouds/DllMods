@@ -113,7 +113,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="WindowResolutionFix.cpp" />
+    <ClCompile Include="WindowFix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AntiAliasing.h" />
@@ -122,6 +122,7 @@
     <ClInclude Include="GammaCorrection.h" />
     <ClInclude Include="HalfPixelCorrection.h" />
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="WindowFix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

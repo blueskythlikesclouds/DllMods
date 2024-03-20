@@ -8,7 +8,7 @@
     <ClCompile Include="HalfPixelCorrection.cpp" />
     <ClCompile Include="AntiAliasing.cpp" />
     <ClCompile Include="CubeMapFix.cpp" />
-    <ClCompile Include="WindowResolutionFix.cpp" />
+    <ClCompile Include="WindowFix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -17,5 +17,6 @@
     <ClInclude Include="HalfPixelCorrection.h" />
     <ClInclude Include="AntiAliasing.h" />
     <ClInclude Include="CubeMapFix.h" />
+    <ClInclude Include="WindowFix.h" />
   </ItemGroup>
 </Project>

@@ -1,10 +1,10 @@
+#include "AntiAliasing.h"
+#include "Configuration.h"
+#include "CubeMapFix.h"
 #include "GammaCorrection.h"
 #include "HalfPixelCorrection.h"
-#include "AntiAliasing.h"
-#include "CubeMapFix.h"
-
-#include "Configuration.h"
 #include "ModLoader.h"
+#include "WindowFix.h"
 
 extern "C" void __declspec(dllexport) __cdecl Init(ModInfo_t* modInfo)
 {
@@ -21,4 +21,5 @@ extern "C" void __declspec(dllexport) __cdecl Init(ModInfo_t* modInfo)
 	GammaCorrection::init(modInfo);
 	HalfPixelCorrection::init(modInfo);
 	CubeMapFix::init(modInfo);
+	WindowFix::init();
 }
