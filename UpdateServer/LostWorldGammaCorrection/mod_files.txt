@@ -55,7 +55,8 @@ add disk/sonic2013_patch_0/worldmap/diorama_xcub01_fix.pac
 add disk/sonic2013_patch_0/worldmap/diorama_w7a06_fix.pac
 add disk/sonic2013_patch_0/worldmap/diorama_w4a01_fix.pac
 add disk/sonic2013_patch_0/worldmap/diorama_secret_fix.pac
-add disk/sonic2013_patch_0/+shader.pac
+add disk/sonic2013_patch_0/FxGammaCorrection.pac
+add disk/sonic2013_patch_0/HalfPixelCorrection.pac
 add dlc/0010/sonic2013_dlc_0010/zdlc01/zdlc01_obj_fix.pac
 add dlc/0010/sonic2013_dlc_0010/zdlc01/zdlc01_trr_cmn_fix.pac
 add LostWorldEssentials.dll
