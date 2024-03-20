@@ -1,8 +1,6 @@
 #pragma once
 
-#include "ModLoader.h"
-
-struct CorrectCubemapsImpl
+struct CubeMapFix
 {
 	static void init(ModInfo_t* modInfo);
 };

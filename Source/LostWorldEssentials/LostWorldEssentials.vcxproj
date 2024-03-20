@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{717e0830-660b-4452-8899-094e25a0c923}</ProjectGuid>
-    <RootNamespace>LostWorldWiiUAccurateVisuals</RootNamespace>
+    <RootNamespace>LostWorldEssentials</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -56,7 +56,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;BASE_ADDRESS=0x400000;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
@@ -77,7 +77,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;BASE_ADDRESS=0x400000;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
@@ -103,7 +103,7 @@
   <ItemGroup>
     <ClCompile Include="AntiAliasingImpl.cpp" />
     <ClCompile Include="Configuration.cpp" />
-    <ClCompile Include="CorrectCubemapsImpl.cpp" />
+    <ClCompile Include="CubeMapFix.cpp" />
     <ClCompile Include="GammaCorrectionImpl.cpp" />
     <ClCompile Include="HalfPixelCorrectionImpl.cpp" />
     <ClCompile Include="Mod.cpp" />
@@ -117,7 +117,7 @@
   <ItemGroup>
     <ClInclude Include="AntiAliasingImpl.h" />
     <ClInclude Include="Configuration.h" />
-    <ClInclude Include="CorrectCubemapsImpl.h" />
+    <ClInclude Include="CubeMapFix.h" />
     <ClInclude Include="GammaCorrectionImpl.h" />
     <ClInclude Include="HalfPixelCorrectionImpl.h" />
     <ClInclude Include="Pch.h" />

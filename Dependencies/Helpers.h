@@ -12,7 +12,7 @@
     static_assert(sizeof(type) == size, "sizeof assertion failed")
 
 #ifdef BASE_ADDRESS
-const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
+    static inline const HMODULE MODULE_HANDLE = GetModuleHandle(nullptr);
 
 #define ASLR(address) \
     ((size_t)MODULE_HANDLE + (size_t)address - (size_t)BASE_ADDRESS)

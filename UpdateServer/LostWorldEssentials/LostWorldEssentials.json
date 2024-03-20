@@ -5,28 +5,6 @@
       "DisplayName": "Wii U Accurate Visuals",
       "Elements": [
         {
-          "Name": "FxaaIntensity",
-          "Description":[
-            "Controls FXAA (Fast Approximate Anti-Aliasing) intensity.\n\n(Wii U Default: Very Low)"
-          ],
-          "DisplayName": "FXAA Intensity",
-          "Type": "FxaaIntensity",
-          "MinValue": null,
-          "MaxValue": null,
-          "DefaultValue":"1"
-        },
-        {
-          "Name": "FxaaLinearFiltering",
-          "Description": [
-            "Enables Linear Filtering instead of Point Filtering for FXAA (Fast Approximate Anti-Aliasing).\n\n(Wii U Default: False, Recommended: True)"
-          ],
-          "DisplayName": "FXAA Linear Filtering",
-          "Type": "bool",
-          "MinValue": null,
-          "MaxValue": null,
-          "DefaultValue": false
-        },
-        {
           "Name": "GammaCorrection",
           "Description": [
             "Applies the Gamma Correction controlled by the level's scene effect to the game."
@@ -71,6 +49,34 @@
           "DefaultValue": true
         }
       ]
+    },
+    {
+      "Name": "GraphicsTweaks",
+      "DisplayName": "Graphics Tweaks",
+      "Elements": [
+        {
+          "Name": "FxaaIntensity",
+          "Description":[
+            "Controls FXAA (Fast Approximate Anti-Aliasing) intensity."
+          ],
+          "DisplayName": "FXAA Intensity",
+          "Type": "FxaaIntensity",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue":"0"
+        },
+        {
+          "Name": "ProfilePictureQuality",
+          "Description": [
+            "Controls the quality the Profile Picture on the Main Menu is displayed at."
+          ],
+          "DisplayName": "Profile Picture Quality",
+          "Type": "ProfilePictureQuality",
+          "MinValue": null,
+          "MaxValue": null,
+          "DefaultValue": "1"
+        }
+      ]
     }
   ],
   "Enums":{
@@ -107,7 +113,30 @@
          "DisplayName":"Extreme",
          "Value":"7"
       }
+   ],
+   "ProfilePictureQuality":[
+    {
+        "Description": [
+          "Makes the game use the 32px version of the profile picture from Steam."
+        ],
+       "DisplayName":"Low",
+       "Value":"0"
+    },
+    {
+        "Description": [
+          "Makes the game use the 64px version of the profile picture from Steam.\n\n(This is the game's default.)"
+        ],
+       "DisplayName":"Medium",
+       "Value":"1"
+    },
+    {
+        "Description": [
+          "Makes the game use the 184px version of the profile picture from Steam."
+        ],
+       "DisplayName":"High",
+       "Value":"2"
+    }
    ]
    },
-  "IniFile": "LostWorldWiiUAccurateVisuals.ini"
+  "IniFile": "LostWorldEssentials.ini"
 }

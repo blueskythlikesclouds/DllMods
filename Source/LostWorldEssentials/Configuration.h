@@ -15,11 +15,11 @@ enum class FxaaIntensity : uint32_t
 class Configuration
 {
 public:
-	static inline FxaaIntensity fxaaIntensity;
-	static inline bool fxaaLinearFiltering{};
-	static inline bool gammaCorrection{};
-	static inline bool halfPixelCorrection{};
-	static inline bool correctCubemaps{};
+	static inline bool gammaCorrection = true;
+	static inline bool halfPixelCorrection = true;
+	static inline bool correctCubemaps = true;
+
+	static inline FxaaIntensity fxaaIntensity = FxaaIntensity::Intensity0;
 
 	static bool load();
 };

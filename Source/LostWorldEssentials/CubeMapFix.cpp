@@ -1,8 +1,8 @@
-#include "CorrectCubemapsImpl.h"
+#include "CubeMapFix.h"
 
 #include "Configuration.h"
 
-void CorrectCubemapsImpl::init(ModInfo_t* modInfo)
+void CubeMapFix::init(ModInfo_t* modInfo)
 {
 	if (!Configuration::correctCubemaps)
 		return;
