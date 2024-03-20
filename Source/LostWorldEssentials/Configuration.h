@@ -19,7 +19,7 @@ public:
 	static inline bool halfPixelCorrection = true;
 	static inline bool correctCubemaps = true;
 
-	static inline FxaaIntensity fxaaIntensity = FxaaIntensity::Intensity0;
+	static inline FxaaIntensity fxaaIntensity = FxaaIntensity::Disabled;
 
 	static bool load();
 };

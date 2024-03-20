@@ -11,7 +11,7 @@ bool Configuration::load()
     halfPixelCorrection = reader.GetBoolean("WiiUAccurateVisuals", "HalfPixelCorrection", true);
     correctCubemaps = reader.GetBoolean("WiiUAccurateVisuals", "CorrectCubemaps", true);
 
-    fxaaIntensity = static_cast<FxaaIntensity>(reader.GetInteger("GraphicsTweaks", "FxaaIntensity", static_cast<uint32_t>(FxaaIntensity::Intensity0)));
+    fxaaIntensity = static_cast<FxaaIntensity>(reader.GetInteger("GraphicsTweaks", "FxaaIntensity", static_cast<uint32_t>(FxaaIntensity::Disabled)));
 
     return true;
 }
