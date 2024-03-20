@@ -109,7 +109,7 @@ Patch "Higher Resolution Steam Profile Picture" in "Graphics" by "Skyth" does "C
     }
     else if (SonicLostWorldEssentialsConfig.ProfilePictureQuality == 1) // Medium
     {
-        // Do nothing, this is the game default
+        WriteProtected<byte>(ASLR(0x52528E), 0x8C);
     }
     else if (SonicLostWorldEssentialsConfig.ProfilePictureQuality == 2) // High
     {
