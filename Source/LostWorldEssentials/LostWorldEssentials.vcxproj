@@ -104,6 +104,7 @@
     <ClCompile Include="AntiAliasing.cpp" />
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="CubeMapFix.cpp" />
+    <ClCompile Include="DepthOfFieldFix.cpp" />
     <ClCompile Include="GammaCorrection.cpp" />
     <ClCompile Include="HalfPixelCorrection.cpp" />
     <ClCompile Include="Mod.cpp" />
@@ -113,15 +114,18 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="ProfilePictureQuality.cpp" />
     <ClCompile Include="WindowFix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AntiAliasing.h" />
     <ClInclude Include="Configuration.h" />
     <ClInclude Include="CubeMapFix.h" />
+    <ClInclude Include="DepthOfFieldFix.h" />
     <ClInclude Include="GammaCorrection.h" />
     <ClInclude Include="HalfPixelCorrection.h" />
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="ProfilePictureQuality.h" />
     <ClInclude Include="WindowFix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

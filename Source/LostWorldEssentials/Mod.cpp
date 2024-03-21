@@ -3,8 +3,10 @@
 #include "CubeMapFix.h"
 #include "GammaCorrection.h"
 #include "HalfPixelCorrection.h"
-#include "ModLoader.h"
+#include "DepthOfFieldFix.h"
+#include "ProfilePictureQuality.h"
 #include "WindowFix.h"
+#include "ModLoader.h"
 
 extern "C" void __declspec(dllexport) __cdecl Init(ModInfo_t* modInfo)
 {
@@ -21,5 +23,7 @@ extern "C" void __declspec(dllexport) __cdecl Init(ModInfo_t* modInfo)
 	GammaCorrection::init(modInfo);
 	HalfPixelCorrection::init(modInfo);
 	CubeMapFix::init(modInfo);
+	DepthOfFieldFix::init();
+	ProfilePictureQuality::init();
 	WindowFix::init();
 }

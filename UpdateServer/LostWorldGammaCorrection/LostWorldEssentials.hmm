@@ -1,71 +1,4 @@
-Library "SonicLostWorldEssentialsConfig"
-{
-	#lib "HMM"
-	#lib "INI"
-
-	public static bool IsInitialised = false;
-
-	public static bool DepthOfField = true;
-	public static int ProfilePictureQuality = 1;
-
-	[LibraryInitializer]
-	public void Init()
-	{
-		if (IsInitialised)
-			return;
-
-		var mod = HMM.GetModByID("bsthlc.lostworldessentials");
-		var modPath = mod.Path;
-		var configPath = System.IO.Path.Combine(modPath, "LostWorldEssentials.ini");
-
-		var iniData = INI.Read(configPath);
-
-        Console.WriteLine(configPath);
-
-		bool.TryParse(iniData["WiiUAccurateVisuals"]["DepthOfField"], out DepthOfField);
-		int.TryParse(iniData["GraphicsTweaks"]["ProfilePictureQuality"], out ProfilePictureQuality);
-
-		IsInitialised = true;
-	}
-}
-
-Patch "Fix Depth of Field Draw Order" in "Fixes/Graphics" by "Sajid & ĐeäTh" does "Changes the pseudo-dof implementation of the game into the proper one seen on Wii U."
-//
-	#lib "SonicLostWorldEssentialsConfig"
-
-    static int DofRes = (int)ASLR(0xFEFC7C);
-    static int GrassRes = (int)ASLR(0xFB6D1C);
-    static int ShadowRes = (int)ASLR(0xFB6D1D);
-    static int RetAddress = (int)ASLR(0x904E94);
-//
-{
-    SonicLostWorldEssentialsConfig.Init();
-
-    if (!SonicLostWorldEssentialsConfig.DepthOfField)
-        return;
-
-    WriteAsmHook
-    (
-        $@"mov al, byte ptr [edi+28Ch]
-        mov dl, [{DofRes}]
-        and al, dl
-        mov [edi+28Ch], al
-        cmp byte ptr [{GrassRes}], 0
-        sete cl
-        mov [edi+49Ch], cl
-        mov al, [{ShadowRes}]
-        mov [edi+4F4h], al
-
-        mov eax, {RetAddress}
-        jmp eax",
-        ASLR(0x904E64), HookBehavior.Replace
-    );
-}
-
 Patch "Fix Depth Effects on Intel GPUs" in "Fixes/Graphics" by "Skyth"
-//
-	#lib "SonicLostWorldEssentialsConfig"
-//
 {
     WriteAsmHook(ASLR(0xC2B233), HookBehavior.Replace, @"
     mov eax, dword ptr [ebp + 8]
@@ -94,39 +27,6 @@ Patch "Fix Depth Effects on Intel GPUs" in "Fixes/Graphics" by "Skyth"
     mov eax, [ecx + 0x64]
     mov ecx, [eax]
     ");
-}
-
-Patch "Higher Resolution Steam Profile Picture" in "Graphics" by "Skyth" does "Changes the Steam Profile Picture from the Medium (64px) size one to the Large (184px) one on the Main Menu."
-//
-	#lib "SonicLostWorldEssentialsConfig"
-//
-{
-    SonicLostWorldEssentialsConfig.Init();
-
-    if (SonicLostWorldEssentialsConfig.ProfilePictureQuality == 0) // Low
-    {
-        WriteProtected<byte>(ASLR(0x52528E), 0x88);
-    }
-    else if (SonicLostWorldEssentialsConfig.ProfilePictureQuality == 1) // Medium
-    {
-        WriteProtected<byte>(ASLR(0x52528E), 0x8C);
-    }
-    else if (SonicLostWorldEssentialsConfig.ProfilePictureQuality == 2) // High
-    {
-        WriteProtected<byte>(ASLR(0x52528E), 0x90);
-
-        WriteAsmHook(@"
-        mov esi, [ebp - 0x10]
-        imul esi, [ebp - 0x1C]
-        mov ebx, ecx
-        shl ebx, 2
-        add esi, ebx
-        add esi, [ebp - 0x18]
-
-        mov bl, [eax + 3]
-        movzx ebx, bl
-        ", ASLR(0x525376), HookBehavior.Replace);
-    }
 }
 
 Patch "Fix Steam Profile Picture" in "Fixes/Graphics" by "ĐeäTh" does "Fixes the steam profile picture used on the Title Menu being squashed and stretched."
