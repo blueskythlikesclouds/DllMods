@@ -1,3 +1,6 @@
+# Lost World Essentials v2.1
+Fix crash on boot on Steam Deck.
+
 # Lost World Essentials v2.0
 
 Gamma Correction has been rebranded to Lost World Essentials.

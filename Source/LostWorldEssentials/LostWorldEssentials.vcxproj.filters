@@ -9,6 +9,8 @@
     <ClCompile Include="AntiAliasing.cpp" />
     <ClCompile Include="CubeMapFix.cpp" />
     <ClCompile Include="WindowFix.cpp" />
+    <ClCompile Include="DepthOfFieldFix.cpp" />
+    <ClCompile Include="ProfilePictureQuality.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -18,5 +20,7 @@
     <ClInclude Include="AntiAliasing.h" />
     <ClInclude Include="CubeMapFix.h" />
     <ClInclude Include="WindowFix.h" />
+    <ClInclude Include="DepthOfFieldFix.h" />
+    <ClInclude Include="ProfilePictureQuality.h" />
   </ItemGroup>
 </Project>
