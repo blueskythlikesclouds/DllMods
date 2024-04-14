@@ -193,6 +193,11 @@ HOOK(void, __stdcall, InternalUpdate, 0xD6BE60, void* A1, void* A2)
         originalInternalUpdate(A1, A2);
 }
 
+void __fastcall setSoundSystemCriticalSection(boost::shared_ptr<Hedgehog::Base::CCriticalSectionD3D9>* criticalSection, void*, void*)
+{
+    *criticalSection = *reinterpret_cast<Hedgehog::Base::CSynchronizedObject*>(0x1E77270)->m_pCriticalSection;
+}
+
 extern "C" __declspec(dllexport) void Init(ModInfo* info)
 {
 #if _DEBUG
@@ -317,4 +322,16 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
 
     // Disable unnecessary sky rendering that angers the debug layer.
     WRITE_MEMORY(0x13DDB20, uint32_t, 0);
+
+    // For some reason, when using D3D11, sound system mutexes can
+    // deadlock each other due to incorrect order. We can fix it
+    // by making them the same mutex.
+    WRITE_NOP(0x760DBA, 5);
+    WRITE_MEMORY(0x760DC6, uint8_t, 0xEB);
+    WRITE_CALL(0x760DD9, setSoundSystemCriticalSection);
+
+    // The game over allocates index buffers when creating shared buffers
+    // as it has to convert them to degenerate triangles. We skip that process,
+    // so let's prevent it from allocating more memory.
+    WRITE_NOP(0x72EA3F, 3);
 }
