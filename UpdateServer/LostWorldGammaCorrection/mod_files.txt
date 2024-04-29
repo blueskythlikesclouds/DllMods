@@ -62,6 +62,5 @@ add dlc/0010/sonic2013_dlc_0010/zdlc01/zdlc01_trr_cmn_fix.pac
 add LostWorldEssentials.dll
 delete LostWorldGammaCorrection.dll
 add LostWorldEssentials.hmm
-add LostWorldEssentials.ini
 add LostWorldEssentials.json
 add mod.ini
