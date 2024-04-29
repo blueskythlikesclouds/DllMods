@@ -1,3 +1,7 @@
+# Lost World Essentials v2.2
+Added a fix for power-up visuals being delayed.
+Added a fix for power-ups disappearing after warping.
+
 # Lost World Essentials v2.1
 Fix crash on boot on Steam Deck.
 

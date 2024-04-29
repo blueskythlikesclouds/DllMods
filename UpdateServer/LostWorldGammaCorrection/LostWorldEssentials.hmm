@@ -800,3 +800,19 @@ WriteAsmHook
     add esp, 4",
     ASLR(0x4B974F), HookBehavior.Replace
 )
+
+Patch "Fix Delayed Power-Up Visuals" in "Fixes" by "ĐeäTh" does 
+/*
+Forces the shield power-up particles to always stick with the player as opposed to certain game mechanics (Grind Rails, Sand Slide, etc.) being able to 'outrun' it.
+
+This change also affects the particles that are spawned by the game's Super state.
+*/
+WriteNop(ASLR(0x008F1C14), 2);
+
+Patch "Fix Power-Ups Disappearing when Warping" in "Fixes" by "ĐeäTh" does 
+/*
+Makes power-ups persist through warps initiated by objects found in the base game.
+
+This behaviour was added in the 2.0.0 update on the Wii U for objects in the NiGHTS DLC (and subsequent DLCs), however the objects in the base game never got updated to behave like this.
+*/
+WriteNop(ASLR(0x008D2E37), 2);
