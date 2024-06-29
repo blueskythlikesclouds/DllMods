@@ -25,8 +25,8 @@
     GetProcAddress(LoadLibrary(TEXT(libraryName)), procName)
 
 #define HOOK(returnType, callingConvention, functionName, location, ...) \
-    typedef returnType callingConvention functionName(__VA_ARGS__); \
-    static functionName* original##functionName = (functionName*)(location); \
+    typedef returnType callingConvention functionName##Delegate(__VA_ARGS__); \
+    static functionName##Delegate* original##functionName = (functionName##Delegate*)(location); \
     static returnType callingConvention implOf##functionName(__VA_ARGS__)
 
 #define INSTALL_HOOK(functionName) \
@@ -38,15 +38,15 @@
     } while(0)
 
 #define VTABLE_HOOK(returnType, callingConvention, className, functionName, ...) \
-    typedef returnType callingConvention className##functionName(className* This, __VA_ARGS__); \
-    static className##functionName* original##className##functionName; \
+    typedef returnType callingConvention className##functionName##Delegate(className* This, __VA_ARGS__); \
+    static className##functionName##Delegate* original##className##functionName; \
     static returnType callingConvention implOf##className##functionName(className* This, __VA_ARGS__)
 
 #define INSTALL_VTABLE_HOOK(className, object, functionName, functionIndex) \
     do { \
         if (original##className##functionName == nullptr) \
         { \
-            original##className##functionName = (*(className##functionName***)object)[functionIndex]; \
+            original##className##functionName = (*(className##functionName##Delegate***)object)[functionIndex]; \
             DetourTransactionBegin(); \
             DetourUpdateThread(GetCurrentThread()); \
             DetourAttach((void**)&original##className##functionName, implOf##className##functionName); \
