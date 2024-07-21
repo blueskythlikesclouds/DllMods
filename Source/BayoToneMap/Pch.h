@@ -11,4 +11,6 @@
 #include <INIReader.h>
 #include <Helpers.h>
 
+#include <xxHash/xxhash.h>
+
 using Microsoft::WRL::ComPtr;

@@ -3,9 +3,12 @@
   <ItemGroup>
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="..\..\Dependencies\xxHash\xxhash.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ToneMap.hlsl" />
