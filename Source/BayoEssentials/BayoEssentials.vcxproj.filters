@@ -3,8 +3,14 @@
   <ItemGroup>
     <ClCompile Include="Pch.cpp" />
     <ClCompile Include="Mod.cpp" />
+    <ClCompile Include="QuickBoot.cpp" />
+    <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="Fmerge.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
+    <ClInclude Include="QuickBoot.h" />
+    <ClInclude Include="Memory.h" />
+    <ClInclude Include="Fmerge.h" />
   </ItemGroup>
 </Project>

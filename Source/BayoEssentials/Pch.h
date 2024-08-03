@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <vector>
 
 #include <INIReader.h>
 #include <Helpers.h>
