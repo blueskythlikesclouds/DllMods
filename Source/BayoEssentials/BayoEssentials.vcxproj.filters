@@ -6,11 +6,13 @@
     <ClCompile Include="QuickBoot.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Fmerge.cpp" />
+    <ClCompile Include="Awb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
     <ClInclude Include="QuickBoot.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Fmerge.h" />
+    <ClInclude Include="Awb.h" />
   </ItemGroup>
 </Project>

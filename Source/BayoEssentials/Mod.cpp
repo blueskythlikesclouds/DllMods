@@ -1,6 +1,7 @@
 #include "Memory.h"
 #include "QuickBoot.h"
 #include "Fmerge.h"
+#include "Awb.h"
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
@@ -17,6 +18,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 		Memory::init();
 		QuickBoot::init(reader);
 		Fmerge::init();
+		Awb::init();
 	}
 
 	return TRUE;
