@@ -45,18 +45,24 @@ static BOOL __stdcall criAtomPlayerSetWaveIdFileHook(CriAtomPlayerTag* player, C
 {
     void* binder = criAtomAwbTocGetBinderHandle(awb, nullptr);
 
-    auto adxFiles = &s_adxFilesBgm000;
-    if (strcmp(awb->path, "bgm\\BGM001.awb") == 0)
+    std::vector<AdxFile>* adxFiles = nullptr;
+
+    if (strcmp(awb->path, "bgm\\BGM000.awb") == 0)
+        adxFiles = &s_adxFilesBgm000;
+    else if (strcmp(awb->path, "bgm\\BGM001.awb") == 0)
         adxFiles = &s_adxFilesBgm001;
 
-    for (auto& adxFile : *adxFiles)
+    if (adxFiles != nullptr)
     {
-        if (adxFile.id == id)
+        for (auto& adxFile : *adxFiles)
         {
-            criAtomPlayerSetFileCore(player, binder, adxFile.path, 0, adxFile.size);
-            player->offset = 0;
-            player->size = adxFile.size;
-            return true;
+            if (adxFile.id == id)
+            {
+                criAtomPlayerSetFileCore(player, binder, adxFile.path, 0, adxFile.size);
+                player->offset = 0;
+                player->size = adxFile.size;
+                return true;
+            }
         }
     }
 
