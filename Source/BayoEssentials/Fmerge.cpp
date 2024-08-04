@@ -91,12 +91,9 @@ HOOK(void, __fastcall, RegisterResource, 0x439900, FileReadManagerWork* This)
 			{
 				if ((findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 				{
-					const char* fileName = This->fileData->identifier + 
-						This->fileData->fileNameTableOffset + sizeof(uint32_t);
-
 					for (size_t i = 0; i < This->fileData->fileNum; i++)
 					{
-						if (strcmp(fileName, findFileData.cFileName) == 0)
+						if (strcmp(This->fileData->getFileNameTable()->getName(i), findFileData.cFileName) == 0)
 						{
 							*This->fileData->getOffset(i) = 0;
 							*This->fileData->getSize(i) = findFileData.nFileSizeLow;
@@ -104,8 +101,6 @@ HOOK(void, __fastcall, RegisterResource, 0x439900, FileReadManagerWork* This)
 							foundAny = true;
 							break;
 						}
-
-						fileName += fileNameStride;
 					}
 				}
 			} while (FindNextFileA(hFindFile, &findFileData));
@@ -118,7 +113,7 @@ HOOK(void, __fastcall, RegisterResource, 0x439900, FileReadManagerWork* This)
 				header.offsetTableOffset = sizeof(FmergeHeader);
 				header.extensionTableOffset = header.offsetTableOffset + This->fileData->fileNum * sizeof(uint32_t);
 				header.fileNameTableOffset = header.extensionTableOffset + This->fileData->fileNum * sizeof(char[4]);
-				header.sizeTableOffset = alignUp(header.fileNameTableOffset, 0x4) + sizeof(uint32_t) + This->fileData->fileNum * fileNameStride;
+				header.sizeTableOffset = alignUp(header.fileNameTableOffset + sizeof(uint32_t) + This->fileData->fileNum * fileNameStride, 0x4);
 				header.padding0 = 0;
 				header.padding1 = 0;
 
