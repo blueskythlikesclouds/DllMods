@@ -2,14 +2,14 @@
 
 struct Heap
 {
-	INSERT_PADDING(0x24);
-	Heap* subHeap;
+    INSERT_PADDING(0x24);
+    Heap* subHeap;
 };
 
 HOOK(BOOL, __fastcall, HeapPhysicalCreate, 0xC6E540, Heap* This, void* _, size_t size, Heap* heap)
 {
-	This->subHeap = reinterpret_cast<Heap*>(0x5A57944);
-	return originalHeapPhysicalCreate(This, _, size, heap);
+    This->subHeap = reinterpret_cast<Heap*>(0x5A57944);
+    return originalHeapPhysicalCreate(This, _, size, heap);
 }
 
 void Memory::init()

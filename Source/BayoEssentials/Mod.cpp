@@ -5,21 +5,21 @@
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
-	if (reason == DLL_PROCESS_ATTACH)
-	{
+    if (reason == DLL_PROCESS_ATTACH)
+    {
 #ifdef _DEBUG
-		if (!GetConsoleWindow())
-			AllocConsole();
+        if (!GetConsoleWindow())
+            AllocConsole();
 
-		freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stdout);
 #endif
-		const INIReader reader("BayoEssentials.ini");
+        const INIReader reader("BayoEssentials.ini");
 
-		Memory::init();
-		QuickBoot::init(reader);
-		Fmerge::init();
-		Awb::init();
-	}
+        Memory::init();
+        QuickBoot::init(reader);
+        Fmerge::init();
+        Awb::init();
+    }
 
-	return TRUE;
+    return TRUE;
 }
