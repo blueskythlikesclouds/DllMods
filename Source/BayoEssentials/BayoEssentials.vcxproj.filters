@@ -7,6 +7,8 @@
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Fmerge.cpp" />
     <ClCompile Include="Awb.cpp" />
+    <ClCompile Include="Export.cpp" />
+    <ClCompile Include="Steam.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -14,5 +16,7 @@
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Fmerge.h" />
     <ClInclude Include="Awb.h" />
+    <ClInclude Include="Export.h" />
+    <ClInclude Include="Steam.h" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,8 @@
 #include "QuickBoot.h"
 #include "Fmerge.h"
 #include "Awb.h"
+#include "Export.h"
+#include "Steam.h"
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
@@ -13,12 +15,30 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 
         freopen("CONOUT$", "w", stdout);
 #endif
-        const INIReader reader("BayoEssentials.ini");
 
+        toml::table config;
+        std::ifstream stream("config.toml");
+        if (stream.is_open())
+        {
+            try
+            {
+                config = toml::parse(stream);
+            }
+
+            catch (std::exception& exception)
+            {
+                char text[0x400];
+                sprintf_s(text, "Failed to parse config.toml:\n%s", exception.what());
+                MessageBoxA(nullptr, text, "Bayonetta Essentials", MB_OK | MB_ICONERROR);
+            }
+        }
+
+        Export::init();
         Memory::init();
-        QuickBoot::init(reader);
+        QuickBoot::init(config);
         Fmerge::init();
         Awb::init();
+        Steam::init();
     }
 
     return TRUE;

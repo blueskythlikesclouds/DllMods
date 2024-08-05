@@ -109,6 +109,8 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="QuickBoot.cpp" />
+    <ClCompile Include="Export.cpp" />
+    <ClCompile Include="Steam.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Awb.h" />
@@ -116,6 +118,8 @@
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="QuickBoot.h" />
+    <ClInclude Include="Export.h" />
+    <ClInclude Include="Steam.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

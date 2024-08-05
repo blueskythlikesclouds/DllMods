@@ -2,5 +2,5 @@
 
 struct QuickBoot
 {
-    static void init(const INIReader& reader);
+    static void init(const toml::table& config);
 };

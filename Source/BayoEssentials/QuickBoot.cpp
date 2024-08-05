@@ -26,18 +26,18 @@ static void __declspec(naked) r000MidAsmHook()
     }
 }
 
-void QuickBoot::init(const INIReader& reader)
+enum QuickBootMode
 {
-    bool skipLogo = true;
-    bool autoSaveQuickBoot = false;
+    QUICK_BOOT_MODE_NORMAL,
+    QUICK_BOOT_MODE_TITLE,
+    QUICK_BOOT_MODE_AUTO_SAVE
+};
 
-    if (reader.ParseError() == 0)
-    {
-        skipLogo = reader.GetBoolean("Main", "SkipLogo", skipLogo);
-        autoSaveQuickBoot = reader.GetBoolean("Main", "AutoSaveQuickBoot", autoSaveQuickBoot);
-    }
+void QuickBoot::init(const toml::table& config)
+{
+    const auto mode = config["quickBoot"]["mode"].value_or(QUICK_BOOT_MODE_TITLE);
 
-    if (skipLogo || autoSaveQuickBoot)
+    if (mode >= QUICK_BOOT_MODE_TITLE)
     {
         // logo + movie skip
         WRITE_MEMORY(0x459CE5, uint8_t, 0x83, 0xC4, 0x10, 0x90, 0x90);
@@ -45,7 +45,7 @@ void QuickBoot::init(const INIReader& reader)
         WRITE_MEMORY(0x5A1C40, uint8_t, 0xC);
         WRITE_MEMORY(0x5A1C43, uint8_t, 0x8, 0x1);
 
-        if (autoSaveQuickBoot)
+        if (mode == QUICK_BOOT_MODE_AUTO_SAVE)
             WRITE_JUMP(0x5A1D35, r000MidAsmHook);
     }
 }
