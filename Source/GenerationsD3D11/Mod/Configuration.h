@@ -12,6 +12,7 @@ class Configuration
 public:
     static DisplayMode displayMode;
     static bool allowResizeInWindowed;
+    static bool lowLatencyMode;
     static bool disableShaderCompilerNotification;
     static bool compileShadersBeforeStarting;
 

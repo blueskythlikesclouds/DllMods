@@ -1,5 +1,6 @@
 ﻿#include "SwapChain.h"
 
+#include "Configuration.h"
 #include "Device.h"
 #include "RenderTargetSurface.h"
 #include "TypeConverter.h"
@@ -46,7 +47,7 @@ bool SwapChain::initialize(Device* device, D3DPRESENT_PARAMETERS* presentationPa
 
     swapChain1.As(&swapChain);
 
-    swapChain->SetMaximumFrameLatency(2);
+    swapChain->SetMaximumFrameLatency(Configuration::lowLatencyMode ? 1 : 2);
     waitHandle = swapChain->GetFrameLatencyWaitableObject();
 
     ComPtr<ID3D11Texture2D> backBuffer;
