@@ -29,7 +29,7 @@ bool SwapChain::initialize(Device* device, D3DPRESENT_PARAMETERS* presentationPa
     swapChainDesc.SampleDesc.Count = 1;
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.BufferCount = presentationParameters->BackBufferCount;
+    swapChainDesc.BufferCount = 3;
     swapChainDesc.Scaling = scaling;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -46,7 +46,7 @@ bool SwapChain::initialize(Device* device, D3DPRESENT_PARAMETERS* presentationPa
 
     swapChain1.As(&swapChain);
 
-    swapChain->SetMaximumFrameLatency(std::max(1u, presentationParameters->BackBufferCount - 1));
+    swapChain->SetMaximumFrameLatency(2);
     waitHandle = swapChain->GetFrameLatencyWaitableObject();
 
     ComPtr<ID3D11Texture2D> backBuffer;
@@ -59,8 +59,18 @@ bool SwapChain::initialize(Device* device, D3DPRESENT_PARAMETERS* presentationPa
     return true;
 }
 
-void SwapChain::present(Device* device, UINT syncInterval) const
+void SwapChain::wait()
 {
-    while (WaitForSingleObjectEx(waitHandle, 0, FALSE));
-    swapChain->Present(syncInterval, 0);
+    if (pendingWait)
+    {
+        WaitForSingleObject(waitHandle, INFINITE);
+        pendingWait = false;
+    }
+}
+
+void SwapChain::present(Device* device, UINT syncInterval)
+{
+    wait();
+    swapChain->Present(syncInterval, (syncInterval == 0) ? DXGI_PRESENT_ALLOW_TEARING : 0);
+    pendingWait = true;
 }

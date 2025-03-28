@@ -346,6 +346,11 @@ ID3D11DeviceContext* Device::getContext() const
     return deviceContext.Get();
 }
 
+SwapChain& Device::getSwapChain()
+{
+    return swapChain;
+}
+
 CriticalSection& Device::getCriticalSection()
 {
     return criticalSection;

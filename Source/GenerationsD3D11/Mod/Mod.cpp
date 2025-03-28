@@ -198,6 +198,14 @@ void __fastcall setSoundSystemCriticalSection(boost::shared_ptr<Hedgehog::Base::
     *criticalSection = *reinterpret_cast<Hedgehog::Base::CSynchronizedObject*>(0x1E77270)->m_pCriticalSection;
 }
 
+HOOK(int, __stdcall, SampleInput, 0xD683C0, float a1)
+{
+    if (auto appDocument = Sonic::CApplicationDocument::GetInstance())
+        reinterpret_cast<Device*>(appDocument->m_pMember->m_spRenderingInfrastructure->m_RenderingDevice.m_pD3DDevice)->getSwapChain().wait();
+
+    return originalSampleInput(a1);
+}
+
 extern "C" __declspec(dllexport) void Init(ModInfo* info)
 {
 #if _DEBUG
@@ -334,4 +342,7 @@ extern "C" __declspec(dllexport) void PostInit(ModInfo* info) // PostInit to pre
     // as it has to convert them to degenerate triangles. We skip that process,
     // so let's prevent it from allocating more memory.
     WRITE_NOP(0x72EA3F, 3);
+
+    // Wait for the swap chain right before sampling input to reduce input latency.
+    INSTALL_HOOK(SampleInput);
 }
