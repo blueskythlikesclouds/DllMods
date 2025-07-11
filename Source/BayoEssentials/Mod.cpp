@@ -4,6 +4,7 @@
 #include "Awb.h"
 #include "Export.h"
 #include "Steam.h"
+#include "MatrixLimit.h"
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
@@ -39,6 +40,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         Fmerge::init();
         Awb::init();
         Steam::init();
+        MatrixLimit::init();
     }
 
     return TRUE;

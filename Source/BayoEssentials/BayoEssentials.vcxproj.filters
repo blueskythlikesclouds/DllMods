@@ -9,6 +9,7 @@
     <ClCompile Include="Awb.cpp" />
     <ClCompile Include="Export.cpp" />
     <ClCompile Include="Steam.cpp" />
+    <ClCompile Include="MatrixLimit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pch.h" />
@@ -18,5 +19,6 @@
     <ClInclude Include="Awb.h" />
     <ClInclude Include="Export.h" />
     <ClInclude Include="Steam.h" />
+    <ClInclude Include="MatrixLimit.h" />
   </ItemGroup>
 </Project>

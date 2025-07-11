@@ -102,6 +102,7 @@
   <ItemGroup>
     <ClCompile Include="Awb.cpp" />
     <ClCompile Include="Fmerge.cpp" />
+    <ClCompile Include="MatrixLimit.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Mod.cpp" />
     <ClCompile Include="Pch.cpp">
@@ -117,6 +118,7 @@
   <ItemGroup>
     <ClInclude Include="Awb.h" />
     <ClInclude Include="Fmerge.h" />
+    <ClInclude Include="MatrixLimit.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="Pch.h" />
     <ClInclude Include="QuickBoot.h" />
