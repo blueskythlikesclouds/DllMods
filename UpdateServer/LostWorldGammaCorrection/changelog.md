@@ -1,3 +1,6 @@
+# Lost World Essentials v2.2.1
+* Fix assembler instruction error due to "Fix Parkour Trail Model" code. (https://github.com/hedge-dev/HMMCodes/pull/267)
+
 # Lost World Essentials v2.2
 * Added a fix for power-up visuals being delayed.
 * Added a fix for power-ups disappearing after warping.
