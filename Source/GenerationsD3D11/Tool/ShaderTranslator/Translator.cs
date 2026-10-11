@@ -347,7 +347,7 @@ namespace ShaderTranslator
             stringBuilder.AppendLine("void main(");
 
             bool isMetaInstancer = !isPixelShader && constants.Any(x => x.Name == "g_InstanceTypes");
-            // Converted fur shaders receive the shell index through stream 1.
+            // Use SV_InstanceID to determine the fur shell index.
             bool isFur = !isPixelShader && constants.Any(x => x.Name == "g_FurCount_Length_Bend_BendPow") &&
                 constants.Any(x => x.Name == "g_IndexCount") && !inSemantics.ContainsKey("TEXCOORD7");
 

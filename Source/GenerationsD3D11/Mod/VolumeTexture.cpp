@@ -53,7 +53,7 @@ HRESULT VolumeTexture::UnlockBox(UINT Level)
 
     if (!(lockFlags[Level] & D3DLOCK_READONLY))
     {
-        // D3D11 volume textures use RGBA, so we use the D3D9 lock exposes BGRA pixels
+       // Convert D3D9 A8R8G8B8 to D3D11 R8G8B8A8.
         std::vector<uint32_t> rgba(pixels[Level].size());
         for (size_t i = 0; i < rgba.size(); i++)
         {
