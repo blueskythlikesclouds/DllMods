@@ -33,7 +33,7 @@ extern "C" __declspec(dllexport) ID3D11Resource* GenerationsD3D11_GetResource(DX
 
 extern "C" __declspec(dllexport) ID3D11ShaderResourceView* GenerationsD3D11_GetShaderResourceView(DX_PATCH::IDirect3DBaseTexture9* dxpBaseTexture)
 {
-    return reinterpret_cast<Texture*>(dxpBaseTexture)->getSRV();
+    return reinterpret_cast<BaseTexture*>(dxpBaseTexture)->getSRV();
 }
 
 extern "C" __declspec(dllexport) ID3D11RenderTargetView* GenerationsD3D11_GetRenderTargetView(DX_PATCH::IDirect3DSurface9* dxpSurface)

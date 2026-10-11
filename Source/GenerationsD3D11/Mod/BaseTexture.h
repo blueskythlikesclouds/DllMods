@@ -4,8 +4,16 @@
 
 class BaseTexture : public Resource
 {
+protected:
+    ComPtr<ID3D11ShaderResourceView> srv;
+    bool isShadow{};
+
 public:
     BaseTexture(Device* device, ID3D11Resource* resource);
+
+    ID3D11ShaderResourceView* getSRV() const;
+    bool getIsShadow() const;
+    void setIsShadow(bool value);
 
     virtual DWORD SetLOD(DWORD LODNew) final;
     virtual DWORD GetLOD() final;

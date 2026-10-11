@@ -9,6 +9,7 @@
 #include "D3D9ExVertexBuffer.h"
 #include "D3D9ExVertexDeclaration.h"
 #include "D3D9ExVertexShader.h"
+#include "D3D9ExVolumeTexture.h"
 
 #include "Configuration.h"
 
@@ -205,9 +206,22 @@ HRESULT D3D9ExDevice::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD 
     return result;
 }
 
-HRESULT D3D9ExDevice::CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DVolumeTexture9** ppVolumeTexture, HANDLE* pSharedHandle)
+HRESULT D3D9ExDevice::CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3D9ExVolumeTexture** ppVolumeTexture, HANDLE* pSharedHandle)
 {
-    return d3dDevice->CreateVolumeTexture(Width, Height, Depth, Levels, Usage | (Pool == D3DPOOL_MANAGED ? D3DUSAGE_DYNAMIC : NULL), Format, Pool == D3DPOOL_MANAGED ? D3DPOOL_DEFAULT : Pool, ppVolumeTexture, pSharedHandle);
+    if (!ppVolumeTexture)
+        return D3DERR_INVALIDCALL;
+
+    *ppVolumeTexture = nullptr;
+    IDirect3DVolumeTexture9* texture;
+    const HRESULT result = d3dDevice->CreateVolumeTexture(Width, Height, Depth, Levels,
+        Usage | (Pool == D3DPOOL_MANAGED ? D3DUSAGE_DYNAMIC : 0), Format,
+        Pool == D3DPOOL_MANAGED ? D3DPOOL_DEFAULT : Pool, &texture, pSharedHandle);
+    if (FAILED(result))
+        return result;
+
+    *ppVolumeTexture = new D3D9ExVolumeTexture(this, texture);
+    texture->Release();
+    return S_OK;
 }
 
 HRESULT D3D9ExDevice::CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3D9ExCubeTexture** ppCubeTexture, HANDLE* pSharedHandle)

@@ -4,6 +4,21 @@ BaseTexture::BaseTexture(Device* device, ID3D11Resource* resource) : Resource(de
 {
 }
 
+ID3D11ShaderResourceView* BaseTexture::getSRV() const
+{
+    return srv.Get();
+}
+
+bool BaseTexture::getIsShadow() const
+{
+    return isShadow;
+}
+
+void BaseTexture::setIsShadow(bool value)
+{
+    isShadow = value;
+}
+
 FUNCTION_STUB(DWORD, BaseTexture::SetLOD, DWORD LODNew)
 
 FUNCTION_STUB(DWORD, BaseTexture::GetLOD)
@@ -15,6 +30,14 @@ DWORD BaseTexture::GetLevelCount()
     {
         D3D11_TEXTURE2D_DESC desc;
         tex->GetDesc(&desc);
+        return desc.MipLevels;
+    }
+
+    ComPtr<ID3D11Texture3D> volume;
+    if (resource && SUCCEEDED(resource.As(&volume)))
+    {
+        D3D11_TEXTURE3D_DESC desc;
+        volume->GetDesc(&desc);
         return desc.MipLevels;
     }
 

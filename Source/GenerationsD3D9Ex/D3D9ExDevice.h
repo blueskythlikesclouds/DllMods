@@ -12,6 +12,7 @@ class D3D9ExTexture;
 class D3D9ExVertexBuffer;
 class D3D9ExVertexDeclaration;
 class D3D9ExVertexShader;
+class D3D9ExVolumeTexture;
 class D3D9on11RenderTargetSurface;
 
 class D3D9ExDevice : public D3D9ExUnknown
@@ -63,7 +64,7 @@ public:
     virtual void SetGammaRamp(UINT iSwapChain, DWORD Flags, const D3DGAMMARAMP* pRamp) final;
     virtual void GetGammaRamp(UINT iSwapChain, D3DGAMMARAMP* pRamp) final;
     virtual HRESULT CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3D9ExTexture** ppTexture, HANDLE* pSharedHandle) final;
-    virtual HRESULT CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DVolumeTexture9** ppVolumeTexture, HANDLE* pSharedHandle) final;
+    virtual HRESULT CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3D9ExVolumeTexture** ppVolumeTexture, HANDLE* pSharedHandle) final;
     virtual HRESULT CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3D9ExCubeTexture** ppCubeTexture, HANDLE* pSharedHandle) final;
     virtual HRESULT CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, D3D9ExVertexBuffer** ppVertexBuffer, HANDLE* pSharedHandle) final;
     virtual HRESULT CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3D9ExIndexBuffer** ppIndexBuffer, HANDLE* pSharedHandle) final;

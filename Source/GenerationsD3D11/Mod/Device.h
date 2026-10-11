@@ -18,6 +18,7 @@ class VertexBuffer;
 class IndexBuffer;
 class VertexDeclaration;
 class VertexShader;
+class VolumeTexture;
 
 struct alignas(16) GlobalsVS
 {
@@ -89,7 +90,7 @@ class Device : public Unknown
     D3D11_DEPTH_STENCIL_DESC depthStencilState{};
     D3D11_RASTERIZER_DESC rasterizerState{};
     D3D11_BLEND_DESC blendState{};
-    ComPtr<Texture> textures[32];
+    ComPtr<BaseTexture> textures[32];
     D3D11_SAMPLER_DESC samplers[16]{};
     D3D11_RECT scissorRect{};
     D3D_PRIMITIVE_TOPOLOGY primitiveTopology{};
@@ -134,7 +135,7 @@ class Device : public Unknown
         dest = src;
     }
 
-    void setTexture(Texture* texture, size_t index);
+    void setTexture(BaseTexture* texture, size_t index);
     void setSamplerState(void* dest, const void* src, size_t byteSize, size_t index);
 
     template<typename T>
@@ -181,7 +182,7 @@ public:
     virtual void SetGammaRamp(UINT iSwapChain, DWORD Flags, const D3DGAMMARAMP* pRamp) final;
     virtual void GetGammaRamp(UINT iSwapChain, D3DGAMMARAMP* pRamp) final;
     virtual HRESULT CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, Texture** ppTexture, HANDLE* pSharedHandle) final;
-    virtual HRESULT CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DVolumeTexture9** ppVolumeTexture, HANDLE* pSharedHandle) final;
+    virtual HRESULT CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, VolumeTexture** ppVolumeTexture, HANDLE* pSharedHandle) final;
     virtual HRESULT CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, CubeTexture** ppCubeTexture, HANDLE* pSharedHandle) final;
     virtual HRESULT CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, VertexBuffer** ppVertexBuffer, HANDLE* pSharedHandle) final;
     virtual HRESULT CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IndexBuffer** ppIndexBuffer, HANDLE* pSharedHandle) final;
