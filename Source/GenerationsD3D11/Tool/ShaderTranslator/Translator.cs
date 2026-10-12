@@ -302,9 +302,7 @@ namespace ShaderTranslator
 
             stringBuilder.AppendLine("#define SHARED_FLAGS_ENABLE_ALPHA_TEST (1 << 0)");
             stringBuilder.AppendLine("#define SHARED_FLAGS_HAS_10_BIT_NORMAL (1 << 1)");
-            stringBuilder.AppendLine("#define SHARED_FLAGS_HAS_BINORMAL      (1 << 2)");
-            stringBuilder.AppendLine("#define SHARED_FLAGS_BICUBIC_GI        (1 << 3)");
-            stringBuilder.AppendLine("#define SHARED_FLAGS_ALPHA_TO_COVERAGE (1 << 4)\n");
+            stringBuilder.AppendLine("#define SHARED_FLAGS_HAS_BINORMAL      (1 << 2)\n");
 
             stringBuilder.AppendLine("cbuffer cbGlobalsShared : register(b1) {");
             stringBuilder.AppendLine("\tuint g_Booleans;");
@@ -341,18 +339,9 @@ namespace ShaderTranslator
                 }
             }
 
-            if (isPixelShader && constants.Any(x => x.Type == ConstantType.Sampler && x.Name == "g_GISampler"))
-                stringBuilder.AppendLine(TranslatorInternal.BicubicGI);
-
             stringBuilder.AppendLine("void main(");
 
             bool isMetaInstancer = !isPixelShader && constants.Any(x => x.Name == "g_InstanceTypes");
-            // Use SV_InstanceID to determine the fur shell index.
-            bool isFur = !isPixelShader && constants.Any(x => x.Name == "g_FurCount_Length_Bend_BendPow") &&
-                constants.Any(x => x.Name == "g_IndexCount") && !inSemantics.ContainsKey("TEXCOORD7");
-
-            if (isFur)
-                stringBuilder.AppendLine("\tin uint furShell : SV_InstanceID,");
 
             foreach (var semantic in inSemantics)
             {
@@ -412,8 +401,6 @@ namespace ShaderTranslator
 
             if (!isPixelShader)
                 stringBuilder.AppendLine("\tuint4 a0 = uint4(0, 0, 0, 0);");
-            else
-                stringBuilder.AppendLine("\tfloat2 pixelCoord = 0.0;");
 
             stringBuilder.AppendLine();
 
@@ -438,20 +425,6 @@ namespace ShaderTranslator
 
                 string instrLine = instruction.ToString();
 
-
-                if (isFur && instruction.OpCode == "rcp" && instruction.Arguments[1].Token == "g_IndexCount")
-                    instrLine = $"{instruction.Arguments[0]} = float(furShell) * 2.0;";
-
-                if (isPixelShader && instruction.OpCode == "texld")
-                {
-                    if (instruction.Arguments[2].Token == "g_GISampler")
-                        instrLine = instrLine.Replace("g_GISampler.Sample(g_GISampler_s, ", "sampleGI(g_GISampler, g_GISampler_s, ");
-
-                    if (samplers.TryGetValue("s0", out string textureType) && textureType == "2D" &&
-                        constants.Any(x => x.Type == ConstantType.Sampler && x.Register == 0 && x.Name == instruction.Arguments[2].Token))
-                        instrLine = $"if (g_Flags & SHARED_FLAGS_ALPHA_TO_COVERAGE) {{ uint width, height; {instruction.Arguments[2].Token}.GetDimensions(width, height); pixelCoord = (float2)({instruction.Arguments[1]}) * float2(width, height); }}\n\t" + instrLine;
-                }
-
                 if (instrLine.Contains('}')) --indent;
 
                 for (int j = 0; j < indent; j++)
@@ -468,12 +441,6 @@ namespace ShaderTranslator
             {
                 stringBuilder.AppendLine("\n\tif (g_Flags & SHARED_FLAGS_ENABLE_ALPHA_TEST) {");
                 stringBuilder.AppendLine("\t\tclip(oC0.w - g_AlphaThreshold);");
-                stringBuilder.AppendLine("\t}");
-                stringBuilder.AppendLine("\telse if (g_Flags & SHARED_FLAGS_ALPHA_TO_COVERAGE) {");
-                stringBuilder.AppendLine("\t\tfloat2 dx = ddx(pixelCoord), dy = ddy(pixelCoord);");
-                stringBuilder.AppendLine("\t\tfloat mip = max(0.0, 0.5 * log2(max(dot(dx, dx), dot(dy, dy))));");
-                stringBuilder.AppendLine("\t\toC0.w *= 1.0 + mip * 0.25;");
-                stringBuilder.AppendLine("\t\toC0.w = 0.5 + (oC0.w - g_AlphaThreshold) / max(fwidth(oC0.w), 1e-6);");
                 stringBuilder.AppendLine("\t}");
             }
 

@@ -136,10 +136,7 @@ FUNCTION_STUB(HRESULT, VertexDeclaration::GetDevice, Device** ppDevice)
 
 HRESULT VertexDeclaration::GetDeclaration(D3DVERTEXELEMENT9* pElement, UINT* pNumElements)
 {
-    if (!pNumElements)
-        return D3DERR_INVALIDCALL;
-    if (pElement)
-        memcpy(pElement, vertexElements.get(), (vertexElementCount + 1) * sizeof(D3DVERTEXELEMENT9));
+    memcpy(pElement, vertexElements.get(), (vertexElementCount + 1) * sizeof(D3DVERTEXELEMENT9));
     *pNumElements = vertexElementCount + 1;
 
     return S_OK;

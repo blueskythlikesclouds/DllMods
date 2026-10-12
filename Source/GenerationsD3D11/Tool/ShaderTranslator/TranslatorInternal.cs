@@ -2,33 +2,6 @@
 {
     internal static class TranslatorInternal
     {
-        public static string BicubicGI = @"
-float4 sampleGI(Texture2D<float4> image, SamplerState imageSampler, float2 uv)
-{
-    if (!(g_Flags & SHARED_FLAGS_BICUBIC_GI))
-        return image.Sample(imageSampler, uv);
-
-    uint width, height;
-    image.GetDimensions(width, height);
-    float2 dimensions = float2(width, height);
-    float2 pixel = uv * dimensions - 0.5;
-    float2 base = floor(pixel);
-    float2 f = pixel - base;
-    float2 w0 = (f * (f * (-f + 3.0) - 3.0) + 1.0) / 6.0;
-    float2 w1 = (f * f * (3.0 * f - 6.0) + 4.0) / 6.0;
-    float2 w2 = (f * (f * (-3.0 * f + 3.0) + 3.0) + 1.0) / 6.0;
-    float2 w3 = f * f * f / 6.0;
-    float2 g0 = w0 + w1;
-    float2 g1 = w2 + w3;
-    float2 h0 = (base - 0.5 + w1 / g0) / dimensions;
-    float2 h1 = (base + 1.5 + w3 / g1) / dimensions;
-    return g0.y * (g0.x * image.Sample(imageSampler, h0) +
-        g1.x * image.Sample(imageSampler, float2(h1.x, h0.y))) +
-        g1.y * (g0.x * image.Sample(imageSampler, float2(h0.x, h1.y)) +
-        g1.x * image.Sample(imageSampler, h1));
-}
-";
-
         public static string ColorCorrection = @"cbuffer cbGlobalsPS : register(b0)
 {
     // x = params.brightness
