@@ -1,3 +1,8 @@
+# Lost World Essentials v2.2.2
+* Fix assembler instruction errors on the following codes (https://github.com/hedge-dev/HMMCodes/pull/273)
+    * Fix Super Sonic Mouth Switching
+    * Fix Parkour Trail Model
+
 # Lost World Essentials v2.2.1
 * Fix assembler instruction error due to "Fix Parkour Trail Model" code. (https://github.com/hedge-dev/HMMCodes/pull/267)
 
