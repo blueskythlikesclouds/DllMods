@@ -195,6 +195,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="VolumeTexture.cpp">
+      <Filter>Textures</Filter>
+    </ClCompile>
+    <ClInclude Include="VolumeTexture.h">
+      <Filter>Textures</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <FxCompile Include="FVF.wvu.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>

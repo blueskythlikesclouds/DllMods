@@ -1,3 +1,7 @@
+# GenerationsD3D11 v1.7
+
+* Added support for volumetric fur rendering.
+
 # GenerationsD3D11 v1.6
 
 * Implemented a potential solution for a vanilla game bug where the game could get completely frozen and never resume. If this permanent freezing still occurs on your system, please let me know under the comments in the GameBanana page.

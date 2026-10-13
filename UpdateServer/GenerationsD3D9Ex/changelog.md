@@ -1,3 +1,7 @@
+# GenerationsD3D9Ex v1.5
+
+* Added support for volumetric fur rendering.
+ 
 # GenerationsD3D9Ex v1.4
 
 * Fixed the game window not appearing correctly on some multi-monitor systems.

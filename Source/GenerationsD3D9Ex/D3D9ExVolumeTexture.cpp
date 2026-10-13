@@ -9,25 +9,25 @@ D3D9ExVolumeTexture::~D3D9ExVolumeTexture() = default;
 
 HRESULT D3D9ExVolumeTexture::GetLevelDesc(UINT Level, D3DVOLUME_DESC* pDesc)
 {
-    return S_OK;
+    return d3dVolumeTexture->GetLevelDesc(Level, pDesc);
 }
 
 HRESULT D3D9ExVolumeTexture::GetVolumeLevel(UINT Level, IDirect3DVolume9** ppVolumeLevel)
 {
-    return S_OK;
+    return d3dVolumeTexture->GetVolumeLevel(Level, ppVolumeLevel);
 }
 
 HRESULT D3D9ExVolumeTexture::LockBox(UINT Level, D3DLOCKED_BOX* pLockedVolume, const D3DBOX* pBox, DWORD Flags)
 {
-    return S_OK;
+    return d3dVolumeTexture->LockBox(Level, pLockedVolume, pBox, Flags);
 }
 
 HRESULT D3D9ExVolumeTexture::UnlockBox(UINT Level)
 {
-    return S_OK;
+    return d3dVolumeTexture->UnlockBox(Level);
 }
 
 HRESULT D3D9ExVolumeTexture::AddDirtyBox(const D3DBOX* pDirtyBox)
 {
-    return S_OK;
+    return d3dVolumeTexture->AddDirtyBox(pDirtyBox);
 }

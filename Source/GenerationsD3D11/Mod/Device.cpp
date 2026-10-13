@@ -17,6 +17,7 @@
 #include "VertexBuffer.h"
 #include "VertexDeclaration.h"
 #include "VertexShader.h"
+#include "VolumeTexture.h"
 
 #define LOCK_GUARD() std::lock_guard lock(criticalSection)
 
@@ -201,7 +202,7 @@ void Device::setDirty(void* dest, const void* src, const size_t byteSize, const 
     dirty |= 1 << dirtyStateIndex;
 }
 
-void Device::setTexture(Texture* texture, const size_t index)
+void Device::setTexture(BaseTexture* texture, const size_t index)
 {
     if (textures[index].Get() == texture)
         return;
@@ -470,7 +471,40 @@ HRESULT Device::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage,
     return S_OK;
 }
 
-FUNCTION_STUB(HRESULT, Device::CreateVolumeTexture, UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DVolumeTexture9** ppVolumeTexture, HANDLE* pSharedHandle)
+HRESULT Device::CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage,
+    D3DFORMAT Format, D3DPOOL Pool, VolumeTexture** ppVolumeTexture, HANDLE* pSharedHandle)
+{
+    if (!ppVolumeTexture)
+        return D3DERR_INVALIDCALL;
+
+    *ppVolumeTexture = nullptr;
+    if (!Width || !Height || !Depth || Format != D3DFMT_A8R8G8B8 ||
+        (Usage & (D3DUSAGE_RENDERTARGET | D3DUSAGE_DEPTHSTENCIL)) || pSharedHandle)
+        return D3DERR_INVALIDCALL;
+
+    D3D11_TEXTURE3D_DESC desc{};
+    desc.Width = Width;
+    desc.Height = Height;
+    desc.Depth = Depth;
+    desc.MipLevels = Levels;
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+    ComPtr<ID3D11Texture3D> texture;
+    const HRESULT hr = device->CreateTexture3D(&desc, nullptr, texture.GetAddressOf());
+    if (FAILED(hr))
+        return hr;
+
+    VolumeTexture* volume = new VolumeTexture(this, texture.Get());
+    if (!volume->getSRV())
+    {
+        volume->Release();
+        return E_FAIL;
+    }
+    *ppVolumeTexture = volume;
+    return S_OK;
+}
 
 FUNCTION_STUB(HRESULT, Device::CreateCubeTexture, UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, CubeTexture** ppCubeTexture, HANDLE* pSharedHandle)
 
@@ -757,7 +791,7 @@ FUNCTION_STUB(HRESULT, Device::GetTexture, DWORD Stage, BaseTexture** ppTexture)
 
 HRESULT Device::SetTexture(DWORD Stage, BaseTexture* pTexture)
 {
-    setTexture(reinterpret_cast<Texture*>(pTexture), Stage);
+    setTexture(pTexture, Stage);
 
     // g_VerticalShadowMapSampler/g_ShadowMapSampler
     if (Stage == 7 || Stage == 13)
